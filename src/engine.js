@@ -139,6 +139,12 @@ export class Stage {
     g.globalAlpha = L.alpha;
     g.fillStyle = this.paint(g, name, cam); g.fill(path);
     g.clip(path);
+    if (name !== 'far') {
+      const body = this.film.body || [88, 64, 44], inner = Math.max(10, R0 - (name === 'main' ? 330 : 200));
+      const gb = g.createRadialGradient(0, 0, inner, 0, 0, R0 - (name === 'main' ? 70 : 40));
+      gb.addColorStop(0, rgb(body, 1)); gb.addColorStop(1, rgb(body, 0));
+      g.fillStyle = gb; g.fillRect(-1400, -1400, 2800, 2800);
+    }
     const gr = g.createRadialGradient(0, 0, R0 - 150, 0, 0, R0 + 80);
     gr.addColorStop(0, 'rgba(20,10,6,0.20)'); gr.addColorStop(0.75, 'rgba(20,10,6,0)'); gr.addColorStop(1, 'rgba(255,240,210,0.07)');
     g.fillStyle = gr; g.fillRect(-1400, -1400, 2800, 2800);
@@ -157,7 +163,9 @@ export class Stage {
   }
   // The paint on each disc changes along the globe: each era is painted where it stands.
   paint(g, name, cam) {
-    const L = LAYERS[name], col = (rel) => this.film.ground(name, cam + rel / L.sf);
+    const L = LAYERS[name], body = this.film.body || [88, 64, 44];
+    // seen whole, the far side of the planet is plain board, so the end of history never touches its start
+    const col = (rel) => { const c = this.film.ground(name, cam + rel / L.sf); return this.full ? mix(c, name === 'far' ? mix(body, [150, 140, 160], 0.4) : body, smooth((Math.abs(rel) - 95) / 70)) : c; };
     if (!g.createConicGradient) return rgb(col(0));
     const gr = g.createConicGradient(-Math.PI * 1.5, 0, 0), vis = this.full ? 180 : this.visE + 8;
     for (let rel = -180; rel <= 180; rel += Math.abs(rel) <= vis ? 3 : 15) gr.addColorStop((rel + 180) / 360, rgb(col(rel)));
@@ -213,9 +221,9 @@ export class Stage {
     const cam = film.cam(t), S = film.state(t, this);
     // camera: push in (zoom) and pull right back to see the whole planet (pull)
     const zoom = S.zoom || 1, pull = S.pull || 0;
-    const fit = Math.min(W * 0.4, H * 0.34) / this.R;
+    const fit = Math.min(W * 0.4, H * 0.29) / this.R;
     const z = lerp(zoom, fit, smooth(pull));
-    const top = lerp(this.hy, H * 0.5 - this.R * z, smooth(pull));
+    const top = lerp(this.hy, H * 0.52 - this.R * z, smooth(pull));
     const u = this.u * z, cy = top + this.R * z;
     this.eu = u; this.ecy = cy; this.eR = this.R * z; this.full = pull > 0.02;
     this.visE = this.full ? 180 : Math.asin(Math.min(1, (W / 2) / this.eR)) / DEG;

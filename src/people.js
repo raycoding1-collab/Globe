@@ -209,7 +209,8 @@ export function drawPerson(g, P, t, e, env, o) {
   if (o.walk !== undefined && P.legB) {
     g.save(); g.translate(-1.5, 0); g.rotate(Math.sin(o.walk + Math.PI) * 24 * DEG); put(g, P.legB, sh, 2, 3); g.restore();
     g.save(); g.translate(1.5, 0); g.rotate(Math.sin(o.walk) * 24 * DEG); put(g, P.legF, sh, 2, 3); g.restore();
-  } else put(g, P.legs, sh, 2, 3);
+  } else if (P.legs) put(g, P.legs, sh, 2, 3);
+  else { g.save(); g.translate(-1.5, 0); put(g, P.legB, sh, 2, 3); g.restore(); g.save(); g.translate(1.5, 0); put(g, P.legF, sh, 2, 3); g.restore(); }
   if (P.skirt) { g.save(); g.rotate((o.walk !== undefined ? Math.sin(o.walk * 2) * 2.5 : fbm(t * 0.5, 9) * 1.5) * DEG); put(g, P.skirt, sh, 2, 3); g.restore(); }
   g.rotate(o.lean * DEG);
   arm(g, P, -3, -35, o.back[0], o.back[1], 0, null);

@@ -12,6 +12,7 @@
 <body>
 <canvas id="stage"></canvas>
 <div id="caption" aria-live="polite"></div>
+<div id="end" aria-hidden="true"><h2>Everything So Far</h2><p>a short history of humanity, in cardboard</p></div>
 <div id="veil">
   <div class="card">
     <p class="kicker">a short history of humanity, in cardboard</p>
@@ -22,9 +23,11 @@
 </div>
 <div id="bar">
   <button id="play" type="button" aria-label="Pause"><svg viewBox="0 0 24 24"><path id="playIcon" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg></button>
+  <button id="chap" type="button" aria-label="Chapters" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zM4 11h16v2H4zM4 16h11v2H4z"/></svg></button>
   <button id="cc" type="button" aria-label="Captions" aria-pressed="true">CC</button>
   <input id="vol" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume">
 </div>
+<nav id="chapters" hidden aria-label="Chapters"></nav>
 <script type="module" src="src/main.js"></script>
 </body>
 </html>
