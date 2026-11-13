@@ -32,7 +32,11 @@ function pace(now) {
   const dt = now - lastNow; lastNow = now;
   if (!started || sound.paused || dt > 400) return;
   counted++; if (dt > 30) slow++;
-  if (counted >= 90) { if (slow > 45 && stage.q > 0.5) { stage.q *= 0.8; stage.lastT = -1; stage.W = 0; stage.resize(); } counted = slow = 0; }
+  if (counted >= 90) {
+    // a slow device gives up the bloom first, then a little sharpness
+    if (slow > 45) { if (!stage.lite) stage.lite = true; else if (stage.q > 0.5) { stage.q *= 0.8; stage.lastT = -1; stage.W = 0; stage.resize(); } }
+    counted = slow = 0;
+  }
 }
 function frame(now) {
   pace(now);
@@ -42,6 +46,7 @@ function frame(now) {
   else t = sound.time(now);
   stage.render(t);
   if (started || frozen !== null) { captions(t); ending(t); markChapter(t); }
+  if (started && sound.ended && !bar.classList.contains('show')) { setIcon(); bar.classList.add('show'); document.body.classList.remove('idle'); }
   if (frozen === null) requestAnimationFrame(frame);
   else window.__ready = true;
 }
@@ -52,15 +57,20 @@ window.__renderAt = (t) => { stage.lastT = -1; stage.render(t); captions(t); end
 // controls: begin, pause, chapters, captions, volume -- and nothing else
 const bar = $('bar'); let hideTimer = 0;
 const menuOpen = () => !$('chapters').hidden;
-function wake() { if (!started) return; bar.classList.add('show'); clearTimeout(hideTimer); hideTimer = setTimeout(() => { if (!menuOpen()) bar.classList.remove('show'); }, 2800); }
+let idleTimer = 0;
+function idle() { document.body.classList.remove('idle'); clearTimeout(idleTimer); idleTimer = setTimeout(() => { if (started && !menuOpen() && !sound.paused) document.body.classList.add('idle'); }, 2600); }
+function wake() { if (!started) return; idle(); bar.classList.add('show'); clearTimeout(hideTimer); hideTimer = setTimeout(() => { if (!menuOpen() && !sound.paused) bar.classList.remove('show'); }, 2800); }
 addEventListener('pointermove', wake); addEventListener('pointerdown', wake); addEventListener('keydown', wake);
 const setIcon = () => { $('playIcon').setAttribute('d', sound.paused ? 'M8 5v14l11-7z' : 'M7 5h3.5v14H7zM13.5 5H17v14h-3.5z'); $('play').setAttribute('aria-label', sound.paused ? 'Play' : 'Pause'); };
 function toggle() { if (!started) return; sound.ended ? sound.seek(0) : sound.toggle(); stage.lastT = -1; setIcon(); }
 $('begin').addEventListener('click', async () => {
   $('begin').disabled = true;
   const label = setTimeout(() => { $('begin').textContent = 'Loading…'; }, 250);
+  // a film, not a page: fill the screen and keep it awake
+  try { const fs = document.documentElement.requestFullscreen?.({ navigationUI: 'hide' }); fs?.catch?.(() => {}); } catch (e) {}
+  try { navigator.wakeLock?.request('screen').catch(() => {}); } catch (e) {}
   await sound.start(); clearTimeout(label); started = true; stage.lastT = -1;
-  $('veil').classList.add('gone'); wake();
+  $('veil').classList.add('gone'); idle();
 });
 $('play').addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
 canvas.addEventListener('click', () => { if (menuOpen()) return closeMenu(); if (matchMedia('(hover: hover)').matches) toggle(); else wake(); });

@@ -91,6 +91,7 @@ add('child', 'main', 8.3, { z: 2, flip: true, delay: 1.25, scale: PS });
 add('gazelle', 'main', 11.4, { z: 2, flip: true, popAt: EV.gazelleUp, foldAt: EV.pop + 0.12, alert: (t) => 0.25 + 0.75 * sramp(t, EV.gazelleUp + 0.9, EV.gazelleUp + 1.5) });
 for (const [a, v, f] of [[-47, 2, 0], [-17.5, 0, 0], [16.5, 1, 1], [46, 2, 0], [72, 0, 0], [86, 1, 1]]) add('acacia', 'main', a, { v, z: 0, flip: !!f });
 for (const [a, v, s, f] of [[-58, 1, 0.6, 0], [-33, 0, 0.5, 1], [-14.5, 2, 0.56, 0], [29, 1, 0.62, 1], [55, 0, 0.5, 0], [78, 2, 0.55, 1], [92, 1, 0.5, 0]]) add('acacia', 'mid', a, { v, scale: s, flip: !!f });
+for (const [a, f] of [[-27, 0], [-21.5, 1], [24, 1], [37, 0]]) add('gazelle', 'mid', a, { scale: 0.8, flip: !!f, alert: (t) => 0.95 - 0.7 * Math.max(0, Math.sin(t * 0.35 + a)) ** 6 });
 for (const [a, v, s] of [[-70, 0, 0.3], [-40, 2, 0.26], [-4, 1, 0.3], [48, 0, 0.28], [88, 2, 0.3], [150, 1, 0.3], [170, 0, 0.28]]) add('acacia', 'far', a, { v, scale: s });
 for (const [a, v] of [[-52, 0], [-28.5, 1], [-10.2, 2], [9.4, 0], [25, 1], [38, 2], [64, 1], [80, 0], [170, 2], [176, 1]]) add('rock', 'main', a, { v, z: 1 });
 const R = rng(5);
@@ -360,7 +361,7 @@ function state(t, stage) {
     snow: sramp(t, 61.5, 63.5) * (1 - sramp(t, 68.5, 70)),
     motes: lerp(0.5, 0.3, sramp(t, 4, 14)) + 0.3 * clamp(fire.lit) * (t < 55), moteColor: moteK(t),
     stencil: sramp(t, EV.hand + 0.3, EV.hand + 1.4),
-    screen, blink: sramp(t, 300, 302),
+    screen, blink: sramp(t, 300, 302), bloom: 0.16 + 0.34 * nightK,
     zoom, pull,
     fade: Math.max(1 - sramp(t, 0.1, 3.4), sramp(t, DURATION - 3.5, DURATION)),
   };
@@ -380,6 +381,7 @@ function sky(g, st, t, S) {
   const { W, H } = st, u = st.eu;
   g.setTransform(1, 0, 0, 1, 0, 0);
   guideStar(g, st, t);
+  birds(g, st, t);
   // the moon over the first fire
   if (t > 12 && t < 58) {
     const y = H * lerp(-0.12, 0.17, drop(t, 12.5, 51.5));
@@ -530,6 +532,26 @@ function overFx(g, st, t, S) {
 function bake(mk, mkSoft, stage) {
   const mkBig = (name, box, o = {}) => new BlurSheet(name, box, Math.max(1.4, Math.min(stage.W * 0.62, stage.H * 0.56) / 270 * 1.15), o, 0);
   return bakeFx(mk, mkSoft, mkBig);
+}
+
+// flocks of paper birds at dusk and dawn
+const FLOCKS = [[1.5, 12, -1, 0.3, 9], [53, 63, 1, 0.24, 7], [95, 105, 1, 0.2, 6], [208, 217, -1, 0.22, 7], [344, 358, 1, 0.26, 11]];
+function birds(g, st, t) {
+  const { W, H } = st, u = st.eu * 1.1;
+  for (const [t0, t1, dir, yf, n] of FLOCKS) {
+    if (t < t0 || t > t1) continue;
+    const k = (t - t0) / (t1 - t0);
+    for (let i = 0; i < n; i++) {
+      const lag = i * 0.035 + hash(i * 3 + t0) * 0.03, kk = k - lag; if (kk < 0 || kk > 1) continue;
+      const x = dir > 0 ? lerp(-0.1, 1.1, kk) * W : lerp(1.1, -0.1, kk) * W, row = (i % 2 ? 1 : -1) * Math.ceil(i / 2);
+      const y = st.hy * yf + row * 14 * u + Math.abs(row) * 8 * u * 0 + Math.sin(t * 1.3 + i) * 6 * u + (Math.abs(row) * 10 * u);
+      const flap = Math.sin(t * (7 + hash(i) * 2) + i * 1.7), s = u * (0.7 + hash(i * 7) * 0.3);
+      g.save(); g.translate(x - dir * Math.abs(row) * 18 * u, y);
+      for (const side of [-1, 1]) { g.save(); g.scale(side * s, s * (0.2 + 0.8 * Math.abs(flap)) * (flap > 0 ? 1 : -0.6)); put(g, st.fx.wing, 0); g.restore(); }
+      g.fillStyle = '#2b2420'; g.beginPath(); g.ellipse(0, 0, 4 * s, 2.2 * s, 0, 0, 7); g.fill();
+      g.restore();
+    }
+  }
 }
 
 // a guide star over the Pacific

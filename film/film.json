@@ -6,8 +6,9 @@
    "bm_lewis": 0.55,
    "bm_george": 0.45
   },
-  "speed": 0.86,
-  "lang": "en-gb"
+  "speed": 0.91,
+  "lang": "en-gb",
+  "pitch": -1
  },
  "chapters": [
   {
@@ -61,7 +62,7 @@
  ],
  "narration": [
   {
-   "t": 2.2,
+   "t": 3.6,
    "text": "For millions of years, our ancestors lived as other animals do: when the sun went down, the day was over."
   },
   {

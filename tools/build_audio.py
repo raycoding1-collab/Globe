@@ -419,7 +419,7 @@ def ambience(dur, EV):
         if g < 0.02: continue
         ln = int((0.002 + rs.rand() ** 2 * 0.012) * SR); f0 = 900 + rs.rand() ** 2 * 5000
         pop = bp(np.concatenate([rs.randn(ln), np.zeros(600)]), f0, min(f0 * 2.2, 12000)) * np.exp(-np.arange(ln + 600) / (ln * 0.6))
-        place(out, pop, k, g * min(0.5, 0.05 + rs.pareto(2.5) * 0.05), rs.randn() * 0.15)
+        place(out, pop, k, g * min(0.22, 0.05 + rs.pareto(2.5) * 0.05), rs.randn() * 0.15)
     # breaths on the ember; the pop of sap that ends the gazelle's curiosity
     for b in EV['blows']:
         m = int(0.75 * SR); place(out, bp(rs.randn(m), 500, 2600) * np.sin(np.linspace(0, np.pi, m)) ** 1.5 * 0.07, b, 1, -0.1)
@@ -478,7 +478,7 @@ def ambience(dur, EV):
     for tl in EV['lamps']:
         m, tv = tvec(0.6); place(out, lp(rs.randn(m), 800) * np.exp(-tv / 0.15) * np.minimum(1, tv / 0.05) * 0.08, tl, 1, 0.2)
     # electricity: a click, a hum
-    m, tv = tvec(0.05); place(out, bp(rs.randn(m), 1500, 7000) * np.exp(-tv / 0.004) * 0.3, EV['lights'] - 0.02, 1, 0)
+    m, tv = tvec(0.05); place(out, bp(rs.randn(m), 1500, 7000) * np.exp(-tv / 0.004) * 0.07, EV['lights'] - 0.02, 1, 0)
     elec = W([(0, 0), (EV['lights'], 0), (EV['lightsFull'], 1), (339, 0.8), (346, 0), (dur, 0)])
     for ch in range(2): out[:, ch] += (np.sin(TAU * 60 * t) * 0.006 + np.sin(TAU * 120 * t) * 0.004 + np.sin(TAU * 180 * t) * 0.002) * elec
     # the rocket, and a small knock as it lands on the moon
@@ -521,7 +521,15 @@ def main():
         sl = slice(t0 * SR, (t0 + 12) * SR)
         print(f'   {t0:3d}s  voice {db(voice[sl]):6.1f}  music {db(music[sl] * duck[sl, None]):6.1f}  amb {db(amb[sl]):6.1f}  mix {db(mix[sl]):6.1f}')
     print(f'  overall: voice {db(voice[gate > 0]):.1f} (while speaking)  music {db(music):.1f}  amb {db(amb):.1f}  mix {db(mix):.1f}  peak {np.abs(mix).max():.2f}')
-    mix = np.tanh(mix * 1.05) * 0.95
+    # loud enough for a phone speaker, without ever clipping: a look-ahead limiter
+    from scipy.ndimage import maximum_filter1d, minimum_filter1d
+    mix *= 10 ** (3 / 20)
+    env = maximum_filter1d(np.abs(mix).max(axis=1), size=int(0.006 * SR))
+    gain = minimum_filter1d(np.minimum(1.0, 0.92 / np.maximum(env, 1e-9)), size=int(0.012 * SR))
+    gain = np.minimum(gain, signal.sosfiltfilt(sos('lowpass', 12, 1), gain))
+    mix *= gain[:, None]
+    print(f'  limiter: max reduction {20 * np.log10(gain.min()):.1f} dB, final rms {db(mix):.1f} dBFS, peak {np.abs(mix).max():.2f}')
+    mix = np.clip(mix, -0.98, 0.98)
     os.makedirs(os.path.join(ROOT, 'assets/audio'), exist_ok=True)
     wav = os.path.join(ROOT, '.cache', 'film.wav'); os.makedirs(os.path.dirname(wav), exist_ok=True)
     sf.write(wav, mix, SR)

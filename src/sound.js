@@ -4,8 +4,8 @@
 export class Sound {
   constructor(src, duration) {
     this.duration = duration;
-    this.el = new Audio(); this.el.preload = 'auto';
-    this.ready = fetch(src).then((r) => { if (!r.ok) throw 0; return r.blob(); }).then((b) => { this.el.src = URL.createObjectURL(b); }).catch(() => { this.el.src = src; });
+    // streamed, so the film can start as soon as the first seconds have arrived
+    this.el = new Audio(); this.el.preload = 'auto'; this.el.src = src;
     this.el.addEventListener('error', () => { this.broken = true; });
     this.el.addEventListener('ended', () => { this.ended = true; this.paused = true; });
     this.paused = true; this.ended = false; this.vol = 1;
@@ -19,7 +19,6 @@ export class Sound {
       if (this.ac.state === 'suspended') this.ac.resume();
     }
     this.paused = false; this.anchorNow = performance.now();
-    if (!this.el.src) await this.ready;
     try { await this.el.play(); } catch (e) { this.broken = true; }
   }
   // Film time in seconds. Follows the audio element, smoothed with the frame clock.

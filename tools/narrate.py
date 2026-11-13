@@ -31,6 +31,8 @@ def say(text, v):
     spoken = text.replace('1450', 'fourteen fifty').replace('1492', 'fourteen ninety-two').replace('1610', 'sixteen ten').replace('1903', 'nineteen oh three').replace('1800', 'eighteen hundred').replace('Uruk', 'Oorook').replace('Gutenberg', 'Gootenberg')
     y, sr = k.create(spoken, voice=style, speed=v['speed'], lang=v['lang'])
     y = signal.resample_poly(y, SR, sr).astype(np.float64)
+    # a semitone deeper: played a little slower, the voice sounds larger and calmer
+    if v.get('pitch') == -1: y = signal.resample_poly(y, 1000, 944)
     idx = np.where(np.abs(y) > 0.012)[0]
     y = y[max(0, idx[0] - 300): idx[-1] + 2600]
     y = y / (np.abs(y).max() + 1e-9) * 0.7

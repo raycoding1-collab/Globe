@@ -189,7 +189,7 @@ export class Stage {
     g.save();
     g.rotate(rel * DEG);
     g.translate(0, -(L.rf * 1000 + (e.ground === false ? 0 : prof ? prof(a) : 0) + (e.y || 0) + (e.lift ? e.lift(t) : 0)));
-    g.rotate((wob * (e.wob ?? 1) + (e.rot ? e.rot(t) : 0)) * DEG);
+    g.rotate((wob * (e.wob ?? 1) + (e.rot ? e.rot(t) : 0) + fbm(t * 0.3 + e.a * 1.3, 97) * 0.4) * DEG);
     g.scale((e.flip ? -1 : 1) * (1 - (sy - 1) * 0.35), sy);
     if (e.scale) g.scale(e.scale, e.scale);
     env.sh = L.sh * clamp(p * 1.4);
@@ -376,6 +376,19 @@ export class Stage {
     }
 
     // ---- the camera and the film stock ----------------------------------------
+    // bloom: the brightest parts of the frame, blurred and laid back over it
+    const bloom = this.lite ? 0 : S.bloom ?? 0.3;
+    if (bloom > 0.01) {
+      const bw = Math.ceil(W / 8), bh = Math.ceil(H / 8);
+      if (!this.bloomA || this.bloomA.width !== bw) { this.bloomA = makeCanvas(bw, bh); this.bloomB = makeCanvas(Math.ceil(bw / 4), Math.ceil(bh / 4)); }
+      const ba = this.bloomA.getContext('2d'), bb = this.bloomB.getContext('2d');
+      ba.globalCompositeOperation = 'copy'; ba.imageSmoothingQuality = 'high'; ba.drawImage(this.canvas, 0, 0, bw, bh);
+      ba.globalCompositeOperation = 'multiply'; for (let i = 0; i < 3; i++) ba.drawImage(this.bloomA, 0, 0);
+      bb.globalCompositeOperation = 'copy'; bb.imageSmoothingQuality = 'high'; bb.drawImage(this.bloomA, 0, 0, bb.canvas.width, bb.canvas.height);
+      ba.globalCompositeOperation = 'source-over'; ba.globalAlpha = 0.7; ba.drawImage(this.bloomB, 0, 0, bw, bh); ba.globalAlpha = 1;
+      g.globalCompositeOperation = 'screen'; g.globalAlpha = bloom; g.imageSmoothingQuality = 'high';
+      g.drawImage(this.bloomA, 0, 0, W, H);
+    }
     g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
     g.imageSmoothingQuality = 'high';
     g.drawImage(this.vignette, 0, 0, W, H);
@@ -384,7 +397,9 @@ export class Stage {
     const tile = this.grainTiles[((fr % 3) + 3) % 3], ox = Math.floor(hash(fr) * 256), oy = Math.floor(hash(fr + 99) * 256), gs = Math.max(1, Math.round(this.dpr * 0.9)) * 256;
     for (let y = -oy * gs / 256; y < H; y += gs) for (let x = -ox * gs / 256; x < W; x += gs) g.drawImage(tile, x, y, gs, gs);
     g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
-    if (S.fade > 0.003) { g.fillStyle = `rgba(6,4,5,${S.fade})`; g.fillRect(0, 0, W, H); }
+    const flicker = 0.014 * (0.5 + 0.5 * Math.sin(t * 23.3) * Math.sin(t * 7.7 + 1)) + 0.006 * hash(fr * 7);
+    const fade = Math.min(1, (S.fade || 0) + flicker);
+    if (fade > 0.003) { g.fillStyle = `rgba(6,4,5,${fade})`; g.fillRect(0, 0, W, H); }
     this.lastT = t;
   }
 
