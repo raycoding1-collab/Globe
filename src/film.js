@@ -134,16 +134,16 @@ grassRun(178, 206, 4, 'front', { s: 2 });
 add('person', 'main', 214.6, { v: 'farmer', scale: P2, z: 2, act: (t) => ({ lean: 30 + Math.max(0, Math.sin((t - EV.seed) * 6)) * 6 * (t > EV.seed - 1 && t < EV.seed + 0.8), front: [-30, -10], back: [-20, -30] }) });
 add('sprout', 'main', 216.2, { z: 3, grow: EV.seed + 0.9, scale: 1.4, popAt: EV.seed + 0.9, loud: 0.5 });
 const crop = (kind, angles, t0, o = {}) => angles.forEach((a, i) => add(kind, 'main', a, { z: 1, popAt: t0 + i * 0.14, loud: 0.6, v: i % 3, ...o }));
-crop('wheat', [227, 229.2, 231.4, 233.6, 235.8, 238], EV.crops[0]);
+crop('wheat', [226.6, 228.8, 231, 233.2, 235.4, 237.6], EV.crops[0], { scale: 1.6 });
 add('person', 'main', 236.8, { v: 'farmer2', scale: P2, z: 2, popAt: EV.crops[0] + 0.5 });
-crop('rice', [242, 244.6, 247.2], EV.crops[1]);
-crop('millet', [249.6, 251.6], EV.crops[1] + 0.45);
+crop('rice', [242, 244.6, 247.2], EV.crops[1], { scale: 1.45 });
+crop('millet', [249.6, 251.6], EV.crops[1] + 0.45, { scale: 1.5 });
 add('person', 'main', 245.4, { v: 'riceF', scale: P2, z: 2, popAt: EV.crops[1] + 0.3, act: (t) => ({ lean: 26, front: [-40, -20], back: [-30, -20] }) });
-crop('maize', [255, 257.6, 260.2], EV.crops[2]);
+crop('maize', [255, 257.6, 260.2], EV.crops[2], { scale: 1.15 });
 add('person', 'main', 258.8, { v: 'maizeF', scale: P2, z: 2, popAt: EV.crops[2] + 0.4 });
-crop('potato', [265, 267.2, 269.4], EV.crops[3], { over: true });
+crop('potato', [265, 267.2, 269.4], EV.crops[3], { over: true, scale: 1.35 });
 add('person', 'main', 268.3, { v: 'andean', scale: P2, z: 2, popAt: EV.crops[3] + 0.4 });
-crop('sorghum', [276, 278.6, 281.2], EV.crops[4]);
+crop('sorghum', [276, 278.6, 281.2], EV.crops[4], { scale: 1.2 });
 add('person', 'main', 279.6, { v: 'sahel', scale: P2, z: 2, popAt: EV.crops[4] + 0.4 });
 for (const [a, v] of [[287, 0], [293.5, 1], [300, 0]]) add('hut', 'main', a, { v, z: 0 });
 for (const a of [290.4, 296.8]) add('sheep', 'main', a, { v: (R() * 3) | 0, z: 2 });
@@ -390,6 +390,15 @@ function sky(g, st, t, S) {
     g.globalCompositeOperation = 'screen'; g.fillStyle = gl; g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over';
     st.hang(g, st.fx.moon, W * 0.71, y, 1, Math.sin(t * 0.5) * 1.6 * DEG * (1 + 3 * Math.exp(-Math.max(0, t - 12.5) / 4)), 1, -0.35);
   }
+  // in the long days a paper sun hangs on its thread
+  for (const [t0, t1] of [[99, 184], [213, 237.5]]) {
+    if (t < t0 - 0.5 || t > t1 + 3) continue;
+    const k = drop(t, t0, t1), sx = W * (st.aspectK > 0.4 ? 0.16 : 0.2), sy = H * lerp(-0.25, 0.13, k);
+    g.globalCompositeOperation = 'screen';
+    const gl = g.createRadialGradient(sx, sy, 0, sx, sy, 300 * u); gl.addColorStop(0, `rgba(255,236,190,${0.35 * clamp(k)})`); gl.addColorStop(1, 'rgba(255,230,180,0)');
+    g.fillStyle = gl; g.fillRect(sx - 300 * u, sy - 300 * u, 600 * u, 600 * u); g.globalCompositeOperation = 'source-over';
+    st.hang(g, st.fx.sun, sx, sy, 0.75, Math.sin(t * 0.4) * 1.2 * DEG, 1, t * 0.03);
+  }
   // Jupiter, and four moons in a line, as Galileo drew them
   if (t > 253 && t < 270) {
     const k = drop(t, EV.jupiter, 266.5), jx = W * (st.aspectK > 0.4 ? 0.7 : 0.62), jy = H * lerp(-0.2, 0.2, k), s = 1.3;
@@ -489,7 +498,8 @@ function overFx(g, st, t, S) {
       if (vis > 0.01) {
         const [, x1, y1] = TABLET_MARKS[j], [, x0, y0] = TABLET_MARKS[Math.max(0, j - 1)], prev = j ? times[j - 1] : times[0] - 1;
         const k = smooth(clamp((t - prev - 0.15) / Math.max(0.2, times[j] - prev - 0.3))), press = Math.exp(-(((t - times[j]) / 0.11) ** 2));
-        g2.save(); g2.globalAlpha = vis; g2.translate(lerp(x0, x1, k) + 4, lerp(y0, y1, k) - 4 - (1 - press) * 10); g2.rotate(0.55); put(g2, st.fx.stylus, 0.5, 6, 8); g2.restore();
+        g2.save(); g2.globalAlpha = vis; g2.translate(lerp(x0, x1, k) + 4, lerp(y0, y1, k) - 4 - (1 - press) * 10 - (1 - vis) * 120); g2.rotate(0.55); put(g2, st.fx.stylus, 0.5, 6, 8);
+        g2.translate(1, -58); g2.rotate(-0.12 + Math.sin(t * 1.3) * 0.02); put(g2, st.fx.hand, 0.5, 10, 14); g2.restore();
       }
     });
     const rise2 = clamp(spring(t - EV.three[1], 5.5, 0.55), 0, 1.3), rise3 = clamp(spring(t - EV.three[2], 5.5, 0.55), 0, 1.3), s2 = base * (W > H ? 0.62 : 0.46);

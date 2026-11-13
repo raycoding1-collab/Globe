@@ -94,7 +94,7 @@ def hum(f, dur, vel=1.0, vowel='m'):
     return y * env_ar(n, 0.22 if vowel == 'm' else 0.35, 0.45) * vel * 0.5
 
 def choir(f, dur, vel=1.0, vowel='a'):
-    return sum(hum(f * (1 + d), dur, vel * 0.42, vowel) for d in (-0.004, 0.0, 0.0045))
+    return sum(hum(f * (1 + d), dur, vel * 0.3, vowel) for d in (-0.0065, -0.0025, 0.0, 0.003, 0.0068))
 
 def drum(vel=1.0, f0=78.0, damp=1.0):
     n, t = tvec(1.1)
@@ -179,17 +179,19 @@ def bell(f, dur=6.0, vel=1.0):
         y += a * np.sin(TAU * f * r_ * t + rs.rand()) * np.exp(-t / d)
     return y * vel * 0.25
 
-def bowed(f, dur, vel=1.0, bright=2400, attack=0.35, voices=2, vib=0.004):
-    """Strings: detuned bowed voices, soft attack, gentle vibrato."""
+def bowed(f, dur, vel=1.0, bright=2400, attack=0.35, voices=3, vib=0.004):
+    """Strings: a small section of bowed voices. Each player is a little out of tune with
+    the next, and every partial drifts in level, the way real bowing never holds still."""
     n, t = tvec(dur + 0.6); y = np.zeros(n)
     for v in range(voices):
-        det = 1 + (v - (voices - 1) / 2) * 0.0035
-        ph = TAU * np.cumsum(f * det * vibrato(t, 5.2 + v * 0.3, vib, 0.25, rs.randint(1e6))) / SR
+        det = 1 + (v - (voices - 1) / 2) * 0.004 + (rs.rand() - 0.5) * 0.002
+        ph = TAU * np.cumsum(f * det * vibrato(t, 4.8 + v * 0.45 + rs.rand() * 0.3, vib * (0.8 + 0.4 * rs.rand()), 0.2 + 0.2 * rs.rand(), rs.randint(1e6))) / SR
         for k in range(1, 30):
             fk = f * k
             if fk > 7000: break
-            a = (1 / k) / (1 + (fk / bright) ** 2) * (1 + 0.6 / (1 + ((fk - 480) / 200) ** 2))
-            y += a * np.sin(k * ph + rs.rand() * 6)
+            a = (1 / k) / (1 + (fk / bright) ** 2) * (1 + 0.6 / (1 + ((fk - 480) / 200) ** 2) + 0.35 / (1 + ((fk - 2900) / 500) ** 2))
+            shimmer = 1 + 0.35 * (slow_noise(n, 2.5 + k * 0.15, rs.randint(1e6)) - 0.5)
+            y += a * shimmer * np.sin(k * ph + rs.rand() * 6)
     y += bp(rs.randn(n), 1500, 6000) * 0.012 * voices
     return y * env_ar(n, attack, 0.6) * vel * 0.28 / voices
 
