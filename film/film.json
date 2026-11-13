@@ -1,0 +1,263 @@
+{
+ "name": "film",
+ "duration": 374,
+ "voice": {
+  "blend": {
+   "bm_lewis": 0.55,
+   "bm_george": 0.45
+  },
+  "speed": 0.86,
+  "lang": "en-gb"
+ },
+ "chapters": [
+  {
+   "t": 0,
+   "title": "Fire"
+  },
+  {
+   "t": 53,
+   "title": "Walking out"
+  },
+  {
+   "t": 91,
+   "title": "Farming"
+  },
+  {
+   "t": 121,
+   "title": "Cities and writing"
+  },
+  {
+   "t": 168,
+   "title": "Roads and oceans"
+  },
+  {
+   "t": 206,
+   "title": "Printing"
+  },
+  {
+   "t": 225,
+   "title": "Two worlds meet"
+  },
+  {
+   "t": 250,
+   "title": "Science"
+  },
+  {
+   "t": 266,
+   "title": "Industry"
+  },
+  {
+   "t": 291,
+   "title": "Electric light"
+  },
+  {
+   "t": 317,
+   "title": "The networked world"
+  },
+  {
+   "t": 339,
+   "title": "Everything so far"
+  }
+ ],
+ "narration": [
+  {
+   "t": 2.2,
+   "text": "For millions of years, our ancestors lived as other animals do: when the sun went down, the day was over."
+  },
+  {
+   "t": 12.6,
+   "text": "Then someone, somewhere, learned to keep a fire alive."
+  },
+  {
+   "t": 29.6,
+   "text": "No one knows who, or when. Burnt bone in a South African cave hints at fire a million years ago, though everyday use may have come much later."
+  },
+  {
+   "t": 47.6,
+   "text": "Either way, for the first time, the day did not end when the sun did."
+  },
+  {
+   "t": 56.0,
+   "text": "The oldest fossils of our own species, found in Morocco, are around three hundred thousand years old."
+  },
+  {
+   "t": 64.4,
+   "text": "From Africa, people spread across the world: by sea to Australia at least fifty thousand years ago, and into the Americas before the Ice Age ended."
+  },
+  {
+   "t": 78.4,
+   "text": "On a cave wall in Indonesia, someone left the outline of a hand at least sixty-seven thousand years ago. It is the oldest cave art we know."
+  },
+  {
+   "t": 92.6,
+   "text": "Starting around eleven thousand years ago, in several parts of the world, separately, people began to farm."
+  },
+  {
+   "t": 101.6,
+   "text": "Wheat and barley in the Middle East. Rice and millet in China. Maize in Mexico. Potatoes in the Andes. Sorghum in Africa."
+  },
+  {
+   "t": 115.4,
+   "text": "It was hard work. But a field can feed far more people than a forest."
+  },
+  {
+   "t": 122.6,
+   "text": "Villages became towns, and towns became cities."
+  },
+  {
+   "t": 127.4,
+   "text": "Five thousand years ago, Uruk, in what is now Iraq, was home to tens of thousands of people."
+  },
+  {
+   "t": 137.0,
+   "text": "And here, people began to write."
+  },
+  {
+   "t": 145.0,
+   "text": "The first writing wasn't poetry. It was accounts: barley, beer, sheep, and who owed what."
+  },
+  {
+   "t": 152.8,
+   "text": "Writing was invented at least three times, independently: here, in China, and in Mesoamerica."
+  },
+  {
+   "t": 161.6,
+   "text": "At about the same time, someone made the first wheel. We don't know who."
+  },
+  {
+   "t": 170.6,
+   "text": "Empires rose and fell, and roads and sea lanes carried silk and spices, horses and glass, and ideas."
+  },
+  {
+   "t": 179.4,
+   "text": "Buddhism travelled from India to China. Paper went from China to Baghdad. And the numerals we still use, born in India, reached Europe through Arabic books."
+  },
+  {
+   "t": 194.6,
+   "text": "Far out in the Pacific, navigators reading the stars and the swell found and settled almost every island in the widest ocean on Earth."
+  },
+  {
+   "t": 207.6,
+   "text": "Printing began in China, and movable type in China and Korea. In Europe, around 1450, Gutenberg's press met an alphabet of a few dozen letters."
+  },
+  {
+   "t": 221.0,
+   "text": "Books multiplied. So did arguments."
+  },
+  {
+   "t": 226.4,
+   "text": "In 1492, European ships reached the Americas, and two halves of the world collided."
+  },
+  {
+   "t": 234.6,
+   "text": "Maize and potatoes went on to feed much of the world. But diseases from Europe killed a large share of the people of the Americas, and over twelve million Africans were forced across the Atlantic in chains."
+  },
+  {
+   "t": 252.4,
+   "text": "In 1610, Galileo turned a telescope on Jupiter, and saw moons going around it."
+  },
+  {
+   "t": 260.4,
+   "text": "Science was a new habit: look carefully, test the idea, and trust the evidence."
+  },
+  {
+   "t": 268.6,
+   "text": "Then steam engines turned coal into motion, and factories and railways spread across the world."
+  },
+  {
+   "t": 276.6,
+   "text": "With them, and with medicine, ordinary lives began to change. In 1800, more than four in ten children died before the age of five. Today, fewer than one in twenty do."
+  },
+  {
+   "t": 294.6,
+   "text": "And then, the night changed."
+  },
+  {
+   "t": 308.2,
+   "text": "Electricity. Light at the flick of a switch, and power carried by wire to almost anywhere."
+  },
+  {
+   "t": 318.0,
+   "text": "In 1903, a powered aeroplane flew for twelve seconds. Sixty-six years later, people walked on the Moon."
+  },
+  {
+   "t": 329.0,
+   "text": "Today, most of the eight billion people alive carry a computer in their pocket, connected to nearly everyone else."
+  },
+  {
+   "t": 342.0,
+   "text": "And that is everything, so far."
+  },
+  {
+   "t": 349.6,
+   "text": "Ahead, the cardboard is still blank. No one has cut it yet."
+  },
+  {
+   "t": 357.8,
+   "text": "That part is up to us."
+  }
+ ],
+ "events": {
+  "reach": 17.2,
+  "blows": [
+   19.2,
+   20.4,
+   21.6
+  ],
+  "lit": 22.2,
+  "gazelleUp": 42.0,
+  "pop": 45.2,
+  "dawn": 53.0,
+  "walk": 60.0,
+  "raft": 70.0,
+  "hand": 84.6,
+  "seed": 95.0,
+  "crops": [
+   100.8,
+   102.9,
+   104.6,
+   106.0,
+   107.6
+  ],
+  "city": 116.2,
+  "tablet": 128.0,
+  "marks": [
+   131.4,
+   132.3,
+   133.0,
+   133.6,
+   134.6,
+   135.3,
+   135.9,
+   136.7
+  ],
+  "tabletOut": 150.6,
+  "wheel": 152.6,
+  "threads": 162.0,
+  "ideas": [
+   169.2,
+   172.4,
+   175.0
+  ],
+  "ocean": 181.0,
+  "press": 196.8,
+  "pages": 201.4,
+  "ship": 207.0,
+  "dim": 221.0,
+  "scope": 233.0,
+  "moons": 236.4,
+  "steam": 247.0,
+  "train": 250.0,
+  "dusk": 265.0,
+  "lights": 274.4,
+  "lightsFull": 283.5,
+  "plane": 294.2,
+  "rocket": 299.4,
+  "landing": 302.4,
+  "screens": 305.0,
+  "blank": 316.0,
+  "pull": 324.0,
+  "title": 340.0,
+  "end": 352.0
+ }
+}

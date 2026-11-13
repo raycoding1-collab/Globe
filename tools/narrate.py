@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+"""Synthesize narration sentence by sentence (cached), and report the timeline.
+usage: /home/user/tts/venv/bin/python tools/narrate.py film/film.json"""
+import hashlib, json, os, re, sys
+import numpy as np, soundfile as sf
+from scipy import signal
+
+SR = 44100
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TTS_DIR = os.environ.get('TTS_DIR', '/home/user/tts')
+CACHE = os.path.join(ROOT, '.cache', 'voice')
+GAP = 0.46  # breath between sentences
+_k = None
+
+def kokoro():
+    global _k
+    if _k is None:
+        from kokoro_onnx import Kokoro
+        _k = Kokoro(os.path.join(TTS_DIR, 'kokoro-v1.0.onnx'), os.path.join(TTS_DIR, 'voices-v1.0.bin'))
+    return _k
+
+def say(text, v):
+    """One sentence -> trimmed mono float array at SR (cached)."""
+    key = hashlib.sha1(json.dumps([text, v], sort_keys=True).encode()).hexdigest()[:16]
+    path = os.path.join(CACHE, key + '.wav')
+    if os.path.exists(path):
+        y, _ = sf.read(path); return y
+    k = kokoro()
+    style = sum(k.get_voice_style(name) * w for name, w in v['blend'].items())
+    # spell numbers the way a narrator reads them
+    spoken = text.replace('1450', 'fourteen fifty').replace('1492', 'fourteen ninety-two').replace('1610', 'sixteen ten').replace('1903', 'nineteen oh three').replace('1800', 'eighteen hundred')
+    y, sr = k.create(spoken, voice=style, speed=v['speed'], lang=v['lang'])
+    y = signal.resample_poly(y, SR, sr).astype(np.float64)
+    idx = np.where(np.abs(y) > 0.012)[0]
+    y = y[max(0, idx[0] - 300): idx[-1] + 2600]
+    y = y / (np.abs(y).max() + 1e-9) * 0.7
+    os.makedirs(CACHE, exist_ok=True); sf.write(path, y, SR)
+    return y
+
+def sentences(text):
+    return [p.strip() for p in re.split(r'(?<=[.?!])\s+', text) if p.strip()]
+
+def timeline(spec):
+    """Returns list of lines: {t, end, parts:[(t0, dur, text, audio)]}."""
+    out = []
+    for line in spec['narration']:
+        t = line['t']; parts = []
+        for s in sentences(line['text']):
+            y = say(s, spec['voice']); d = len(y) / SR
+            parts.append((t, d, s, y)); t += d + GAP
+        out.append({'t': line['t'], 'end': t - GAP, 'parts': parts, 'text': line['text']})
+    return out
+
+if __name__ == '__main__':
+    spec = json.load(open(sys.argv[1]))
+    tl = timeline(spec); prev = None; total = 0
+    for L in tl:
+        flag = ''
+        if prev and prev['end'] > L['t'] - 0.6: flag = f'  !! OVERLAP {prev["end"] - L["t"] + 0.6:+.2f}s'
+        gap = f'(gap {L["t"] - prev["end"]:4.1f})' if prev else ''
+        print(f"{L['t']:6.1f} -> {L['end']:6.1f} {gap:11s} {L['text'][:70]}{flag}")
+        if len(L['parts']) > 1: print('         sentences at', ', '.join(f'{p[0]:.1f}' for p in L['parts']))
+        total += L['end'] - L['t']; prev = L
+    print(f'speech {total:.0f}s of {spec["duration"]}s')
