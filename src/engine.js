@@ -226,7 +226,7 @@ export class Stage {
     const cam = film.cam(t), S = film.state(t, this);
     // camera: push in (zoom) and pull right back to see the whole planet (pull)
     const zoom = (S.zoom || 1) * this.zm, pull = S.pull || 0;
-    const fit = Math.min(W * 0.4, H * 0.29) / this.R;
+    const fit = Math.min(W * 0.36, H * 0.28) / this.R;
     const z = lerp(zoom, fit, smooth(pull));
     const top = lerp(this.hy, H * 0.52 - this.R * z, smooth(pull));
     const u = this.u * z, cy = top + this.R * z;
