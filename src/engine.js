@@ -12,7 +12,7 @@ export const LAYERS = {
   far: { rf: 1.05, sf: 0.52, alpha: 0.86, blur: 1.8, sh: 0 },
   mid: { rf: 1.022, sf: 0.78, alpha: 1, blur: 0.7, sh: 0.2 },
   main: { rf: 1, sf: 1, alpha: 1, blur: 0, sh: 0.34 },
-  front: { rf: 0.958, sf: 1.24, alpha: 1, blur: 2.4, sh: 0.3 },
+  front: { rf: 0.958, sf: 1.24, alpha: 1, blur: 2.4, sh: 0.3, tint: 0.5 },
   core: { rf: 0.84, sf: 1.24, alpha: 1, blur: 0, sh: 0 },
 };
 const ORDER = ['far', 'mid', 'main', 'front', 'core'];
@@ -40,7 +40,7 @@ export class Stage {
     this.lightC.width = Math.ceil(W / 3); this.lightC.height = Math.ceil(H / 3);
     const aspect = W / H, k = sramp(aspect, 0.6, 1.7);
     this.R = W * lerp(1.06, 0.7, k);
-    this.hy = H * lerp(0.6, 0.685, k);
+    this.hy = H * lerp(0.665, 0.685, k);
     this.cx = W / 2; this.cy = this.hy + this.R;
     this.u = this.R / 1000;
     this.vis = Math.asin(Math.min(1, (W / 2) / this.R)) / DEG; // half arc on screen, degrees
@@ -51,12 +51,12 @@ export class Stage {
 
   // -- bake every sprite at exactly the size it will be shown ---------------
   bake() {
-    const u = this.u, cache = new Map();
+    const u = this.u * 1.3, cache = new Map(); // baked a little oversize so the camera can push in
     this.partsOf = (e) => {
       const L = LAYERS[e.layer], sc = e.scale || 1;
       const key = `${e.kind}|${e.v || 0}|${sc}|${L.blur}`;
       if (!cache.has(key)) {
-        const mk = (name, box, o = {}) => new BlurSheet(name + key, box, u * sc, o, L.blur / sc);
+        const mk = (name, box, o = {}) => new BlurSheet(name + key, box, u * sc, o, L.blur / sc, L.tint || 0);
         cache.set(key, KINDS[e.kind].bake(mk, e.v || 0));
       }
       return cache.get(key);
@@ -71,7 +71,9 @@ export class Stage {
     this.groundTex = tile;
     // stars: pinholes in the backdrop
     const r = rng(2024); this.stars = [];
-    for (let i = 0; i < 300; i++) this.stars.push({ a: r() * 360, d: 1.03 + Math.pow(r(), 0.8) * 1.45, s: 0.5 + Math.pow(r(), 3) * 1.6, ph: r() * 100, warm: r() });
+    for (let i = 0; i < 420; i++) this.stars.push({ a: r() * 360, d: 1.03 + Math.pow(r(), 0.8) * 1.45, s: 0.5 + Math.pow(r(), 3) * 1.6, ph: r() * 100, warm: r() });
+    // a river of fainter stars spiralling slowly outward
+    for (let i = 0; i < 900; i++) { const a = r() * 360, w = (r() + r() + r() - 1.5) * 0.16; this.stars.push({ a, d: 1.12 + ((a % 360) / 360) * 1.2 + w, s: 0.34 + r() * 0.42, ph: r() * 100, warm: r() * 0.7, dust: 1 }); }
     this.motes = [];
     for (let i = 0; i < 70; i++) this.motes.push({ x: r(), y: r(), s: 0.6 + r() * 1.6, sp: 0.3 + r(), ph: r() * 100, d: r() });
   }
@@ -96,7 +98,7 @@ export class Stage {
     const { W, H } = this;
     const v = makeCanvas(W / 4, H / 4), g = v.getContext('2d');
     const gr = g.createRadialGradient(v.width / 2, v.height * 0.52, Math.min(v.width, v.height) * 0.25, v.width / 2, v.height * 0.52, Math.hypot(v.width, v.height) * 0.62);
-    gr.addColorStop(0, 'rgba(14,8,6,0)'); gr.addColorStop(0.6, 'rgba(14,8,6,0.16)'); gr.addColorStop(1, 'rgba(10,5,4,0.72)');
+    gr.addColorStop(0, 'rgba(14,8,6,0)'); gr.addColorStop(0.6, 'rgba(14,8,6,0.12)'); gr.addColorStop(1, 'rgba(10,5,4,0.55)');
     g.fillStyle = gr; g.fillRect(0, 0, v.width, v.height);
     this.vignette = v;
     // three frames of film grain
@@ -109,21 +111,21 @@ export class Stage {
 
   // screen position (device px) of a point on a layer: angle a (deg), height h (units)
   place(layer, a, h, t) {
-    const L = LAYERS[layer], rel = L.sf * (a - this.film.cam(t)) * DEG, rad = (L.rf * 1000 + h) * this.u;
-    return [this.cx + Math.sin(rel) * rad, this.cy - Math.cos(rel) * rad, rel];
+    const L = LAYERS[layer], rel = L.sf * (a - this.film.cam(t)) * DEG, rad = (L.rf * 1000 + h) * this.eu;
+    return [this.cx + Math.sin(rel) * rad, this.ecy - Math.cos(rel) * rad, rel];
   }
 
   // -- one disc of the planet ------------------------------------------------
   ring(g, name, cam, colors, t) {
     const L = LAYERS[name], f = this.film, prof = f.profile[name] || (() => 0);
-    const R0 = L.rf * 1000, span = Math.min(89, this.vis + 6), step = 0.3;
+    const R0 = L.rf * 1000, span = 89, vis = this.vis + 4;
     const path = new Path2D(), rim = new Path2D();
-    for (let rel = -span; rel <= span + 0.001; rel += step) {
+    for (let rel = -span; rel <= span + 0.001; rel += (Math.abs(rel) > vis ? 2 : 0.3)) {
       const a = cam + rel / L.sf, rr = R0 + prof(a);
       const x = Math.sin(rel * DEG) * rr, y = -Math.cos(rel * DEG) * rr;
       if (rel === -span) { path.moveTo(x, y); rim.moveTo(x, y); } else { path.lineTo(x, y); rim.lineTo(x, y); }
     }
-    const depth = (this.H - this.cy) / this.u + 40;
+    const depth = (this.H - this.ecy) / this.eu + 40;
     path.lineTo(1400, depth); path.lineTo(-1400, depth); path.closePath();
     // soft contact shadow on the disc behind
     if (name !== 'far') {
@@ -145,7 +147,7 @@ export class Stage {
     g.globalCompositeOperation = 'overlay'; g.globalAlpha = L.alpha * (name === 'far' ? 0.35 : 0.6);
     if (!this.texPat) this.texPat = g.createPattern(this.groundTex, 'repeat');
     g.fillStyle = this.texPat;
-    const big = 1500 * this.u; g.fillRect(-big, -big, big * 2, big * 2);
+    const big = 1500 * this.u * 1.4; g.fillRect(-big, -big, big * 2, big * 2);
     g.restore();
     // the cut edge catching the light
     if (name !== 'core') {
@@ -163,7 +165,7 @@ export class Stage {
     // pop: flat on the ground, then up with overshoot and a wobble that dies away
     let p = spring(tau, 10.5, 0.46), wob = tau > 0 ? Math.exp(-2.1 * tau) * Math.sin(8.2 * tau) * 11 : 0;
     if (e.foldAt !== undefined && t > e.foldAt) { const k = clamp((t - e.foldAt) / 0.22); p *= 1 - k * k; wob = 0; }
-    const sy = 0.03 + 0.97 * p;
+    const sy = 0.045 + 0.955 * p;
     g.save();
     g.rotate(rel * DEG);
     g.translate(0, -(L.rf * 1000 + (prof ? prof(e.a) : 0) + (e.y || 0)));
@@ -175,14 +177,16 @@ export class Stage {
     g.restore();
     // paper flap as it springs
     if (this.onFlap && this.lastT >= 0 && this.lastT < e.tPop && t >= e.tPop && t - this.lastT < 0.3) {
-      this.onFlap(Math.sin(rel * DEG) * this.R / (this.W / 2), e.layer, e.loud ?? 1);
+      this.onFlap(Math.sin(rel * DEG) * this.eR / (this.W / 2), e.layer, e.loud ?? 1);
     }
     if (this.onFlap && e.foldAt !== undefined && this.lastT >= 0 && this.lastT < e.foldAt && t >= e.foldAt && t - this.lastT < 0.3) this.onFlap(Math.sin(rel * DEG) * this.R / (this.W / 2), e.layer, 1.2);
   }
 
   render(t) {
-    const { g, wg, W, H, u, cx, cy, film } = this;
+    const { g, wg, W, H, cx, film } = this;
     const cam = film.cam(t), S = film.state(t);
+    const z = S.zoom || 1, u = this.u * z, cy = this.hy + this.R * z;
+    this.eu = u; this.ecy = cy; this.eR = this.R * z;
     const env = { fire: S.fire, sh: 0.3 };
 
     // ---- sky backdrop -------------------------------------------------------
@@ -199,10 +203,10 @@ export class Stage {
         if (x < -4 || x > W + 4 || y < -4 || y > this.hy + 30) continue;
         const tw = 0.62 + 0.38 * Math.sin(t * (0.8 + s.s) + s.ph) * Math.sin(t * 0.37 + s.ph * 2);
         const hz = clamp((this.hy - y) / (H * 0.22)); // fade toward the horizon haze
-        const al = S.stars * tw * hz * (0.35 + s.s * 0.36), rad = s.s * this.dpr * 0.8;
+        const al = S.stars * (s.dust ? 0.6 + 0.4 * tw : tw) * hz * (s.dust ? 0.75 : 0.5 + s.s * 0.4), rad = Math.max(0.7, s.s * this.dpr * 0.85);
         g.fillStyle = s.warm > 0.8 ? `rgba(255,226,190,${al})` : `rgba(226,236,255,${al})`;
         g.beginPath(); g.arc(x, y, rad, 0, 7); g.fill();
-        if (s.s > 1.3) { g.fillStyle = `rgba(210,225,255,${al * 0.13})`; g.beginPath(); g.arc(x, y, rad * 4.5, 0, 7); g.fill(); }
+        if (s.s > 1.3) { g.fillStyle = `rgba(210,225,255,${al * 0.07})`; g.beginPath(); g.arc(x, y, rad * 2.6, 0, 7); g.fill(); }
       }
     }
     // the sun is a painted disc that slides behind the hills
@@ -212,6 +216,10 @@ export class Stage {
       gl.addColorStop(0, `rgba(255,206,130,${0.55 * S.sun.k})`); gl.addColorStop(0.25, `rgba(255,170,96,${0.22 * S.sun.k})`); gl.addColorStop(1, 'rgba(255,150,80,0)');
       g.fillStyle = gl; g.fillRect(0, 0, W, H);
       g.save(); g.translate(sx, sy); g.scale(u, u); g.rotate(t * 0.02); put(g, this.sky.sun, 0.25, 4, 6); g.restore();
+      g.globalCompositeOperation = 'screen';
+      const g2 = g.createRadialGradient(sx, sy, 0, sx, sy, 90 * u);
+      g2.addColorStop(0, `rgba(255,200,120,${0.5 * S.sun.k})`); g2.addColorStop(0.5, `rgba(255,170,90,${0.3 * S.sun.k})`); g2.addColorStop(1, 'rgba(255,150,80,0)');
+      g.fillStyle = g2; g.fillRect(sx - 90 * u, sy - 90 * u, 180 * u, 180 * u); g.globalCompositeOperation = 'source-over';
     }
     // paper grain of the backdrop itself
     g.save(); g.globalCompositeOperation = 'overlay'; g.globalAlpha = 0.3;
@@ -224,7 +232,7 @@ export class Stage {
     // clouds hang from threads
     for (const c of film.clouds) {
       const spr = this.sky.clouds[c.v], x = cx + (((c.x - cam * c.par - t * c.drift) % 2400 + 3600) % 2400 - 1200) * u;
-      const y = this.hy - c.y * u, sw = Math.sin(t * 0.33 + c.v * 2.1) * 1.4 * DEG;
+      const y = this.hy * (1 - c.yf), sw = Math.sin(t * 0.33 + c.v * 2.1) * 1.4 * DEG;
       if (x < -300 * u || x > W + 300 * u) continue;
       wg.save(); wg.translate(x, -20); wg.rotate(sw);
       wg.strokeStyle = 'rgba(70,52,40,0.4)'; wg.lineWidth = Math.max(1, 0.7 * u);
@@ -236,16 +244,28 @@ export class Stage {
     }
     wg.setTransform(u, 0, 0, u, cx, cy);
     const byLayer = film.byLayer;
-    for (const name of ORDER) {
+    const amb = S.ambient, dark = amb[0] < 250 || amb[1] < 250 || amb[2] < 250 || S.lights.length;
+    const drawLayer = (name) => {
       // things stand behind the rim of their own disc, so draw them first
       if (name !== 'front' && name !== 'core') for (const e of byLayer[name] || []) { wg.globalAlpha = LAYERS[name].alpha; this.drawEntity(wg, e, t, cam, env); }
       wg.globalAlpha = 1;
       this.ring(wg, name, cam, S.ground, t);
       if (name === 'front') for (const e of byLayer[name] || []) this.drawEntity(wg, e, t, cam, env);
+    };
+    // distant things only feel the colour of the air
+    drawLayer('far');
+    if (dark) {
+      const lum = (amb[0] * 0.3 + amb[1] * 0.5 + amb[2] * 0.2) / 255;
+      wg.setTransform(1, 0, 0, 1, 0, 0); wg.globalCompositeOperation = 'source-atop';
+      wg.fillStyle = rgb([amb[0] * 0.3, amb[1] * 0.32, amb[2] * 0.36], clamp(1 - lum) * 0.96); wg.fillRect(0, 0, W, H);
+      wg.globalCompositeOperation = 'source-over';
     }
+    g.drawImage(this.world, 0, 0);
+    wg.setTransform(1, 0, 0, 1, 0, 0); wg.clearRect(0, 0, W, H);
+    wg.setTransform(u, 0, 0, u, cx, cy);
+    for (const name of ['mid', 'main', 'front', 'core']) drawLayer(name);
 
     // ---- light ----------------------------------------------------------------
-    const amb = S.ambient, dark = amb[0] < 250 || amb[1] < 250 || amb[2] < 250 || S.lights.length;
     if (dark) {
       const lg = this.lg, lw = this.lightC.width, lh = this.lightC.height, k = lw / W;
       lg.setTransform(1, 0, 0, 1, 0, 0); lg.globalCompositeOperation = 'source-over';
@@ -255,8 +275,15 @@ export class Stage {
         const [x, y] = this.place(l.layer || 'main', l.a, l.h, t), rad = l.r * u * k;
         if (rad < 0.5 || l.k <= 0) continue;
         const gr = lg.createRadialGradient(x * k, y * k, 0, x * k, y * k, rad), c = l.color;
-        gr.addColorStop(0, rgb(c, Math.min(1, l.k))); gr.addColorStop(0.18, rgb(c, Math.min(1, l.k * 0.62))); gr.addColorStop(0.45, rgb(c, l.k * 0.24)); gr.addColorStop(0.75, rgb(c, l.k * 0.06)); gr.addColorStop(1, rgb(c, 0));
+        gr.addColorStop(0, rgb(c, Math.min(1, l.k))); gr.addColorStop(0.1, rgb(c, Math.min(1, l.k * 0.74))); gr.addColorStop(0.24, rgb(c, l.k * 0.36)); gr.addColorStop(0.45, rgb(c, l.k * 0.13)); gr.addColorStop(0.72, rgb(c, l.k * 0.035)); gr.addColorStop(1, rgb(c, 0));
         lg.fillStyle = gr; lg.fillRect(x * k - rad, y * k - rad, rad * 2, rad * 2);
+      }
+      if (S.lights.length) {
+        lg.globalCompositeOperation = 'source-over';
+        const rr = LAYERS.front.rf * 1000 * u * k, sh = lg.createRadialGradient(cx * k, cy * k, rr * 0.9, cx * k, cy * k, rr * 1.004);
+        const a2 = rgb([amb[0] * 1.5, amb[1] * 1.3, amb[2] * 1.15], 0.5);
+        sh.addColorStop(0, a2); sh.addColorStop(0.985, a2); sh.addColorStop(1, rgb(amb, 0));
+        lg.fillStyle = sh; lg.beginPath(); lg.arc(cx * k, cy * k, rr * 1.004, 0, 7); lg.fill();
       }
       const mg = this.mg;
       mg.setTransform(1, 0, 0, 1, 0, 0); mg.globalCompositeOperation = 'copy'; mg.imageSmoothingQuality = 'high';
@@ -289,9 +316,9 @@ export class Stage {
     const mc = S.moteColor;
     for (const m of this.motes) {
       const x = ((m.x + t * 0.006 * m.sp + Math.sin(t * 0.21 * m.sp + m.ph) * 0.02 - cam * 0.0016 * (0.5 + m.d)) % 1 + 1) % 1 * W;
-      const y = ((m.y + Math.sin(t * 0.17 + m.ph) * 0.03 - t * 0.002 * m.sp) % 1 + 1) % 1 * (this.hy + 60 * u);
-      const al = S.motes * (0.35 + 0.65 * Math.sin(t * 0.7 * m.sp + m.ph) ** 2) * (0.25 + m.d * 0.5);
-      const rad = m.s * u * (1.2 + m.d * 2.2);
+      const band = 380 * u, y = this.hy + 50 * u - (((m.y + Math.sin(t * 0.17 + m.ph) * 0.03 + t * 0.004 * m.sp) % 1 + 1) % 1) ** 1.6 * band;
+      const al = S.motes * (0.35 + 0.65 * Math.sin(t * 0.7 * m.sp + m.ph) ** 2) * (0.2 + m.d * 0.4) * clamp(1 - Math.abs(x - cx) / (W * 0.55) * 0.6);
+      const rad = m.s * u * (1.0 + m.d * 1.5);
       const gr = g.createRadialGradient(x, y, 0, x, y, rad);
       gr.addColorStop(0, rgb(mc, al)); gr.addColorStop(1, rgb(mc, 0));
       g.fillStyle = gr; g.fillRect(x - rad, y - rad, rad * 2, rad * 2);
@@ -312,11 +339,11 @@ export class Stage {
 
   // Fire: a glow, three wobbling paper tongues, and embers climbing into the dark.
   fire(g, em, t) {
-    const { u } = this, [x, y, rel] = this.place(em.layer || 'main', em.a, em.h || 0, t);
+    const u = this.eu, [x, y, rel] = this.place(em.layer || 'main', em.a, em.h || 0, t);
     g.setTransform(1, 0, 0, 1, 0, 0);
     const flick = 0.86 + 0.14 * fbm(t * 7.3, 60) + 0.05 * Math.sin(t * 31);
     if (em.ember > 0.01) { // the carried ember on the end of the stick
-      const [ex, ey] = em.emberAt, r = (10 + em.ember * 26) * u;
+      const [ex, ey] = this.place('main', em.emberPos.a, em.emberPos.h, t), r = (10 + em.ember * 26) * u;
       g.globalCompositeOperation = 'screen';
       const gr = g.createRadialGradient(ex, ey, 0, ex, ey, r);
       gr.addColorStop(0, `rgba(255,214,150,${Math.min(1, 0.55 + em.ember * 0.5)})`); gr.addColorStop(0.16, `rgba(255,128,48,${0.6 * Math.min(1, em.ember + 0.3)})`); gr.addColorStop(1, 'rgba(255,90,20,0)');
@@ -332,7 +359,7 @@ export class Stage {
         g.fillStyle = gr; g.fillRect(x - r, yy - r, r * 2, r * 2);
       }
       g.globalCompositeOperation = 'source-over';
-      g.save(); g.translate(x, y); g.rotate(rel); g.scale(u, u);
+      g.save(); g.translate(x, y); g.rotate(rel); g.scale(u * (em.scale || 1), u * (em.scale || 1));
       this.flames.forEach((f, i) => {
         g.save();
         g.translate([-2, 3, 0][i] + fbm(t * 2.2 + i * 9, 70) * 2.5, -3);
@@ -369,6 +396,9 @@ export class Stage {
 
 // A Sheet that can come out slightly out of focus (distant and very near layers).
 class BlurSheet extends Sheet {
-  constructor(name, box, scale, o, blur) { super(name, box, scale, o); this.blurAmt = blur; }
-  finish(o = {}) { return super.finish({ ...o, blur: this.blurAmt > 0.05 ? this.blurAmt : 0 }); }
+  constructor(name, box, scale, o, blur, tint = 0) { super(name, box, scale, o); this.blurAmt = blur; this.tint = tint; }
+  finish(o = {}) {
+    if (this.tint) { const g = this.g; g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-atop'; g.fillStyle = `rgba(44,28,18,${this.tint})`; g.fillRect(0, 0, this.c.width, this.c.height); }
+    return super.finish({ ...o, blur: this.blurAmt > 0.05 ? this.blurAmt : 0 });
+  }
 }

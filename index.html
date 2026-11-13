@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Everything So Far</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#060405">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+<canvas id="stage"></canvas>
+<div id="caption" aria-live="polite"></div>
+<div id="veil">
+  <div class="card">
+    <p class="kicker">a short history of humanity, in cardboard</p>
+    <h1>Everything So Far</h1>
+    <button id="begin" type="button">Begin</button>
+    <p class="hint">with sound</p>
+  </div>
+</div>
+<div id="bar">
+  <button id="play" type="button" aria-label="Pause"><svg viewBox="0 0 24 24"><path id="playIcon" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg></button>
+  <button id="cc" type="button" aria-label="Captions" aria-pressed="true">CC</button>
+  <input id="vol" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume">
+</div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

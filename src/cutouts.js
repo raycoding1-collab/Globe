@@ -87,7 +87,7 @@ KINDS.rock = {
     const base = ['#8a7d70', '#7c746c', '#94836f'][v % 3];
     const sh = mk('rock' + v, [-w - 4, -h - 6, w + 4, 6], { pad: 6 });
     sh.piece([[-w, 3], [-w * 0.8, -h * 0.55], [-w * 0.3, -h], [w * 0.35, -h * 0.9], [w * 0.85, -h * 0.4], [w, 3]], base, { round: 2.5, rough: 1.6 });
-    sh.piece([[-w * 0.62, -h * 0.5], [-w * 0.25, -h * 0.86], [w * 0.3, -h * 0.78], [w * 0.1, -h * 0.42]], rgb(shade(base, 0.18)), { round: 2, lift: 1, thick: 0.8, rim: 0.3 });
+    sh.piece([[-w * 0.62, -h * 0.5], [-w * 0.25, -h * 0.86], [w * 0.3, -h * 0.78], [w * 0.1, -h * 0.42]], shade(base, 0.16), { round: 2, lift: 1, thick: 0.8, rim: 0.3 });
     return { spr: sh.finish({ shadowBlur: 4 }) };
   },
   draw(g, p, t, e, env) { put(g, p.spr, env.sh, 2, 3); },
@@ -297,14 +297,22 @@ KINDS.gazelle = {
 // ------------------------------------------------------------- sky props ---
 export function bakeSky(mk) {
   const r = rng(4242), S = {};
+  // clouds: a row of overlapping bumps with a flat base, two layers of card
+  const cloudPts = (bumps, sx, sy, dx, dy) => {
+    const pts = [];
+    bumps.forEach(([bx, br], i) => { for (let k = 0; k <= 4; k++) { const a = Math.PI * (0.92 - k * 0.21); if (i > 0 && k === 0) continue; pts.push([dx + (bx + Math.cos(a) * br) * sx, dy - Math.sin(a) * br * sy - 2]); } });
+    const x1 = pts[pts.length - 1][0], x0 = pts[0][0];
+    pts.push([x1 + 4, dy + 4, 5], [x0 - 4, dy + 5, 5]);
+    return pts;
+  };
   S.clouds = [0, 1, 2, 3].map((v) => {
-    const w = 110 + r() * 90, h = 26 + r() * 14, pts = [], n = 8;
-    for (let i = 0; i <= n; i++) { const a = Math.PI - (i / n) * Math.PI; pts.push([Math.cos(a) * w, -Math.sin(a) * h * (0.6 + r() * 0.7) - 3]); }
-    pts.push([w * 0.6, 5], [-w * 0.55, 6]);
-    const sh = mk('cloud' + v, [-w - 6, -h * 1.4 - 6, w + 6, 12], { pad: 8 });
-    sh.piece(pts.map(p => [p[0] * 0.8 + 18, p[1] * 0.8 - 9]), '#d9cdbf', { round: 12, rough: 2, seg: 22, rim: 0.3 });
-    sh.piece(pts, '#efe6d6', { round: 12, rough: 2, seg: 22, rim: 0.3, lift: 3 });
-    return { spr: sh.finish({ shadowBlur: 6 }), w, h };
+    const n = 3 + (v % 2), bumps = []; let x = 0;
+    for (let i = 0; i < n; i++) { const br = (26 + r() * 22) * (i === 0 || i === n - 1 ? 0.72 : 1.1); x += br * (i ? 1.05 : 0); bumps.push([x, br]); x += br * 0.5; }
+    const w = x / 2, pts = cloudPts(bumps, 1, 0.82, -w, 0), back = cloudPts(bumps.slice(0, n - 1).map(([bx, br]) => [bx + 24, br * 1.0]), 0.92, 0.95, -w + 14, -9);
+    const sh = mk('cloud' + v, [-w - 50, -74, w + 60, 14], { pad: 8 });
+    sh.piece(back, '#cdbfb2', { round: 9, rough: 1.6, seg: 30, rim: 0.3 });
+    sh.piece(pts, '#ece2d2', { round: 9, rough: 1.6, seg: 30, rim: 0.3, lift: 3.4 });
+    return { spr: sh.finish({ shadowBlur: 6 }), w, h: 40 };
   });
   S.sun = mk('sun', [-52, -52, 52, 52], { pad: 8 })
     .piece(ellipse(0, 0, 48, 48, 22), '#f3b25a', { round: 8, rough: 1.4, rim: 0.4 })

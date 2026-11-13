@@ -80,6 +80,7 @@ export function monotone(keys) {
 }
 // Keyframed colours / numbers: keys = [[t, value], ...], smooth between.
 export function track(keys) {
+  keys = keys.map(([t, v]) => [t, typeof v === 'string' ? hex(v) : Array.isArray(v) && typeof v[0] === 'string' ? v.map(hex) : v]);
   return (t) => {
     if (t <= keys[0][0]) return keys[0][1];
     const last = keys[keys.length - 1];
@@ -88,7 +89,7 @@ export function track(keys) {
     const u = smooth((t - keys[i][0]) / (keys[i + 1][0] - keys[i][0]));
     const a = keys[i][1], b = keys[i + 1][1];
     if (typeof a === 'number') return lerp(a, b, u);
-    if (typeof a === 'string' || typeof a[0] === 'number') return mix(a, b, u);
+    if (typeof a[0] === 'number') return mix(a, b, u);
     return a.map((c, j) => mix(c, b[j], u)); // list of colours
   };
 }
