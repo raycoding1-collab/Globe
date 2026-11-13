@@ -58,7 +58,8 @@ const setIcon = () => { $('playIcon').setAttribute('d', sound.paused ? 'M8 5v14l
 function toggle() { if (!started) return; sound.ended ? sound.seek(0) : sound.toggle(); stage.lastT = -1; setIcon(); }
 $('begin').addEventListener('click', async () => {
   $('begin').disabled = true;
-  await sound.start(); started = true; stage.lastT = -1;
+  const label = setTimeout(() => { $('begin').textContent = 'Loading…'; }, 250);
+  await sound.start(); clearTimeout(label); started = true; stage.lastT = -1;
   $('veil').classList.add('gone'); wake();
 });
 $('play').addEventListener('click', (e) => { e.stopPropagation(); toggle(); });

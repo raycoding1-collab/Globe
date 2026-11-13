@@ -40,7 +40,8 @@ export class Stage {
     const aspect = W / H, k = sramp(aspect, 0.6, 1.7);
     this.aspectK = k;
     this.R = W * lerp(1.06, 0.7, k);
-    this.hy = H * lerp(0.69, 0.685, k);
+    this.hy = H * lerp(0.665, 0.685, k);
+    this.zm = lerp(1.42, 1, sramp(aspect, 0.5, 1.2)); // tall screens get closer to the world
     this.cx = W / 2; this.cy = this.hy + this.R;
     this.u = this.R / 1000; this.eu = this.u; this.ecy = this.cy; this.eR = this.R;
     this.vis = Math.asin(Math.min(1, (W / 2) / this.R)) / DEG; // half arc on screen, degrees
@@ -52,7 +53,7 @@ export class Stage {
 
   // -- bake every sprite at the size it will be shown -----------------------
   bake() {
-    const u = this.u * 1.3, cache = new Map(); // a little oversize so the camera can push in
+    const u = this.u * 1.3 * this.zm, cache = new Map(); // a little oversize so the camera can push in
     this.partsOf = (e) => {
       const L = LAYERS[e.layer], sc = e.scale || 1, blur = e.sharp ? 0 : L.blur;
       const key = `${e.kind}|${e.v ?? 0}|${sc}|${blur}`;
@@ -86,7 +87,7 @@ export class Stage {
       if (e.from !== undefined) { e.tPop = e.from; continue; }
       if (e.popAt !== undefined) { e.tPop = e.popAt; continue; }
       const L = LAYERS[e.layer];
-      const relPop = Math.asin(Math.min(0.999, (0.74 * this.W / 2) / (this.R * L.rf))) / DEG;
+      const relPop = Math.asin(Math.min(0.999, (0.74 * this.W / 2) / (this.R * this.zm * L.rf))) / DEG;
       const target = e.a - relPop / L.sf;
       if (cam(0) >= target) { e.tPop = -100; continue; }
       let lo = 0, hi = this.film.duration + 60;
@@ -220,7 +221,7 @@ export class Stage {
     const { g, wg, W, H, cx, film } = this;
     const cam = film.cam(t), S = film.state(t, this);
     // camera: push in (zoom) and pull right back to see the whole planet (pull)
-    const zoom = S.zoom || 1, pull = S.pull || 0;
+    const zoom = (S.zoom || 1) * this.zm, pull = S.pull || 0;
     const fit = Math.min(W * 0.4, H * 0.29) / this.R;
     const z = lerp(zoom, fit, smooth(pull));
     const top = lerp(this.hy, H * 0.52 - this.R * z, smooth(pull));

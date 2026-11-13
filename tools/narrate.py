@@ -28,7 +28,7 @@ def say(text, v):
     k = kokoro()
     style = sum(k.get_voice_style(name) * w for name, w in v['blend'].items())
     # spell numbers the way a narrator reads them
-    spoken = text.replace('1450', 'fourteen fifty').replace('1492', 'fourteen ninety-two').replace('1610', 'sixteen ten').replace('1903', 'nineteen oh three').replace('1800', 'eighteen hundred')
+    spoken = text.replace('1450', 'fourteen fifty').replace('1492', 'fourteen ninety-two').replace('1610', 'sixteen ten').replace('1903', 'nineteen oh three').replace('1800', 'eighteen hundred').replace('Uruk', 'Oorook').replace('Gutenberg', 'Gootenberg')
     y, sr = k.create(spoken, voice=style, speed=v['speed'], lang=v['lang'])
     y = signal.resample_poly(y, SR, sr).astype(np.float64)
     idx = np.where(np.abs(y) > 0.012)[0]
