@@ -181,8 +181,8 @@ add('dhow', 'main', 469.5, { z: 2, ground: false, y: -6, move: (t) => (t - 180) 
 for (let a = 378; a < 460; a += 8) add('palm', 'mid', a, { v: 0, scale: 0.5 });
 for (let a = 462; a < 551; a += 4.4) add('wave', 'main', a, { v: (R() * 4) | 0, z: 4, loud: 0.25, ground: false, y: -2 });
 for (let a = 460; a < 552; a += 6) add('wave', 'front', a, { v: (R() * 4) | 0, scale: 1.6, ground: false, loud: 0.2 });
-for (const [a, v] of [[489, 0], [521, 1], [541, 0]]) { add('island', 'main', a, { v, z: 1, ground: false, y: -6 }); add('palm', 'main', a - 1.4, { v: 1, z: 1, ground: false, y: 18, scale: 0.75 }); add('palm', 'main', a + 1.6, { v: 1, z: 1, ground: false, y: 20, scale: 0.6, flip: true }); }
-add('canoe', 'main', 505, { z: 3, ground: false, y: -6, move: (t) => (t - 192) * 0.35 });
+for (const [a, v] of [[489, 0], [521, 1], [541, 0]]) { add('island', 'main', a, { v, z: 1, ground: false, y: 2 }); add('palm', 'main', a - 1.4, { v: 1, z: 1, ground: false, y: 26, scale: 0.75 }); add('palm', 'main', a + 1.6, { v: 1, z: 1, ground: false, y: 28, scale: 0.6, flip: true }); }
+add('canoe', 'main', 505, { z: 5, ground: false, y: 5, move: (t) => (t - 192) * 0.35 });
 
 // 7. Printing ---------------------------------------------------------------------
 for (const [a, v] of [[562, 0], [568, 1], [589.5, 2], [596, 0]]) add('timber', 'main', a, { v, z: 0 });
@@ -255,7 +255,7 @@ for (const a of [863, 893]) add('lamp', 'main', a, { v: 1, z: 1, lit: () => 1 })
 for (let a = 860; a < 908; a += 6) add('tower', 'mid', a, { v: 4 + ((R() * 3) | 0), scale: 0.55, winOn: net, winCol: [200, 225, 255] });
 
 // 13. Blank card -------------------------------------------------------------------------
-for (let a = 913, i = 0; a < 1000; a += 5 + R() * 4.5, i++) add('blank', 'main', a, { v: (R() * 5) | 0, z: R() < 0.5 ? 0 : 2, scale: 0.8 + R() * 0.6, loud: 0.9 });
+for (let a = 913, i = 0; a < 1000; a += 4.5 + R() * 5, i++) { const tilt = (R() - 0.5) * 7; add('blank', 'main', a, { v: (R() * 5) | 0, z: R() < 0.5 ? 0 : 2, scale: 0.7 + R() * 0.7, loud: 0.9, rot: () => tilt }); }
 for (let a = 910; a < 1010; a += 7) add('blank', 'mid', a, { v: (R() * 5) | 0, scale: 0.55 });
 for (let a = 920; a < 1010; a += 14) add('blank', 'far', a, { v: (R() * 5) | 0, scale: 0.3 });
 
@@ -331,6 +331,7 @@ function state(t, stage) {
     eLamps.forEach((l) => { const k = l.lit(t); if (k > 0) lights.push({ a: l.a + 0.3, h: 130, r: 300, k, color: [255, 236, 200] }); });
   }
   const screen = sramp(t, EV.screens, EV.screens + 1.4);
+  if (t > 341 && t < 368 && stage) { const k = sramp(t, 343, 350) * (1 - sramp(t, 360, 367)); lights.push({ screen: [stage.W * 0.5 + 380 * stage.eu, stage.hy + lerp(190, -90, smooth((t - 343) / 19)) * stage.eu], r: 1500, k: 0.55 * k, color: [255, 190, 120] }); }
   if (t > 312 && t < 347) {
     for (const tw of [glassA, glassB]) lights.push({ a: tw.a, h: 200, r: 420, k: 0.6 * sramp(t, 316, 319), color: [190, 215, 255] });
     for (const p of phones) lights.push({ a: p.a, h: 110, r: 170, k: 0.9 * screen, color: [130, 180, 255] });
