@@ -154,9 +154,9 @@ KINDS.palm = {
     const fronds = [];
     for (let k = 0; k < 7; k++) {
       const a = -Math.PI + 0.2 + k * (Math.PI - 0.4) / 6, len = 70 + r() * 20, col = coco ? '#5c7d3c' : '#6f7d3e';
-      const sh = mk('frond' + v + k, [-len - 8, -len - 8, len + 8, len + 8], { pad: 6 });
       const tip = [Math.cos(a) * len, Math.sin(a) * len * 0.75 + len * 0.3 * (Math.abs(Math.cos(a)))];
       const mid = [tip[0] * 0.5, tip[1] * 0.5 - 14];
+      const sh = mk('frond' + v + k, [Math.min(0, tip[0], mid[0]) - 8, Math.min(0, tip[1], mid[1]) - 14, Math.max(0, tip[0], mid[0]) + 8, Math.max(0, tip[1], mid[1]) + 14], { pad: 6 });
       const fp = [[0, -3], [mid[0], mid[1] - 6], [tip[0], tip[1]], [mid[0], mid[1] + 6], [0, 3]];
       sh.piece(fp, shade(col, (r() - 0.5) * 0.2), { round: 3, rough: 1.4, seg: 12, paint: (g) => { g.strokeStyle = rgb(shade(col, 0.25), 0.6); g.lineWidth = 1.2; g.beginPath(); g.moveTo(0, 0); g.quadraticCurveTo(mid[0], mid[1], tip[0], tip[1]); g.stroke(); } });
       fronds.push({ spr: sh.finish({ shadowBlur: 3 }), ph: r() * 9 });

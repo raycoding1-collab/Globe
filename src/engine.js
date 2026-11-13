@@ -53,12 +53,16 @@ export class Stage {
 
   // -- bake every sprite at the size it will be shown -----------------------
   bake() {
-    const u = this.u * 1.3 * this.zm, cache = new Map(); // a little oversize so the camera can push in
+    const u = this.u * 1.6 * this.zm, cache = new Map(); // oversize, so the camera can push in close
     this.partsOf = (e) => {
-      const L = LAYERS[e.layer], sc = e.scale || 1, blur = e.sharp ? 0 : L.blur;
-      const key = `${e.kind}|${e.v ?? 0}|${sc}|${blur}`;
+      const L = LAYERS[e.layer], blur = e.sharp ? 0 : L.blur;
+      // scales are shared in third-of-an-octave steps, so a field of grass is a few bakes, not a hundred
+      const sc = Math.pow(2, Math.round(Math.log2(e.scale || 1) * 3) / 3);
+      // the camera only ever leans in on the near world; distant layers can be baked smaller
+      const lu = u * (e.layer === 'far' ? 0.5 : e.layer === 'mid' ? 0.7 : 1);
+      const key = `${e.kind}|${e.v ?? 0}|${sc}|${blur}|${lu}`;
       if (!cache.has(key)) {
-        const mk = (name, box, o = {}) => new BlurSheet(name + key, box, u * sc, o, blur / sc, e.sharp ? 0 : L.tint || 0);
+        const mk = (name, box, o = {}) => new BlurSheet(name + key, box, lu * sc, o, blur / sc * (lu / u), e.sharp ? 0 : L.tint || 0);
         cache.set(key, KINDS[e.kind].bake(mk, e.v ?? 0));
       }
       return cache.get(key);

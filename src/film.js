@@ -350,7 +350,8 @@ function state(t, stage) {
   if (t > 343) sun = { x: 380, y: lerp(190, -90, smooth((t - 343) / 19)), k: 1 };
   const pull = sramp(t, EV.pull, EV.pull + 12);
   let zoom = 1;
-  zoom *= lerp(1, 1.3, smooth(clamp((t - 6) / 20))) * (1 - sramp(t, 46, 55)) + sramp(t, 46, 55);
+  // the camera leans in for the first fire, then eases back as the flames light the world
+  zoom *= 1 + 0.15 * sramp(t, 4, 14) + 0.6 * sramp(t, 14.5, 21) - 0.45 * sramp(t, 24.5, 34) - 0.3 * sramp(t, 46, 55);
   zoom *= 1 + 0.2 * sramp(t, 79, 83) * (1 - sramp(t, 89, 92));
   zoom *= 1 + 0.08 * sramp(t, 160, 162) * (1 - sramp(t, 166, 169));
   zoom *= 1 + 0.12 * sramp(t, 296, 300) * (1 - sramp(t, 312, 318));
