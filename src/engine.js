@@ -24,13 +24,13 @@ export class Stage {
     this.world = makeCanvas(2, 2); this.wg = this.world.getContext('2d');
     this.mask = makeCanvas(2, 2); this.mg = this.mask.getContext('2d');
     this.lightC = makeCanvas(2, 2); this.lg = this.lightC.getContext('2d');
-    this.onFlap = null; this.lastT = -1;
+    this.onFlap = null; this.lastT = -1; this.q = 1;
     this.resize();
   }
 
   resize() {
     const cssW = this.canvas.clientWidth || window.innerWidth, cssH = this.canvas.clientHeight || window.innerHeight;
-    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let dpr = Math.min(window.devicePixelRatio || 1, 2) * this.q;
     const budget = 2.4e6;
     if (cssW * cssH * dpr * dpr > budget) dpr = Math.sqrt(budget / (cssW * cssH));
     const W = Math.round(cssW * dpr), H = Math.round(cssH * dpr);

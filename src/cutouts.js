@@ -271,12 +271,12 @@ KINDS.gazelle = {
       })
       .piece([[-28, -4], [-33, 2], [-31, 9], [-27, 3]], '#3a2a1f', { round: 1, lift: 1, thick: 0.6, rim: 0.2 })
       .finish({ shadowBlur: 3 });
-    P.neck = mk('gaz-neck', [-10, -44, 26, 8], { pad: 5 })
-      .piece([[6, -34], [3, -41], [5, -42.5], [9, -35]], '#33261d', { round: 0.6, thick: 0.6, lift: 0, rim: 0.15 })
-      .piece([[-7, 4], [-3, -12], [2, -26], [4, -33], [9, -36], [13, -33], [21, -28], [21.5, -24.5], [12, -23], [9, -12], [7, 5]], tan, {
-        round: 3, paint: (g) => { g.fillStyle = 'rgba(40,26,18,0.9)'; g.beginPath(); g.arc(11, -30, 1.1, 0, 7); g.fill(); g.fillStyle = 'rgba(250,240,220,0.7)'; g.fillRect(12, -27, 12, 4); },
+    P.neck = mk('gaz-neck', [-10, -64, 28, 8], { pad: 5 })
+      .piece([[5.5, -36], [3, -48], [4.6, -60], [6.6, -60], [6.2, -48], [9, -36.5]], '#33261d', { round: 0.8, thick: 0.6, lift: 0, rim: 0.15, rough: 0.3 })
+      .piece([[2, -35], [-5.5, -46], [-1.5, -32.5]], tanD, { round: 1, lift: 0, thick: 0.6, rough: 0.3 })
+      .piece([[-6, 3], [-2, -12], [1, -24], [0, -31], [3, -36], [9, -37.5], [14, -34], [23, -27.5], [23.5, -24], [20, -22.5], [11, -24.5], [8, -13], [7, 4]], tan, {
+        round: 2.6, rough: 0.5, paint: (g) => { g.fillStyle = 'rgba(40,26,18,0.9)'; g.beginPath(); g.arc(11.5, -31.5, 1.2, 0, 7); g.fill(); g.fillStyle = 'rgba(40,26,18,0.55)'; g.fillRect(13, -30.5, 9, 1.6); g.fillStyle = 'rgba(250,240,220,0.7)'; g.fillRect(14, -27, 12, 4); },
       })
-      .piece([[1, -31], [-6, -37], [-4.5, -30]], tanD, { round: 1, lift: 0.8, thick: 0.6 })
       .brad(0, 0, 1.4)
       .finish({ shadowBlur: 3 });
     return P;
@@ -288,7 +288,7 @@ KINDS.gazelle = {
     g.translate(0, -8);
     put(g, P.body, env.sh, 2, 3);
     g.save(); g.translate(20, -6);
-    g.rotate((70 - alert * 78 + fbm(t * 0.7 + e.a, 55) * 5 + Math.sin(t * 9) * (alert > 0.9 ? 0.8 : 0)) * DEG);
+    g.rotate((98 - alert * 104 + fbm(t * 0.7 + e.a, 55) * 4) * DEG);
     put(g, P.neck, env.sh * 0.6, 2, 2);
     g.restore();
   },

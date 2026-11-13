@@ -26,7 +26,16 @@ function captions(t) {
 let rz = 0;
 addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { stage.lastT = -1; stage.resize(); if (frozen !== null) stage.render(frozen); }, 120); });
 
+// If a device cannot keep up, trade a little sharpness for smooth motion.
+let lastNow = 0, slow = 0, counted = 0;
+function pace(now) {
+  const dt = now - lastNow; lastNow = now;
+  if (!started || sound.paused || dt > 400) return;
+  counted++; if (dt > 30) slow++;
+  if (counted >= 90) { if (slow > 45 && stage.q > 0.5) { stage.q *= 0.8; stage.lastT = -1; stage.resize(); } counted = slow = 0; }
+}
 function frame(now) {
+  pace(now);
   let t;
   if (frozen !== null) t = frozen;
   else if (!started) { idleT = now / 1000; t = 13.2 + Math.sin(idleT * 0.05) * 0.4; } // a quiet, living frame behind the title
@@ -36,6 +45,7 @@ function frame(now) {
   if (frozen === null) requestAnimationFrame(frame);
   else window.__ready = true;
 }
+window.__stage = stage;
 window.__renderAt = (t) => { stage.lastT = -1; stage.render(t); };
 (document.fonts?.ready || Promise.resolve()).then(() => requestAnimationFrame(frame));
 

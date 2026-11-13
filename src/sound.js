@@ -3,7 +3,9 @@
 // cut-out springs up depends on the shape of the screen.
 export class Sound {
   constructor(src) {
-    this.el = new Audio(); this.el.preload = 'auto'; this.el.src = src;
+    this.el = new Audio(); this.el.preload = 'auto';
+    // load the whole track up front so it can never stall mid-film
+    this.ready = fetch(src).then((r) => { if (!r.ok) throw 0; return r.blob(); }).then((b) => { this.el.src = URL.createObjectURL(b); }).catch(() => { this.el.src = src; });
     this.el.addEventListener('error', () => { this.broken = true; });
     this.el.addEventListener('ended', () => { this.ended = true; this.tailFrom = performance.now(); this.tailT = this.el.duration; });
     this.paused = true; this.ended = false; this.vol = 1;
@@ -17,7 +19,8 @@ export class Sound {
       if (this.ac.state === 'suspended') this.ac.resume();
     }
     this.paused = false; this.wall0 = performance.now();
-    try { await this.el.play(); } catch (e) { this.broken = true; }
+    const playing = this.el.src ? this.el.play() : this.ready.then(() => this.el.play());
+    try { await playing; } catch (e) { this.broken = true; }
   }
   // Film time in seconds. Follows the audio element, smoothed with the frame clock.
   time(now) {

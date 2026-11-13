@@ -1,0 +1,13 @@
+{
+  "name": "fire",
+  "duration": 74,
+  "voice": {"blend": {"bm_lewis": 0.55, "bm_george": 0.45}, "speed": 0.86, "lang": "en-gb"},
+  "narration": [
+    {"t": 1.8, "text": "For millions of years, when the sun went down, the day was simply over."},
+    {"t": 14.0, "text": "Then someone, somewhere, learned to keep a fire alive."},
+    {"t": 29.2, "text": "We don't know who, or when. The oldest traces we can be reasonably sure of lie in a cave in southern Africa: ash, and burnt bone, about a million years old."},
+    {"t": 42.6, "text": "Fire meant warmth, cooked food, and some safety from whatever was out there in the dark."},
+    {"t": 57.0, "text": "And for the first time, the day did not end when the sun did."}
+  ],
+  "events": {"reach": 18.6, "blows": [20.6, 21.8, 23.0], "lit": 23.6, "gazelleUp": 49.2, "pop": 52.5}
+}
