@@ -297,7 +297,7 @@ def build_score(EV, dur):
     S.chords(145.0, 4, bowed, g=0.08, bright=1400, attack=1.5)
     # the wheel gets away
     for i, nm in enumerate(['A5', 'G5', 'F5', 'E5', 'D5', 'C5', 'A4', 'G4', 'F4', 'D4']):
-        S.add(pluck(hz(nm), 1.0, 0.8, 1.5), EV['roll'] + 0.15 + i * 0.16 * (1 - i * 0.04), 0.22, 0.4 - i * 0.12)
+        S.add(pluck(hz(nm), 1.0, 0.8, 1.5), EV['roll'] + 0.15 + i * 0.16 * (1 - i * 0.04), 0.22, -0.3 + i * 0.12)
     # ---- roads and oceans: oud, hand drums, the reed again
     for i in range(int((190 - 168) / 0.25)):
         t = 168 + i * 0.25; s = i % 8
@@ -449,7 +449,7 @@ def ambience(dur, EV):
         m, tv = tvec(0.12); place(out, (lp(rs.randn(m), 700) * np.exp(-tv / 0.012) * 0.5 + np.sin(TAU * 300 * tv) * np.exp(-tv / 0.03) * 0.2) * 0.4, tm - 0.02, 1, rs.rand() * 0.4 - 0.2)
     # the wheel rolling away down the curve
     m, tv = tvec(3.4); rumble = lp(rs.randn(m), 220) * (0.6 + 0.4 * np.sin(TAU * (2 + tv * 2.6) * tv)) * np.exp(-tv / 1.6) * 0.18
-    for i in range(m // 4410): place(out, rumble[i * 4410:(i + 1) * 4410], EV['roll'] + i * 0.1, 1, -0.1 - i * 0.03)
+    for i in range(m // 4410): place(out, rumble[i * 4410:(i + 1) * 4410], EV['roll'] + i * 0.1, 1, min(0.95, 0.05 + i * 0.04))
     # camel bells on the road
     for i in range(14):
         place(out, bell(2200 + rs.rand() * 400, 0.8, 0.6) * 0.06, 169 + i * 1.4 + rs.rand() * 0.3, 1, 0.3)

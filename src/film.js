@@ -159,10 +159,11 @@ for (const a of [312, 331, 365.5]) add('palm', 'main', a, { v: 0, z: 1, scale: 0
 add('person', 'main', 333.8, { v: 'sumer', scale: P2, z: 2 });
 add('person', 'main', 336.4, { v: 'sumer2', scale: P2, z: 2, flip: true });
 add('person', 'main', 347.2, { v: 'scribe', scale: P2, z: 2 });
-add('person', 'main', 359.6, { v: 'wheelwright', scale: P2, z: 2, popAt: EV.wheel - 0.3,
-  move: (t) => -clamp((t - EV.roll - 0.7) * 1.6, 0, 2.6),
-  act: (t) => { const chase = t > EV.roll + 0.7 && t < EV.roll + 2.3; const after = t > EV.roll + 2.3; return { walk: chase ? t * 9 : undefined, lean: chase ? 12 : 2, head: after ? -6 + Math.sin(t * 2) * 3 : 0, front: after ? [-150, -60] : chase ? [-80, -10] : [-20, -30], back: after ? [-150, -60] : [20, -10] }; } });
-add('wheel', 'main', 361.6, { z: 3, popAt: EV.wheel, loud: 1.2, scale: 1.2, move: (t) => { const d = t - EV.roll; return d <= 0 ? 0 : -(1.7 * d * d + 0.3 * d); } });
+// the first wheel gets away, rolling on ahead down the curve of the world
+add('person', 'main', 358.4, { v: 'wheelwright', scale: P2, z: 4, popAt: EV.wheel - 0.3,
+  move: (t) => clamp((t - EV.roll - 0.4) * 1.5, 0, 1.4),
+  act: (t) => { const d = t - EV.roll, chase = d > 0.4 && d < 1.35, after = d >= 1.35; return { walk: chase ? t * 10 : undefined, lean: chase ? 16 : d > 0 ? 6 : 2, head: after ? 4 + Math.sin(t * 1.6) * 3 : d > 0 ? 8 : -6, front: after ? [-160, -70] : d > 0 ? [-95, -8] : [-35, -40], back: after ? [-160, -70] : chase ? [-40, -20] : [10, -10] }; } });
+add('wheel', 'main', 360.4, { z: 5, popAt: EV.wheel, loud: 1.2, scale: 1.6, move: (t) => { const d = t - EV.roll; return d <= 0 ? 0 : 1.5 * d * d + 0.5 * d; } });
 for (let a = 304; a < 372; a += 7) add(R() < 0.5 ? 'mudhouse' : 'palm', 'mid', a, { v: (R() * 4) | 0, scale: 0.55 });
 grassRun(304, 372, 7, 'front', { s: 2 });
 
