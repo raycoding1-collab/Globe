@@ -331,6 +331,9 @@ function state(t, stage) {
   if (t > 290 && t < 322) {
     towers.forEach((tw, i) => { let n = 0; for (let w = 0; w < 24; w++) n += tw.winOn(t, w); lights.push({ a: tw.a, h: 140, r: 420, k: Math.min(1, n / 12) * 0.85, color: [255, 200, 130] }); });
     eLamps.forEach((l) => { const k = l.lit(t); if (k > 0) lights.push({ a: l.a + 0.3, h: 130, r: 300, k, color: [255, 236, 200] }); });
+    // the first electric light in the world, warming the wall around it
+    const first = sramp(t, EV.lights, EV.lights + 0.15) * (1 - 0.6 * sramp(t, EV.lights + 3, EV.lights + 6));
+    if (first > 0) lights.push({ a: towers[1].a - 0.55, h: 232, r: 240, k: 1.1 * first, color: [255, 210, 140] });
   }
   const screen = sramp(t, EV.screens, EV.screens + 1.4);
   if (t > 341 && t < 368 && stage) { const k = sramp(t, 343, 350) * (1 - sramp(t, 360, 367)); lights.push({ screen: [stage.W * 0.5 + 380 * stage.eu, stage.hy + lerp(190, -90, smooth((t - 343) / 19)) * stage.eu], r: 1500, k: 0.55 * k, color: [255, 190, 120] }); }
@@ -354,7 +357,7 @@ function state(t, stage) {
   zoom *= 1 + 0.15 * sramp(t, 4, 14) + 0.6 * sramp(t, 14.5, 21) - 0.45 * sramp(t, 24.5, 34) - 0.3 * sramp(t, 46, 55);
   zoom *= 1 + 0.2 * sramp(t, 79, 83) * (1 - sramp(t, 89, 92));
   zoom *= 1 + 0.08 * sramp(t, 160, 162) * (1 - sramp(t, 166, 169));
-  zoom *= 1 + 0.12 * sramp(t, 296, 300) * (1 - sramp(t, 312, 318));
+  zoom *= 1 + 0.38 * sramp(t, 292, 298.5) - 0.38 * sramp(t, 300.5, 309);
   return {
     fire, lights, emitters, smoke,
     sky: skyK(t), ambient: ambK(t), ground: null,
