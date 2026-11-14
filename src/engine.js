@@ -2,7 +2,7 @@
 // that turn at different speeds, with a paper sky behind and a camera that never
 // stops travelling. Everything is a pure function of film time t, so the film
 // can be paused, scrubbed and resized without anything drifting.
-import { Sheet, put, textures, makeCanvas, KRAFT, SHADOW } from './paper.js';
+import { Sheet, put, textures, makeCanvas, release, KRAFT, SHADOW } from './paper.js';
 import { KINDS } from './cutouts.js';
 import { DEG, clamp, lerp, smooth, sramp, hash, fbm, rgb, mix, spring, rng } from './util.js';
 
@@ -47,14 +47,18 @@ export class Stage {
     this.u = this.R / 1000; this.eu = this.u; this.ecy = this.cy; this.eR = this.R;
     this.vis = Math.asin(Math.min(1, (W / 2) / this.R)) / DEG; // half arc on screen, degrees
     this.texPat = null; this.skyPat = null;
-    this.bake();
     this.schedule();
+    this.bake();
     this.buildPost();
   }
 
   // -- bake every sprite at the size it will be shown -----------------------
   bake() {
+    // a rotated phone bakes everything again: give the old cut-outs' memory back first
+    if (this.baked) { for (const spr of this.baked) { release(spr.img); release(spr.shadow); } }
     const u = this.u * 1.6 * this.zm, cache = new Map(); // oversize, so the camera can push in close
+    const list = new Set(), seen = new Set(), walk = (o, d) => { if (!o || typeof o !== 'object' || seen.has(o) || d > 6) return; seen.add(o); if (o.sprite) { list.add(o); return; } if (o instanceof HTMLCanvasElement) return; for (const k in o) walk(o[k], d + 1); };
+    this.baked = list; // every sprite made, so the next bake can free them
     this.partsOf = (e) => {
       const L = LAYERS[e.layer], blur = e.sharp ? 0 : L.blur;
       // scales are shared in third-of-an-octave steps, so a field of grass is a few bakes, not a hundred
@@ -64,13 +68,22 @@ export class Stage {
       const key = `${e.kind}|${e.v ?? 0}|${sc}|${blur}|${lu}`;
       if (!cache.has(key)) {
         const mk = (name, box, o = {}) => new BlurSheet(name + key, box, lu * sc, o, blur / sc * (lu / u), e.sharp ? 0 : L.tint || 0);
-        cache.set(key, KINDS[e.kind].bake(mk, e.v ?? 0));
+        const v = KINDS[e.kind].bake(mk, e.v ?? 0);
+        cache.set(key, v); walk(v, 0);
       }
       return cache.get(key);
     };
-    for (const e of this.film.entities) e.parts = this.partsOf(e);
+    // Cut-outs are made lazily: nothing waits for the whole world to be cut before the first frame.
+    // Each one is made the first time it is drawn, and meanwhile the rest are cut a few at a time
+    // in the gaps between frames, the ones the film will need soonest first.
+    const ents = this.film.entities;
+    for (const e of ents) e.parts = undefined;
+    this.queue = ents.filter((e) => !e.inside).map((e) => ({ e, t: (e.from ?? e.tPop) - 8 })).concat(ents.filter((e) => e.inside).map((e) => ({ e, t: e.inside.tPop - 8 })));
+    this.queue.sort((a, b) => a.t - b.t);
+    this.queueLeft = this.queue.length;
     const mk = (name, box, o = {}) => new BlurSheet(name, box, u, o, 0);
     this.fx = this.film.bake(mk, (name, box, o = {}) => new BlurSheet(name, box, u, o, 0.6), this);
+    walk(this.fx, 0);
     const { GRAIN, BLOTCH } = textures();
     const tile = makeCanvas(256, 256), tg = tile.getContext('2d');
     tg.drawImage(GRAIN, 0, 0); tg.globalCompositeOperation = 'multiply'; tg.globalAlpha = 0.8; tg.drawImage(BLOTCH, 0, 0);
@@ -84,6 +97,38 @@ export class Stage {
     for (let i = 0; i < 70; i++) this.motes.push({ x: r(), y: r(), s: 0.6 + r() * 1.6, sp: 0.3 + r(), ph: r() * 100, d: r() });
     this.flakes = [];
     for (let i = 0; i < 120; i++) this.flakes.push({ x: r(), y: r(), s: 0.6 + r() * 1.4, sp: 0.5 + r(), ph: r() * 100 });
+  }
+
+  // A soft round glow in one colour, painted once and then stamped: far cheaper than a fresh
+  // gradient for every speck of dust or light, above all in Safari and the in-app browsers built on it.
+  dot(r, g, b, inner) {
+    const key = `${r | 0},${g | 0},${b | 0},${inner || ''}`; this.dots = this.dots || new Map();
+    let c = this.dots.get(key);
+    if (!c) {
+      if (this.dots.size > 48) this.dots.clear();
+      c = makeCanvas(64, 64); const x = c.getContext('2d'), gr = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+      if (inner) { gr.addColorStop(0, `rgb(${inner})`); gr.addColorStop(1, `rgba(${r | 0},${g | 0},${b | 0},0)`); }
+      else { gr.addColorStop(0, `rgb(${r | 0},${g | 0},${b | 0})`); gr.addColorStop(1, `rgba(${r | 0},${g | 0},${b | 0},0)`); }
+      x.fillStyle = gr; x.fillRect(0, 0, 64, 64); this.dots.set(key, c);
+    }
+    return c;
+  }
+  stamp(g, dot, x, y, rad, alpha) { if (alpha <= 0.004 || rad <= 0) return; const a = g.globalAlpha; g.globalAlpha = Math.min(1, alpha); g.drawImage(dot, x - rad, y - rad, rad * 2, rad * 2); g.globalAlpha = a; }
+
+  // Cut a few more of the cut-outs the film will need next, within a time budget (ms).
+  bakeAhead(t, budget) {
+    if (!this.queueLeft) return;
+    const q = this.queue, t0 = performance.now();
+    // first the cut-outs due from now on, soonest first; then any from earlier in the film
+    let i = 0, lo = 0, hi = q.length; while (lo < hi) { const m = (lo + hi) >> 1; q[m].t < t - 4 ? (lo = m + 1) : (hi = m); } i = lo;
+    for (let pass = 0; pass < 2; pass++) {
+      for (let k = pass ? 0 : i; k < (pass ? i : q.length); k++) {
+        const it = q[k]; if (it.e.parts) continue;
+        it.e.parts = this.partsOf(it.e); this.queueLeft--;
+        if (performance.now() - t0 > budget) return;
+      }
+    }
+    this.queueLeft = 0;
   }
 
   // -- when does each cut-out spring up? ------------------------------------
@@ -204,6 +249,7 @@ export class Stage {
     const L = LAYERS[e.layer], a = e.a + (e.move ? e.move(t) : 0), rel = L.sf * (a - cam);
     if (Math.abs(rel) > this.visE + 14 + (e.wide || 0)) return;
     if (Math.abs(rel) > 179) return;
+    if (!e.parts) e.parts = this.partsOf(e); // needed now and not cut yet: cut it now
     const prof = this.film.profile[e.layer];
     const tau = t - e.tPop;
     let p = spring(tau, 10.5, 0.46), wob = tau > 0 ? Math.exp(-2.1 * tau) * Math.sin(8.2 * tau) * 11 : 0;
@@ -255,6 +301,7 @@ export class Stage {
 
   render(t) {
     const { g, wg, W, H, film } = this;
+    this.bakeAhead(t, this.bakeBudget ?? 6);
     // the camera breathes: the faintest drift, like a camera on a tripod in a room with people in it
     const cx = this.cx = W / 2 + fbm(t * 0.11, 41) * W * 0.0035;
     const breathe = fbm(t * 0.09 + 7, 43) * H * 0.004;
@@ -415,14 +462,13 @@ export class Stage {
     // dust in the air, catching whatever light there is
     g.globalCompositeOperation = 'screen';
     const mc = S.moteColor;
+    const moteDot = S.motes > 0.01 ? this.dot(mc[0], mc[1], mc[2]) : null;
     if (S.motes > 0.01) for (const m of this.motes) {
       const x = ((m.x + t * 0.006 * m.sp + Math.sin(t * 0.21 * m.sp + m.ph) * 0.02 - cam * 0.0016 * (0.5 + m.d)) % 1 + 1) % 1 * W;
       const band = 380 * u, y = hy + 50 * u - (((m.y + Math.sin(t * 0.17 + m.ph) * 0.03 + t * 0.004 * m.sp) % 1 + 1) % 1) ** 1.6 * band;
       const al = S.motes * (0.35 + 0.65 * Math.sin(t * 0.7 * m.sp + m.ph) ** 2) * (0.2 + m.d * 0.4) * clamp(1 - Math.abs(x - cx) / (W * 0.55) * 0.6);
       const rad = m.s * u * (1.0 + m.d * 1.5);
-      const gr = g.createRadialGradient(x, y, 0, x, y, rad);
-      gr.addColorStop(0, rgb(mc, al)); gr.addColorStop(1, rgb(mc, 0));
-      g.fillStyle = gr; g.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+      this.stamp(g, moteDot, x, y, rad, al);
     }
 
     // ---- the camera and the film stock ----------------------------------------

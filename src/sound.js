@@ -9,17 +9,34 @@ export class Sound {
     this.el.addEventListener('error', () => { this.broken = true; });
     this.el.addEventListener('ended', () => { this.ended = true; this.paused = true; });
     this.paused = true; this.ended = false; this.vol = 1;
+    // iPhones (and the in-app browsers on them) leave volume to the hardware buttons
+    try { this.el.volume = 0.5; this.volumeWorks = Math.abs(this.el.volume - 0.5) < 0.01; this.el.volume = 1; } catch (e) { this.volumeWorks = false; }
     this.anchorT = 0; this.anchorNow = 0; this.lastFlap = 0;
   }
+  // Must be called straight from the tap on Begin, before anything else that might use up the tap
+  // (asking for full screen does, in Android's in-app browsers): sound is only allowed to start
+  // from a fresh tap there, and on iPhones.
   async start() {
+    // On iPhones (Safari and the in-app browsers of Instagram and others) the ring/silent switch
+    // would mute the paper sounds but not the soundtrack; ask for one consistent film sound.
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+    this.blocked = false;
+    const playing = this.el.play();
     const AC = window.AudioContext || window.webkitAudioContext;
-    if (AC) {
-      this.ac = new AC(); this.out = this.ac.createGain(); this.out.gain.value = 0.5; this.out.connect(this.ac.destination);
-      this.flaps = [0, 1, 2, 3, 4, 5].map((k) => makeFlap(this.ac, k));
-      if (this.ac.state === 'suspended') this.ac.resume();
+    if (AC && !this.ac) {
+      try {
+        this.ac = new AC(); this.out = this.ac.createGain(); this.out.gain.value = 0.5 * this.vol; this.out.connect(this.ac.destination);
+        this.flaps = [0, 1, 2, 3, 4, 5].map((k) => makeFlap(this.ac, k));
+      } catch (e) { this.ac = null; }
     }
+    if (this.ac && this.ac.state === 'suspended') this.ac.resume().catch(() => {});
     this.paused = false; this.anchorNow = performance.now();
-    try { await this.el.play(); } catch (e) { this.broken = true; }
+    try { await playing; }
+    catch (e) {
+      // refused (no fresh tap): wait for another tap, rather than run the film without its sound
+      if (e && e.name === 'NotAllowedError') { this.blocked = true; this.paused = true; }
+      else this.broken = true; // no playable audio at all: the film still runs, on its own clock
+    }
   }
   // Film time in seconds. Follows the audio element, smoothed with the frame clock.
   time(now) {
