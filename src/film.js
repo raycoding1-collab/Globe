@@ -354,6 +354,9 @@ grassRun(1052, 1074, 3.2, 'main', { skip: (a) => a > 1060 && a < 1072 });
 // 16. Blank card -------------------------------------------------------------------------
 for (let a = 1095, i = 0; a < 1185; a += 4.5 + R() * 5, i++) { const tilt = (R() - 0.5) * 7; add('blank', 'main', a, { v: (R() * 5) | 0, z: R() < 0.5 ? 0 : 2, scale: 0.7 + R() * 0.7, loud: 0.9, rot: () => tilt }); }
 for (let a = 1092; a < 1195; a += 7) add('blank', 'mid', a, { v: (R() * 5) | 0, scale: 0.55 });
+// seen whole, the uncut board runs on around the far side: as much again as everything so far
+for (let a = 1189, i = 0; a < 1300; a += 3.6 + R() * 4.2, i++) { const tilt = (R() - 0.5) * 8; add('blank', 'main', a, { v: (R() * 5) | 0, z: R() < 0.5 ? 0 : 2, scale: 0.55 + R() * 0.75, popAt: EV.pull + 4.5 + (a - 1189) * 0.035 + R() * 0.3, loud: 0.25, rot: () => tilt }); }
+for (let a = 1196; a < 1300; a += 8) add('blank', 'mid', a, { v: (R() * 5) | 0, scale: 0.5, popAt: EV.pull + 5 + (a - 1196) * 0.035 });
 for (let a = 1100; a < 1195; a += 14) add('blank', 'far', a, { v: (R() * 5) | 0, scale: 0.3 });
 
 E.sort((p, q) => (p.z || 0) - (q.z || 0) || p.a - q.a);
@@ -1059,4 +1062,4 @@ function bake(mk, mkSoft, stage) {
   return bakeFx(mk, mkSoft, mkBig);
 }
 
-export const film = { duration: DURATION, cam, state, entities: E, byLayer, profile, ground, clouds, bake, shadowDx, body: [110, 80, 52], fx: { sky, ground: groundFx, over: overFx } };
+export const film = { keepFull: (a) => a > 1093, duration: DURATION, cam, state, entities: E, byLayer, profile, ground, clouds, bake, shadowDx, body: [110, 80, 52], fx: { sky, ground: groundFx, over: overFx } };

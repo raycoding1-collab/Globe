@@ -190,7 +190,8 @@ export class Stage {
   paint(g, name, cam) {
     const L = LAYERS[name], body = this.film.body || [88, 64, 44];
     // seen whole, the far side of the planet is plain board, so the end of history never touches its start
-    const col = (rel) => { const c = this.film.ground(name, cam + rel / L.sf); return this.full ? mix(c, name === 'far' ? mix(body, [150, 140, 160], 0.4) : body, smooth((Math.abs(rel) - 95) / 70)) : c; };
+    const kf = this.film.keepFull || (() => false);
+    const col = (rel) => { const a = cam + rel / L.sf, c = this.film.ground(name, a); return this.full ? mix(c, name === 'far' ? mix(body, [150, 140, 160], 0.4) : body, kf(a) ? smooth((Math.abs(rel) - 135) / 44) : smooth((Math.abs(rel) - 95) / 70)) : c; };
     if (!g.createConicGradient) return rgb(col(0));
     const gr = g.createConicGradient(-Math.PI * 1.5, 0, 0), vis = this.full ? 180 : this.visE + 8;
     for (let rel = -180; rel <= 180; rel += Math.abs(rel) <= vis ? 3 : 15) gr.addColorStop((rel + 180) / 360, rgb(col(rel)));
