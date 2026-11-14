@@ -58,6 +58,15 @@ export function bakeFx(mk, mkSoft, mkBig) {
       g.beginPath(); g.moveTo(-44, -10); g.lineTo(-30, 30); g.stroke();
       g.lineWidth = 0.9; g.beginPath(); g.arc(-36, 36, 10, 0, 7); g.moveTo(-26, 36); g.lineTo(10, 36); g.moveTo(-36, 26); g.lineTo(-36, 46); g.stroke();
     });
+    // Galileo's notes: Jupiter as a circle, its moons as stars, night after night
+    S.sidereus = page('sk-sid', (g) => {
+      const rows = [[-26, 14, 30], [-14, 22, 36], [-34, -18, 12], [8, 18, 40], [-30, 10], [-20, 26, -10, 34]];
+      rows.forEach((stars, i) => {
+        const y = -58 + i * 18; g.lineWidth = 0.8; g.beginPath(); g.moveTo(-50, y + 7); g.lineTo(-40, y + 7); g.stroke();
+        g.lineWidth = 1.3; g.beginPath(); g.arc(0, y, 4.2, 0, 7); g.stroke();
+        for (const x of stars) { g.beginPath(); for (let k = 0; k < 3; k++) { const a = k * Math.PI / 3; g.moveTo(x - Math.cos(a) * 2.6, y - Math.sin(a) * 2.6); g.lineTo(x + Math.cos(a) * 2.6, y + Math.sin(a) * 2.6); } g.stroke(); }
+      });
+    });
     S.sketchBody = page('sk-body', (g) => {
       g.beginPath(); g.arc(0, -6, 44, 0, 7); g.stroke(); g.strokeRect(-38, -42, 76, 76);
       g.beginPath(); g.arc(0, -36, 6, 0, 7); g.stroke();
