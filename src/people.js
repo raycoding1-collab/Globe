@@ -37,6 +37,10 @@ export const LOOKS = {
   sumer: { skin: 3, top: 'dress', topCol: '#c9b089', legs: 'robe', legCol: '#c9b089', hair: 'bun', hat: 'band', hatCol: '#6c4b8c', pose: 'stand' },
   sumer2: { skin: 1, top: 'kaunakes', topCol: '#d6c4a0', hair: 'long', beard: 1, pose: 'stand', item: 'basket' },
   wheelwright: { skin: 3, top: 'kaunakes', topCol: '#d8c9a8', hair: 'short', beard: 1, pose: 'stand' },
+  jarW: { skin: 2, top: 'dress', topCol: '#d8c8a8', legs: 'skirt', legCol: '#d8c8a8', hair: 'long', pose: 'walk', item: 'jar' },
+  porter: { skin: 1, top: 'kaunakes', topCol: '#c8b48c', hair: 'short', beard: 1, pose: 'walk', item: 'basket' },
+  urukKid: { skin: 3, top: 'tunic', topCol: '#e0d0b0', hair: 'short', pose: 'walk', small: 0.66 },
+  seller: { skin: 0, top: 'kaunakes', topCol: '#e2d4b4', hair: 'long', beard: 1, hat: 'band', hatCol: '#3a5a6a', pose: 'sit' },
   merchant: { skin: 3, top: 'robe', topCol: '#3f5f8a', legs: 'robe', legCol: '#3f5f8a', sleeve: '#3f5f8a', hat: 'turban', hatCol: '#e7dcc4', beard: 1, pose: 'walk' },
   monk: { skin: 4, top: 'robe', topCol: '#d97a26', legs: 'robe', legCol: '#d97a26', hair: 'bald', pose: 'walk', item: 'scroll' },
   hanM: { skin: 4, top: 'robe', topCol: '#7a2f2a', legs: 'robe', legCol: '#7a2f2a', sleeve: '#7a2f2a', hair: 'bun', hat: 'topknot', pose: 'stand' },
@@ -92,6 +96,7 @@ function bakeItem(mk, name) {
     case 'bundle': return mk('it-bundle', [-14, -14, 14, 14], { pad: 5 }).piece(ellipse(0, 0, 12, 10, 12), '#9a7b52', { round: 3, paint: (g) => { g.strokeStyle = 'rgba(60,40,25,.6)'; g.lineWidth = 1.4; g.beginPath(); g.moveTo(-12, -2); g.lineTo(12, 2); g.moveTo(-3, -10); g.lineTo(2, 10); g.stroke(); } }).finish({ shadowBlur: 3 });
     case 'torch': return mk('it-torch', [-4, -46, 5, 4], { pad: 5 }).piece(strip(0.5, -40, 0, 2, 3.4, 2.6), '#4a3423', { round: 1, thick: 0.9 }).piece([[-3, -38], [3.5, -38], [4, -46], [-3.5, -46]], '#2a1c14', { round: 1, lift: 0.6, thick: 0.6 }).finish({ shadowBlur: 2 });
     case 'sickle': return mk('it-sickle', [-4, -30, 22, 4], { pad: 5 }).piece(strip(0.5, -10, 0, 2, 3, 3), '#5b4331', { round: 1, thick: 0.8 }).piece([[0, -9], [6, -24], [16, -26], [20, -21], [14, -22], [8, -19], [3, -8]], '#8f8a80', { round: 1.5, lift: 1, thick: 0.7 }).finish({ shadowBlur: 2 });
+    case 'jar': return mk('it-jar', [-12, -30, 12, 3], { pad: 5 }).piece([[-5, 0], [-10, -8], [-9, -18], [-4, -22], [-5, -27], [5, -27], [4, -22], [9, -18], [10, -8], [5, 0]], '#a8653c', { round: 2.5, paint: (g) => { g.fillStyle = 'rgba(240,215,170,.4)'; g.fillRect(-9, -15, 18, 1.4); g.fillRect(-9, -11, 18, 0.8); } }).piece([[-6, -26], [6, -26], [6, -29], [-6, -29]], '#8a4f2e', { round: 1, lift: 0.8 }).finish({ shadowBlur: 2 });
     case 'basket': return mk('it-basket', [-12, -16, 12, 4], { pad: 5 }).piece([[-11, -14], [11, -14], [8, 2], [-8, 2]], '#b08a50', { round: 2, paint: (g) => { g.strokeStyle = 'rgba(90,60,30,.5)'; g.lineWidth = 1; for (let y = -12; y < 2; y += 3) { g.beginPath(); g.moveTo(-12, y); g.lineTo(12, y); g.stroke(); } } }).piece(ellipse(0, -15, 9, 3.2, 10), '#d8c27a', { round: 2, lift: 1, thick: 0.6 }).finish({ shadowBlur: 2 });
     case 'scroll': return mk('it-scroll', [-10, -6, 10, 6], { pad: 5 }).piece([[-9, -3.5], [9, -3.5], [9, 3.5], [-9, 3.5]], '#efe2bf', { round: 2 }).piece(ellipse(-9, 0, 2.2, 4.5, 8), '#8a5a2a', { round: 1, lift: 0.8, thick: 0.5 }).finish({ shadowBlur: 2 });
     case 'book': return mk('it-book', [-9, -8, 9, 8], { pad: 5 }).piece([[-8, -6], [8, -6], [8, 6], [-8, 6]], '#6a3b25', { round: 1 }).piece([[-7, -5], [7, -5], [7, 4.5], [-7, 4.5]], '#efe5cc', { round: 0.8, lift: 0.6, thick: 0.4, paint: (g) => { g.fillStyle = 'rgba(60,40,30,.45)'; for (let y = -3.5; y < 4; y += 1.6) { g.fillRect(-6, y, 5, 0.6); g.fillRect(1, y, 5, 0.6); } } }).finish({ shadowBlur: 2 });
@@ -190,6 +195,7 @@ function bakeLook(mk, id, L) {
   return P;
 }
 
+const JAR_Y = 21;
 function arm(g, P, sx, sy, a1, a2, sh, held) {
   g.save(); g.translate(sx, sy); g.rotate(a1 * DEG);
   g.save(); g.translate(0, 19); g.rotate(a2 * DEG);
@@ -210,6 +216,7 @@ function idle(t, e, L) {
   if (L.item === 'phone') { Object.assign(o, { head: 22 + fbm(t * 0.4 + s, 3) * 3, lean: 5, front: [-38, -88] }); if (L.pose !== 'walk') o.back = [-24, -96]; }
   if (L.item === 'spear' || L.item === 'staff' || L.item === 'pole') o.front = [-34 + Math.sin(t * 2 + s) * 3, -62];
   if (L.item === 'torch') o.front = [-130, -20];
+  if (L.item === 'jar') o.back = [-172 + Math.sin(t * 1.1 + s) * 2, 12];
   return o;
 }
 
@@ -221,6 +228,7 @@ function drawItem(g, P, L, t) {
   else if (it === 'torch') g.rotate(110 * DEG), g.translate(0, 10);
   else if (it === 'phone') g.rotate(-60 * DEG), g.translate(1, -2);
   else if (it === 'bundle') g.translate(0, 6);
+  else if (it === 'jar') { g.restore(); return; }
   else if (it === 'book') g.rotate(-70 * DEG);
   put(g, P.item, 0.15, 1, 2);
   g.restore();
@@ -240,7 +248,9 @@ export function drawPerson(g, P, t, e, env, o) {
   g.rotate(o.lean * DEG);
   arm(g, P, -3, -35, o.back[0], o.back[1], 0, null);
   put(g, P.torso, sh, 2, 3);
-  g.save(); g.translate(0.5, -38.5); g.rotate(o.head * DEG); if (sm !== 1) g.scale(1.2, 1.2); put(g, P.head, sh * 0.6, 1.5, 2); g.restore();
+  g.save(); g.translate(0.5, -38.5); g.rotate(o.head * DEG); if (sm !== 1) g.scale(1.2, 1.2); put(g, P.head, sh * 0.6, 1.5, 2);
+  if (L.item === 'jar' && P.item) { g.translate(0, -JAR_Y); g.rotate(-o.head * DEG); put(g, P.item, sh * 0.5, 1, 2); }
+  g.restore();
   arm(g, P, 2, -34.5, o.front[0], o.front[1], sh * 0.5, o.held || ((g2) => drawItem(g2, P, L, t)));
   g.restore();
 }
