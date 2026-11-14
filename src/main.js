@@ -40,6 +40,8 @@ function pace(now) {
 }
 function frame(now) {
   pace(now);
+  // cut the rest of the world in the background: generously behind the title, sparingly once the film runs
+  stage.bakeBudget = !started ? 14 : sound.paused ? 16 : 5;
   let t;
   if (frozen !== null) t = frozen;
   else if (!started) t = 30 + Math.sin(now / 1000 * 0.05) * 0.4; // a quiet, living frame behind the title

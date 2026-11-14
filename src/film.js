@@ -773,8 +773,7 @@ function overFx(g, st, t, S) {
       const a = ca - 6.6 - i * 0.3 - hash(i * 5) * 0.2, h = -2 - hash(i * 3) * 9, tw = 0.5 + 0.5 * Math.sin(t * (2 + hash(i) * 3) + i * 1.7);
       const al = nk * (1 - i / 46) ** 1.4 * tw * 0.8; if (al < 0.03) continue;
       const [x, y] = st.place('main', a, h, t), r = (3 + hash(i * 9) * 3) * u;
-      const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(170,255,230,${al})`); gr.addColorStop(1, 'rgba(90,220,200,0)');
-      g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+      st.stamp(g, st.dot(90, 220, 200, '170,255,230'), x, y, r, al);
     }
     ISLE_FAR.forEach(([a, t0], n) => {
       const k = sramp(t, t0, t0 + 1.2) * (1 - sramp(t, 207, 209.5)); if (k <= 0) return;
@@ -972,8 +971,7 @@ function overFx(g, st, t, S) {
         for (let m = 0; m < 2; m++) {
           const f = (t * (0.35 + hash(n * 3) * 0.3) + hash(n * 7) + m * 0.5) % 1; if (f > grow) continue;
           const [px, py] = P(n % 2 ? f : 1 - f), r = 7 * u;
-          const gr = g.createRadialGradient(px, py, 0, px, py, r); gr.addColorStop(0, `rgba(215,240,255,${0.95 * kk})`); gr.addColorStop(1, 'rgba(130,200,255,0)');
-          g.fillStyle = gr; g.fillRect(px - r, py - r, r * 2, r * 2);
+          st.stamp(g, st.dot(130, 200, 255, '215,240,255'), px, py, r, 0.95 * kk);
         }
         // now and then, a small paper message rides the thread from one hand to the next
         if (hh && t > EV.threadsNet + 1.2 && kk > 0.9) {
