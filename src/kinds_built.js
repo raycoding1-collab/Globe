@@ -2,7 +2,7 @@
 import { put, ellipse, strip, KRAFT, KRAFT_EDGE } from './paper.js';
 import { KINDS } from './cutouts.js';
 import { drawPerson } from './people.js';
-import { rng, fbm, DEG, hash, shade, mix, rgb, clamp, smooth, sramp, spring } from './util.js';
+import { rng, fbm, DEG, hash, shade, mix, rgb, clamp, smooth, sramp, spring, lerp } from './util.js';
 
 const lines = (col, a = 0.35, step = 7, w = 1) => (g, sh) => { g.strokeStyle = rgb(shade(col, -0.35), a); g.lineWidth = w; for (let y = sh.y0; y < sh.y0 + sh.h; y += step) { g.beginPath(); g.moveTo(sh.x0, y); g.lineTo(sh.x0 + sh.w, y + 0.6); g.stroke(); } };
 const bricks = (col, a = 0.3) => (g, sh) => { g.strokeStyle = rgb(shade(col, -0.35), a); g.lineWidth = 0.7; let row = 0; for (let y = sh.y0; y < sh.y0 + sh.h; y += 5, row++) { g.beginPath(); g.moveTo(sh.x0, y); g.lineTo(sh.x0 + sh.w, y); g.stroke(); for (let x = sh.x0 + (row % 2) * 6; x < sh.x0 + sh.w; x += 12) { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 5); g.stroke(); } } };
@@ -371,4 +371,136 @@ KINDS.blank = {
     return { spr: sh.finish() };
   },
   draw(g, P, t, e, env) { g.rotate(fbm(t * 0.3 + e.a, 5) * 1.2 * DEG); put(g, P.spr, env.sh); },
+};
+
+// ------------------------------------------------------- the modern world ---
+const lattice = (x0, x1, y0, y1, step) => (g) => { g.strokeStyle = 'rgba(60,50,30,.55)'; g.lineWidth = 1.1; for (let y = y0; y > y1; y -= step) { g.beginPath(); g.moveTo(x0, y); g.lineTo(x1, y - step); g.moveTo(x1, y); g.lineTo(x0, y - step); g.stroke(); } };
+KINDS.tvtower = {
+  bake(mk) {
+    const sh = mk('tvtower', [-46, -420, 46, 6]);
+    sh.piece([[-26, 4], [-9, -250], [9, -250], [26, 4]], '#cfcac0', { round: 2, paint: (g) => { g.fillStyle = 'rgba(80,80,90,.15)'; g.fillRect(-2, -250, 4, 254); } });
+    sh.piece(ellipse(0, -268, 34, 30, 22), '#b8bec6', { round: 6, lift: 2, paint: (g) => { g.fillStyle = 'rgba(30,40,55,.85)'; g.fillRect(-34, -272, 68, 7); } });
+    sh.piece(rect(-14, -296, 14, -320), '#cfcac0', { round: 2, lift: 1.4 });
+    sh.piece(strip(0, -320, 0, -412, 5, 2), '#9a9ca2', { round: 1, lift: 1 });
+    return { spr: sh.finish({ shadowBlur: 6 }), windows: Array.from({ length: 9 }, (_, i) => [-30 + i * 6.8, -272, 4, 7]) };
+  },
+  draw(g, P, t, e, env) { put(g, P.spr, env.sh, 4, 5); },
+  glow(g, P, t, e, env, p) {
+    windowsGlow(g, P, t, e, env, p);
+    if (p < 0.6 || !(env.S.blink > 0)) return;
+    const on = (t * 0.6 + 0.3) % 1 < 0.45 ? 1 : 0.1; g.globalCompositeOperation = 'lighter';
+    const gr = g.createRadialGradient(0, -412, 0, 0, -412, 22); gr.addColorStop(0, `rgba(255,60,40,${on * env.S.blink})`); gr.addColorStop(1, 'rgba(255,60,40,0)');
+    g.fillStyle = gr; g.fillRect(-22, -434, 44, 44); g.globalCompositeOperation = 'source-over';
+  },
+};
+// A glass tower that narrows as it climbs, its facets catching the light.
+KINDS.twist = {
+  bake(mk, v = 0) {
+    const h = [380, 300][v % 2], wb = [58, 50][v % 2], wt = [26, 30][v % 2], col = ['#6f8aa0', '#7f9aa6'][v % 2];
+    const sh = mk('twist' + v, [-wb - 6, -h - 40, wb + 6, 6]);
+    const win = []; for (let y = -30; y > -h + 20; y -= 17) { const w = wb + (wt - wb) * (-y / h); for (let x = -w + 7; x < w - 9; x += 11) win.push([x, y, 7, 10]); }
+    sh.piece([[-wb, 4], [-wt, -h], [wt, -h], [wb, 4]], col, { round: 2, paint: (g) => { paintWindows(win)(g); g.strokeStyle = 'rgba(220,235,245,.35)'; g.lineWidth = 2; for (let k = -4; k < 6; k++) { g.beginPath(); g.moveTo(k * 22 - 20, 4); g.lineTo(k * 12 + 30, -h); g.stroke(); } g.fillStyle = 'rgba(255,255,255,.10)'; g.beginPath(); g.moveTo(-wb, 4); g.lineTo(-wt, -h); g.lineTo(-wt + 14, -h); g.lineTo(-wb + 30, 4); g.fill(); } });
+    sh.piece(strip(0, -h, 0, -h - 34, 3, 1), '#4a4a50', { round: 0.5, lift: 1 });
+    return { spr: sh.finish({ shadowBlur: 6 }), windows: win, mast: [0, -h - 34] };
+  },
+  draw(g, P, t, e, env) { put(g, P.spr, env.sh, 4, 5); },
+  glow: (g, P, t, e, env, p) => KINDS.tower.glow(g, P, t, e, env, p),
+};
+KINDS.turbine = {
+  bake(mk) {
+    const P = {};
+    P.mast = mk('turb-mast', [-12, -230, 14, 6]).piece([[-7, 4], [-3, -214], [3, -214], [7, 4]], '#e8e6e0', { round: 1.5 }).piece(rect(-6, -218, 14, -230), '#dcdad4', { round: 3, lift: 1.4 }).finish({ shadowBlur: 3 });
+    const rot = mk('turb-rotor', [-100, -100, 100, 100], { pad: 6 });
+    for (let k = 0; k < 3; k++) { const a = k * Math.PI * 2 / 3 - Math.PI / 2, c = Math.cos(a), s = Math.sin(a), n = -s, m = c; rot.piece([[c * 6 + n * 3, s * 6 + m * 3], [c * 92 + n * 1.2, s * 92 + m * 1.2], [c * 94, s * 94], [c * 40 - n * 5, s * 40 - m * 5], [c * 6 - n * 3, s * 6 - m * 3]], '#f0eee8', { round: 1.5, rough: 0.3, lift: 1 }); }
+    rot.piece(ellipse(0, 0, 6, 6, 10), '#d8d6d0', { round: 2, lift: 1.4 });
+    P.rotor = rot.finish({ shadowBlur: 3 });
+    return P;
+  },
+  draw(g, P, t, e, env) { put(g, P.mast, env.sh); g.translate(12, -224); g.rotate(t * (e.speed ?? 0.7) + e.a); put(g, P.rotor, env.sh * 0.5); },
+};
+// A tower crane, hoisting a sheet of blank card into the sky.
+KINDS.crane = {
+  bake(mk) {
+    const P = {}, yel = '#d9a83a';
+    P.mast = mk('crane-mast', [-150, -360, 260, 6])
+      .piece(rect(-10, 4, 10, -330), yel, { round: 1, paint: lattice(-10, 10, 0, -330, 14) })
+      .piece(rect(-140, -330, 250, -342), yel, { round: 1, lift: 1.4, paint: lattice(-140, 250, -330, -342, 12) })
+      .piece(rect(-138, -342, -100, -318), '#6a6460', { round: 2, lift: 2 })
+      .piece(rect(10, -318, 34, -342), '#e8e2d0', { round: 2, lift: 2, paint: (g) => { g.fillStyle = 'rgba(40,50,60,.8)'; g.fillRect(14, -336, 16, 10); } })
+      .piece([[-6, -342], [0, -372], [6, -342]], yel, { round: 1, lift: 1 })
+      .finish({ shadowBlur: 6 });
+    P.board = mk('crane-board', [-46, -4, 46, 80]).piece(rect(-42, 0, 42, 76), '#cfae80', { round: 1.2, rim: 0.6, paint: (g) => { g.strokeStyle = 'rgba(110,80,50,.16)'; g.lineWidth = 1.4; for (let x = -38; x < 42; x += 7) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, 76); g.stroke(); } } }).finish({ shadowBlur: 4 });
+    return P;
+  },
+  draw(g, P, t, e, env) {
+    put(g, P.mast, env.sh, 5, 6);
+    const k = e.hoist ? e.hoist(t) : 0, tx = 120 + 90 * (e.trolley ? e.trolley(t) : 0), ly = lerp(-30, -300, k);
+    const sw = Math.sin(t * 1.1) * 4 * (0.4 + k);
+    g.strokeStyle = 'rgba(40,36,34,.85)'; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(tx, -336); g.lineTo(tx + sw, ly - 6); g.stroke();
+    g.save(); g.translate(tx + sw, ly - 6); g.rotate(sw * 0.01); g.beginPath(); g.moveTo(0, 0); g.lineTo(-36, 6); g.moveTo(0, 0); g.lineTo(36, 6); g.stroke(); g.translate(0, 6); put(g, P.board, env.sh * 0.6, 3, 4); g.restore();
+  },
+};
+KINDS.dish = {
+  bake(mk) {
+    const P = {};
+    P.base = mk('dish-base', [-30, -80, 30, 6]).piece([[-26, 4], [-8, -70], [8, -70], [26, 4]], '#bfbcb4', { round: 2 }).finish({ shadowBlur: 3 });
+    P.dish = mk('dish-dish', [-70, -20, 70, 40], { pad: 6 }).piece([[-66, -10], [-40, 18], [0, 30], [40, 18], [66, -10], [40, 2], [0, 10], [-40, 2]], '#e6e4de', { round: 6, paint: (g) => { g.strokeStyle = 'rgba(120,120,130,.4)'; g.lineWidth = 1; for (let x = -50; x < 60; x += 14) { g.beginPath(); g.moveTo(x, -6); g.lineTo(x * 0.6, 22); g.stroke(); } } }).piece(strip(0, 10, 0, -40, 3, 2), '#9a9ca2', { round: 1, lift: 1 }).finish({ shadowBlur: 4 });
+    return P;
+  },
+  draw(g, P, t, e, env) { put(g, P.base, env.sh); g.translate(0, -74); g.rotate((-30 + Math.sin(t * 0.15 + e.a) * 22) * DEG); put(g, P.dish, env.sh * 0.6); },
+};
+KINDS.tram = {
+  bake(mk) {
+    const P = {}, win = [];
+    for (let x = -86; x < 80; x += 24) win.push([x, -66, 18, 22]);
+    P.car = mk('tram', [-104, -96, 104, 6])
+      .piece([[-100, -14], [-100, -86], [-80, -94], [80, -94], [100, -86], [100, -14]], '#e9ece8', { round: 6, paint: (g) => { paintWindows(win)(g); g.fillStyle = '#2f7f86'; g.fillRect(-100, -38, 200, 8); g.fillStyle = 'rgba(40,40,45,.8)'; g.fillRect(-100, -20, 200, 6); } })
+      .piece(rect(-60, -94, 60, -100), '#9a9ca2', { round: 1, lift: 1 })
+      .finish({ shadowBlur: 4 });
+    P.wheel = mk('tram-w', [-10, -10, 10, 10], { pad: 4 }).piece(ellipse(0, 0, 8, 8, 12), '#3a3638', { round: 2 }).finish({ shadowBlur: 2 });
+    P.windows = win;
+    return P;
+  },
+  draw(g, P, t, e, env) {
+    for (const off of [0, -212]) { g.save(); g.translate(off, -8); put(g, P.car, env.sh, 3, 4); for (const x of [-70, 70]) { g.save(); g.translate(x, -10); put(g, P.wheel, 0); g.restore(); } g.restore(); }
+  },
+  glow(g, P, t, e, env, p) {
+    if (!e.winOn || p < 0.6) return; const k = e.winOn(t, 0); if (k < 0.01) return;
+    g.globalCompositeOperation = 'lighter';
+    for (const off of [0, -212]) for (const [x, y, w, h] of P.windows) { g.fillStyle = `rgba(220,240,255,${0.75 * k})`; g.fillRect(off + x, y - 8, w, h); }
+    g.globalCompositeOperation = 'source-over';
+  },
+};
+KINDS.bench = {
+  bake(mk) { return { spr: mk('bench', [-40, -40, 40, 6]).piece(rect(-38, -24, 38, -30), '#7a5a3e', { round: 1 }).piece(rect(-38, -34, 38, -40), '#7a5a3e', { round: 1, lift: 1 }).piece(rect(-34, 4, -30, -24), '#3a3638', { round: 0.5 }).piece(rect(30, 4, 34, -24), '#3a3638', { round: 0.5 }).finish({ shadowBlur: 3 }) }; },
+  draw(g, P, t, e, env) { put(g, P.spr, env.sh); },
+};
+// A rounded car of the 1930s, its headlamps on.
+KINDS.car = {
+  bake(mk) {
+    const P = {};
+    P.body = mk('car', [-70, -58, 76, 6])
+      .piece([[-64, -14], [-62, -30], [-40, -34], [-26, -54], [16, -54], [30, -34], [60, -30], [70, -20], [70, -12], [-64, -10]], '#2f4a3e', { round: 8, paint: (g) => { g.fillStyle = 'rgba(30,26,24,.85)'; g.beginPath(); g.moveTo(-22, -34); g.lineTo(-12, -50); g.lineTo(-2, -50); g.lineTo(-2, -34); g.fill(); g.beginPath(); g.moveTo(3, -34); g.lineTo(3, -50); g.lineTo(13, -50); g.lineTo(24, -34); g.fill(); g.fillStyle = 'rgba(220,200,150,.6)'; g.fillRect(-64, -22, 134, 2); } })
+      .piece([[-70, -12], [-50, -24], [-34, -12]], '#1e2a24', { round: 4, lift: 1 })
+      .piece([[30, -12], [46, -26], [64, -12]], '#1e2a24', { round: 4, lift: 1 })
+      .piece(ellipse(66, -24, 4, 4, 8), '#e8dcb0', { round: 1, lift: 1 })
+      .finish({ shadowBlur: 4 });
+    P.wheel = mk('car-w', [-14, -14, 14, 14], { pad: 4 }).piece(ellipse(0, 0, 11, 11, 14), '#1e1c1c', { round: 3, paint: (g) => { g.fillStyle = '#b8b2a4'; g.beginPath(); g.arc(0, 0, 4.5, 0, 7); g.fill(); } }).finish({ shadowBlur: 2 });
+    return P;
+  },
+  draw(g, P, t, e, env) {
+    const d = e.move ? e.move(t) * DEG * 1000 : 0;
+    g.translate(0, -12 + Math.sin(t * 13) * 0.4); put(g, P.body, env.sh, 3, 4);
+    for (const x of [-42, 47]) { g.save(); g.translate(x, -2); g.rotate(d / 11); put(g, P.wheel, 0); g.restore(); }
+  },
+  glow(g, P, t, e, env, p) {
+    const k = e.lit ? e.lit(t) : 0; if (k < 0.01 || p < 0.6) return;
+    g.globalCompositeOperation = 'lighter';
+    const gr = g.createRadialGradient(66, -36, 0, 66, -36, 22); gr.addColorStop(0, `rgba(255,240,200,${k})`); gr.addColorStop(1, 'rgba(255,240,200,0)');
+    g.fillStyle = gr; g.fillRect(44, -58, 44, 44);
+    const beam = g.createLinearGradient(70, -36, 230, -10); beam.addColorStop(0, `rgba(255,236,190,${0.35 * k})`); beam.addColorStop(1, 'rgba(255,236,190,0)');
+    g.fillStyle = beam; g.beginPath(); g.moveTo(68, -40); g.lineTo(240, -64); g.lineTo(240, 6); g.lineTo(68, -30); g.closePath(); g.fill();
+    g.globalCompositeOperation = 'source-over';
+  },
 };

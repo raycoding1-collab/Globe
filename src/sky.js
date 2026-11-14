@@ -27,6 +27,27 @@ export function bakeFx(mk, mkSoft, mkBig) {
     .piece([[-10, 0], [-18, 12], [-10, 10]], '#2a2628', { round: 1, lift: 1 }).piece([[10, 0], [18, 12], [10, 10]], '#2a2628', { round: 1, lift: 1 }).finish({ shadowBlur: 3 });
   // a bird is two wings of dark paper
   S.wing = mk('wing', [-2, -12, 30, 5], { pad: 4 }).piece([[0, -1], [8, -7], [18, -10], [28, -9], [16, -4], [6, 3]], '#2b2420', { round: 2, rough: 0.4, rim: 0.2, thick: 0.6, lift: 0 }).finish({ shadowBlur: 2 });
+  // the first people on the Moon, and their flag
+  S.astro = mk('astro', [-12, -34, 12, 4], { pad: 4 })
+    .piece([[-6, 2], [-6, -8], [-7, -20], [7, -20], [6, -8], [6, 2], [2, 2], [1, -6], [-1, -6], [-2, 2]], '#eeeeea', { round: 2, rough: 0.3 })
+    .piece(rect(-10, -19, -6, -9), '#d6d6d0', { round: 1, lift: 0.8 })
+    .piece(ellipse(1, -25, 6.5, 6.5, 12), '#f2f2ee', { round: 2, lift: 1 })
+    .piece(ellipse(3, -25, 4, 3.6, 10), '#c9a24a', { round: 1.5, lift: 0.8 })
+    .finish({ shadowBlur: 2 });
+  S.flag = mk('flag', [-2, -40, 22, 4], { pad: 4 })
+    .piece(strip(0, 2, 0, -38, 1.4, 1.2), '#9a9ca2', { round: 0.5 })
+    .piece(rect(1, -37, 20, -26), '#f0ece4', { round: 0.6, rough: 0.2, lift: 0.6, paint: (g) => { g.fillStyle = '#b8332e'; for (let y = -37; y < -26; y += 2.2) g.fillRect(1, y, 19, 1.1); g.fillStyle = '#2c3d6e'; g.fillRect(1, -37, 8, 5.5); } })
+    .finish({ shadowBlur: 2 });
+  S.jet = mk('jet', [-60, -16, 60, 14])
+    .piece([[-56, -2], [-40, -6], [44, -6], [58, 0], [44, 5], [-40, 5]], '#eceae4', { round: 4 })
+    .piece([[-6, 0], [-22, 14], [-12, 14], [10, 2]], '#d8d6d0', { round: 1, lift: 1 })
+    .piece([[-50, -4], [-58, -16], [-50, -16], [-40, -5]], '#d8d6d0', { round: 1, lift: 1 })
+    .finish({ shadowBlur: 3 });
+  S.bomber = mk('bomber', [-70, -20, 70, 18])
+    .piece([[-64, -2], [-48, -8], [52, -8], [66, 0], [52, 6], [-48, 6]], '#3a3434', { round: 4, rim: 0.2 })
+    .piece([[-10, -2], [-30, 18], [-14, 18], [12, 0]], '#2e2a2a', { round: 1, lift: 1, rim: 0.2 })
+    .piece([[-56, -4], [-66, -18], [-56, -18], [-46, -6]], '#2e2a2a', { round: 1, lift: 1, rim: 0.2 })
+    .finish({ shadowBlur: 3 });
   S.sat = mk('sat', [-46, -14, 46, 14]).piece(rect(-10, -10, 10, 10), '#c9a24a', { round: 2 }).piece(rect(-44, -6, -14, 6), '#3a5a8a', { round: 1, lift: 1, paint: (g) => { g.strokeStyle = 'rgba(200,220,255,.5)'; g.lineWidth = 0.6; for (let x = -40; x < -14; x += 6) { g.beginPath(); g.moveTo(x, -6); g.lineTo(x, 6); g.stroke(); } } }).piece(rect(14, -6, 44, 6), '#3a5a8a', { round: 1, lift: 1 }).finish({ shadowBlur: 3 });
   // printed pages that fly like birds: one wing, drawn twice
   S.page = mk('page', [-2, -16, 26, 16], { pad: 4 }).piece(rect(0, -14, 24, 14), '#f1e8d2', { round: 1, rough: 0.3, rim: 0.3, paint: (g) => { g.fillStyle = 'rgba(40,30,25,.55)'; for (let y = -10; y < 12; y += 3) g.fillRect(3, y, 17 - (y > 8 ? 8 : 0), 1); } }).finish({ shadowBlur: 2 });

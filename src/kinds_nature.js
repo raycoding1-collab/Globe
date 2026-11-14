@@ -94,7 +94,7 @@ KINDS.kangaroo = {
 // --------------------------------------------------------------- sheep ---
 KINDS.sheep = {
   bake(mk, v = 0) {
-    const r = rng(60 + v), wool = ['#e9e0cc', '#ddd2b8', '#cfc3a6'][v % 3];
+    const r = rng(60 + v), wool = ['#e9e0cc', '#ddd2b8', '#cfc3a6', '#8a6a4a', '#4a3a32'][v % 5];
     const P = {};
     const lg = mk('sheep-legs' + v, [-26, -6, 26, 26]);
     for (const x of [-18, -10, 10, 18]) lg.piece(strip(x, -4, x, 22, 4, 3.6), '#2e2622', { round: 1, thick: 0.7 });

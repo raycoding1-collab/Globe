@@ -1,6 +1,6 @@
 {
  "name": "film",
- "duration": 374,
+ "duration": 472,
  "voice": {
   "blend": {
    "bm_lewis": 0.55,
@@ -36,27 +36,39 @@
    "title": "Printing"
   },
   {
-   "t": 225,
+   "t": 225.5,
+   "title": "Renaissance"
+  },
+  {
+   "t": 246,
    "title": "Two worlds meet"
   },
   {
-   "t": 250,
+   "t": 272.5,
    "title": "Science"
   },
   {
-   "t": 266,
-   "title": "Industry"
+   "t": 289,
+   "title": "Enlightenment"
   },
   {
-   "t": 291,
+   "t": 315.5,
+   "title": "The 1800s"
+  },
+  {
+   "t": 352,
    "title": "Electric light"
   },
   {
-   "t": 317,
-   "title": "The networked world"
+   "t": 377,
+   "title": "The twentieth century"
   },
   {
-   "t": 339,
+   "t": 418,
+   "title": "Today"
+  },
+  {
+   "t": 437,
    "title": "Everything so far"
   }
  ],
@@ -146,55 +158,91 @@
    "text": "Books multiplied. So did arguments."
   },
   {
-   "t": 226.4,
+   "t": 227.0,
+   "text": "In Italian cities, artists and engineers studied the ancient world, and the real one."
+  },
+  {
+   "t": 234.0,
+   "text": "They learned to paint depth, drew the body from life, and raised the largest dome since Roman times."
+  },
+  {
+   "t": 248.6,
    "text": "In 1492, European ships reached the Americas, and two halves of the world collided."
   },
   {
-   "t": 234.6,
+   "t": 256.8,
    "text": "Maize and potatoes went on to feed much of the world. But diseases from Europe killed a large share of the people of the Americas, and over twelve million Africans were forced across the Atlantic in chains."
   },
   {
-   "t": 252.4,
+   "t": 275.0,
    "text": "In 1610, Galileo turned a telescope on Jupiter, and saw moons going around it."
   },
   {
-   "t": 260.4,
+   "t": 283.0,
    "text": "Science was a new habit: look carefully, test the idea, and trust the evidence."
   },
   {
-   "t": 268.6,
+   "t": 292.6,
+   "text": "In the 1700s, a bold idea spread through coffeehouses and pamphlets: that ordinary people could reason for themselves, and govern themselves."
+  },
+  {
+   "t": 305.4,
+   "text": "Revolutions followed: in America, in France, and in Haiti, where enslaved people won their freedom and founded a nation."
+  },
+  {
+   "t": 318.4,
    "text": "Then steam engines turned coal into motion, and factories and railways spread across the world."
   },
   {
-   "t": 276.6,
-   "text": "With them, and with medicine, ordinary lives began to change. In 1800, more than four in ten children died before the age of five. Today, fewer than one in twenty do."
+   "t": 326.6,
+   "text": "The telegraph carried words across oceans in minutes. The camera could hold a moment for ever."
   },
   {
-   "t": 294.6,
+   "t": 336.8,
+   "text": "And with medicine, ordinary lives began to change. In 1800, more than four in ten children died before the age of five. Today, fewer than one in twenty do."
+  },
+  {
+   "t": 355.4,
    "text": "And then, the night changed."
   },
   {
-   "t": 308.2,
+   "t": 368.8,
    "text": "Electricity. Light at the flick of a switch, and power carried by wire to almost anywhere."
   },
   {
-   "t": 318.0,
-   "text": "In 1903, a powered aeroplane flew for twelve seconds. Sixty-six years later, people walked on the Moon."
+   "t": 379.6,
+   "text": "In 1903, a powered aeroplane flew for twelve seconds."
   },
   {
-   "t": 329.0,
+   "t": 385.4,
+   "text": "Cars filled the roads, and radio brought voices into millions of homes."
+  },
+  {
+   "t": 393.0,
+   "text": "The same century fought two world wars, which killed tens of millions of people."
+  },
+  {
+   "t": 402.6,
+   "text": "It also found antibiotics and vaccines, which have saved hundreds of millions."
+  },
+  {
+   "t": 410.4,
+   "text": "And sixty-six years after that first flight, people walked on the Moon."
+  },
+  {
+   "t": 421.0,
    "text": "Today, most of the eight billion people alive carry a computer in their pocket, connected to nearly everyone else."
   },
   {
-   "t": 342.0,
+   "t": 440.0,
    "text": "And that is everything, so far."
   },
   {
-   "t": 349.6,
+   "t": 447.6,
    "text": "Ahead, the cardboard is still blank. No one has cut it yet."
   },
   {
-   "t": 357.8,
+   "t": 455.8,
    "text": "That part is up to us."
   }
  ],
@@ -264,31 +312,53 @@
    217.8
   ],
   "pages": 221.0,
-  "ship": 225.0,
-  "dim": 239.0,
+  "linesAt": 228.2,
+  "depthAt": 235.0,
+  "dome": 239.0,
+  "ship": 247.0,
+  "dim": 261.1,
   "folds": [
-   241.6,
-   242.8
+   263.7,
+   264.9
   ],
-  "undim": 248.5,
-  "jupiter": 255.0,
-  "moons": 257.6,
-  "train": 270.4,
+  "undim": 270.5,
+  "jupiter": 277.6,
+  "moons": 279.8,
+  "pamphlets": 297.5,
+  "crown": 305.6,
+  "flags": [
+   307.0,
+   308.1,
+   309.4
+  ],
+  "train": 319.5,
+  "telegraph": 326.8,
+  "flash": 331.6,
+  "photo": 332.5,
+  "school": 340.4,
   "lamps": [
-   286.2,
-   287.6,
-   289.0
+   347.6,
+   348.6,
+   349.6
   ],
-  "lights": 297.0,
-  "lightsFull": 307.0,
-  "plane": 318.2,
-  "rocket": 323.2,
-  "landing": 325.8,
-  "screens": 329.0,
-  "threadsNet": 331.0,
-  "blank": 339.0,
-  "pull": 346.0,
-  "title": 361.0,
-  "end": 374.0
+  "firstLight": 358.4,
+  "spark": 359.8,
+  "lightsFull": 368.0,
+  "flyer": 380.2,
+  "landed": 384.4,
+  "cars": 385.2,
+  "radio": 388.6,
+  "war": 393.0,
+  "warEnd": 401.5,
+  "dish": 403.0,
+  "saved": 405.6,
+  "rocket": 410.4,
+  "landing": 413.2,
+  "screens": 421.4,
+  "threadsNet": 423.2,
+  "blank": 437.5,
+  "pull": 440.5,
+  "title": 459.5,
+  "end": 472.0
  }
 }
