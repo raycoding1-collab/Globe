@@ -294,7 +294,7 @@ add('hoop', 'main', 905.6, { z: 3, popAt: EV.school + 0.7, scale: 1.15, move: (t
 const gasLamps = [856, 870.6, 895.2].map((a, i) => add('lamp', 'main', a, { v: 0, z: 2, lit: (t) => sramp(t, EV.lamps[i], EV.lamps[i] + 0.4) }));
 add('person', 'main', 852.6, { v: 'worker', scale: P2, z: 2 });
 add('person', 'main', 862, { v: 'worker2', scale: P2, z: 3, move: (t) => (t - 316) * 0.3 });
-const train = add('train', 'main', 812, { z: 4, scale: 0.9, from: 316.2, to: 336, move: (t) => Math.max(0, t - EV.train + 3) * 7.4, winOn: (t) => 0 });
+const train = add('train', 'main', 812, { z: 4, scale: 0.9, wide: 18, prof: (a) => profile.main(a), from: 316.2, to: 336, move: (t) => Math.max(0, t - EV.train + 3) * 7.4, winOn: (t) => 0 });
 for (let a = 840; a < 912; a += 9) add('factory', 'mid', a, { v: (R() * 2) | 0, scale: 0.5 });
 
 // 13. Electric light: a street of paper dollhouses ----------------------------------------

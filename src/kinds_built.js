@@ -311,8 +311,12 @@ KINDS.train = {
   },
   draw(g, P, t, e, env) {
     const d = e.move ? e.move(t) * DEG * 1000 : 0, rock = Math.sin(t * 9) * 0.6;
+    // The coaches follow the curve of the world behind the engine: each one stands on the ground
+    // under its own wheels, tilted to it, instead of sticking out straight into the air.
+    const sc = e.scale || 1, a0 = e.a + (e.move ? e.move(t) : 0), pr = e.prof || (() => 0), lift = e.y || 0, r0 = 1000 + pr(a0) + lift;
     for (const off of [-150, -280]) {
-      g.save(); g.translate(off, rock);
+      const dr = (off * sc) / r0, r1 = 1000 + pr(a0 + dr / DEG) + lift;
+      g.save(); g.translate((Math.sin(dr) * r1) / sc, (r0 - Math.cos(dr) * r1) / sc + rock); g.rotate(dr);
       put(g, P.coach, env.sh, 3, 4);
       for (const x of [-38, 38]) { g.save(); g.translate(x, -12); g.rotate(d / 14); put(g, P.wheel, 0); g.restore(); }
       g.restore();
@@ -323,7 +327,13 @@ KINDS.train = {
   glow(g, P, t, e, env, p) {
     if (!e.winOn || p < 0.6) return; const k = e.winOn(t, 0); if (k < 0.01) return;
     g.globalCompositeOperation = 'lighter';
-    for (const off of [-150, -280]) for (const [x, y, w, h] of P.coachWin) { g.fillStyle = `rgba(255,200,120,${0.8 * k})`; g.fillRect(off + x, y, w, h); }
+    const sc = e.scale || 1, a0 = e.a + (e.move ? e.move(t) : 0), pr = e.prof || (() => 0), lift = e.y || 0, r0 = 1000 + pr(a0) + lift;
+    for (const off of [-150, -280]) {
+      const dr = (off * sc) / r0, r1 = 1000 + pr(a0 + dr / DEG) + lift;
+      g.save(); g.translate((Math.sin(dr) * r1) / sc, (r0 - Math.cos(dr) * r1) / sc); g.rotate(dr);
+      for (const [x, y, w, h] of P.coachWin) { g.fillStyle = `rgba(255,200,120,${0.8 * k})`; g.fillRect(x, y, w, h); }
+      g.restore();
+    }
     g.globalCompositeOperation = 'source-over';
   },
 };
