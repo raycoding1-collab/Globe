@@ -286,6 +286,13 @@ const ambK = track([
   [250.5, [90, 92, 130]], [253.5, [60, 68, 112]], [266, [60, 68, 112]], [269, [226, 214, 200]], [283, [216, 202, 190]], [288, [140, 112, 124]], [292, [36, 42, 76]], [317, [36, 42, 76]],
   [320, [34, 40, 74]], [339, [34, 40, 74]], [345, [90, 90, 130]], [353, [200, 182, 176]], [364, [255, 250, 240]],
 ]);
+// the colour of each era, laid over everything with a soft-light grade
+const gradeK = track([
+  [0, [255, 170, 95, 0.16]], [50, [255, 170, 95, 0.16]], [57, [255, 205, 150, 0.1]], [92, [255, 205, 150, 0.1]], [100, [255, 196, 120, 0.14]], [165, [255, 190, 110, 0.15]],
+  [186, [255, 186, 120, 0.12]], [193, [70, 130, 175, 0.2]], [205, [70, 130, 175, 0.2]], [211, [215, 214, 205, 0.08]], [236, [215, 214, 205, 0.08]], [241, [140, 146, 160, 0.26]], [248, [140, 146, 160, 0.26]],
+  [253, [90, 110, 175, 0.16]], [266, [90, 110, 175, 0.16]], [270, [205, 160, 110, 0.26]], [286, [205, 160, 110, 0.26]], [292, [255, 190, 100, 0.16]], [316, [255, 190, 100, 0.16]],
+  [321, [80, 150, 205, 0.2]], [338, [80, 150, 205, 0.2]], [346, [255, 185, 150, 0.16]], [374, [255, 196, 150, 0.14]],
+]);
 const moteK = track([[0, [255, 222, 170]], [12, [150, 170, 225]], [22, [150, 170, 225]], [28, [255, 190, 120]], [52, [255, 222, 170]], [80, [255, 190, 120]], [92, [255, 222, 170]], [270, [200, 190, 170]], [292, [255, 220, 170]], [318, [160, 200, 255]], [345, [255, 222, 170]]]);
 // the sun only shows itself at the edges of the day
 const SUNS = [[-1, 13, -430, -78, 170], [50, 58, 430, 170, -60], [74, 80, -430, -40, 170], [90.5, 97, 430, 170, -60], [186, 193, -430, -40, 170], [205, 211, 430, 170, -60], [284, 290, -430, -40, 170], [343, 362, 380, 190, -90]];
@@ -368,7 +375,7 @@ function state(t, stage) {
     snow: sramp(t, 61.5, 63.5) * (1 - sramp(t, 68.5, 70)),
     motes: lerp(0.5, 0.3, sramp(t, 4, 14)) + 0.3 * clamp(fire.lit) * (t < 55), moteColor: moteK(t),
     stencil: sramp(t, EV.hand + 0.3, EV.hand + 1.4),
-    screen, blink: sramp(t, 300, 302), bloom: 0.16 + 0.34 * nightK,
+    screen, blink: sramp(t, 300, 302), bloom: 0.16 + 0.34 * nightK, grade: gradeK(t), rays: t > 343 ? 1.4 : 1,
     zoom, pull,
     fade: Math.max(1 - sramp(t, 0.1, 3.4), sramp(t, DURATION - 3.5, DURATION)),
   };
@@ -476,7 +483,44 @@ function groundFx(g, st, t, S) {
 }
 
 function overFx(g, st, t, S) {
-  const { W, H } = st, u = st.eu;
+  const { W, H } = st, u = st.eu, c = cam(t);
+  // light glinting on the sea
+  if (water(c) > 0.2 || water(c - 25) > 0.2 || water(c + 25) > 0.2) {
+    g.globalCompositeOperation = 'screen';
+    const vis = st.visE + 5, night = S.stars > 0.5;
+    for (let a = Math.floor(c - vis), i = 0; a < c + vis; a += 0.45, i++) {
+      if (water(a) < 0.9) continue;
+      const id = Math.round(a * 10), tw = Math.max(0, Math.sin(t * (1.6 + hash(id) * 1.4) + hash(id * 3) * 40)) ** 14;
+      if (tw < 0.04) continue;
+      const [x, y, rel] = st.place('main', a, -2 - hash(id * 5) * 3, t), w = (4 + hash(id * 7) * 6) * u;
+      g.save(); g.translate(x, y); g.rotate(rel);
+      g.fillStyle = night ? `rgba(200,220,255,${0.55 * tw})` : `rgba(255,250,235,${0.85 * tw})`; g.fillRect(-w / 2, -0.8 * u, w, 1.6 * u);
+      g.restore();
+    }
+    g.globalCompositeOperation = 'source-over';
+  }
+  // fireflies in Galileo's garden
+  if (t > 250 && t < 270) {
+    const k = sramp(t, 251, 253) * (1 - sramp(t, 266, 269));
+    g.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 26; i++) {
+      const a = 684 + hash(i * 11) * 36 + Math.sin(t * 0.3 + i) * 0.6, h = 14 + hash(i * 13) * 110 + Math.sin(t * 0.7 + i * 2) * 10;
+      const pulse = Math.max(0, Math.sin(t * (1.1 + hash(i) * 0.8) + i * 2.1)) ** 3 * k;
+      if (pulse < 0.03) continue;
+      const [x, y] = st.place('main', a, h, t), r = 9 * u;
+      const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(230,255,150,${pulse})`); gr.addColorStop(0.25, `rgba(190,240,110,${pulse * 0.4})`); gr.addColorStop(1, 'rgba(160,220,90,0)');
+      g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+    g.globalCompositeOperation = 'source-over';
+  }
+  // soot settling over the first industrial towns
+  if (t > 267 && t < 293) {
+    const k = sramp(t, 268, 271) * (1 - sramp(t, 289, 293));
+    for (let i = 0; i < 70; i++) {
+      const x = ((hash(i * 3) + Math.sin(t * 0.3 + i) * 0.01 - c * 0.002) % 1 + 1) % 1 * W, y = ((hash(i * 7) + t * 0.025 * (0.6 + hash(i))) % 1) * H * 0.85;
+      g.fillStyle = `rgba(48,40,36,${0.5 * k})`; g.save(); g.translate(x, y); g.rotate(t * (0.5 + hash(i)) + i); g.fillRect(-1.6 * u, -1 * u, 3.2 * u, 2 * u); g.restore();
+    }
+  }
   // close-ups: the tablet, then the three inventions of writing
   if (t > EV.tablet - 0.2 && t < EV.tabletOut + 1.4) {
     const up = clamp(spring(t - EV.tablet, 5.2, 0.55), 0, 1.3), out = sramp(t, EV.tabletOut, EV.tabletOut + 1.1);
@@ -551,6 +595,16 @@ function bake(mk, mkSoft, stage) {
   return bakeFx(mk, mkSoft, mkBig);
 }
 
+// shadows fall away from the strongest light nearby: the fire, the torch, a low sun
+function shadowDx(e, a, t, S) {
+  let dx = 0;
+  const lit = S.fire ? Math.min(1, S.fire.lit) : 0;
+  if (lit > 0.02 && Math.abs(a) < 18) dx += clamp(a / 3.5, -1, 1) * 11 * lit * (1 - clamp((Math.abs(a) - 7) / 11));
+  if (t > 77.8 && t < 100 && Math.abs(a - 193.2) < 12) dx += clamp((a - 193.2) / 3, -1, 1) * 9 * sramp(t, 77.8, 78.6);
+  if (S.sun && S.sun.k > 0) dx -= Math.sign(S.sun.x) * 7 * S.sun.k * clamp((S.sun.y + 120) / 260);
+  return e.flip ? -dx : dx;
+}
+
 // flocks of paper birds at dusk and dawn
 const FLOCKS = [[1.5, 12, -1, 0.3, 9], [53, 63, 1, 0.24, 7], [95, 105, 1, 0.2, 6], [208, 217, -1, 0.22, 7], [344, 358, 1, 0.26, 11]];
 function birds(g, st, t) {
@@ -582,4 +636,4 @@ function guideStar(g, st, t) {
   g.globalCompositeOperation = 'source-over';
 }
 
-export const film = { duration: DURATION, cam, state, entities: E, byLayer, profile, ground, clouds, bake, body: [84, 62, 44], fx: { sky, ground: groundFx, over: overFx } };
+export const film = { duration: DURATION, cam, state, entities: E, byLayer, profile, ground, clouds, bake, shadowDx, body: [84, 62, 44], fx: { sky, ground: groundFx, over: overFx } };

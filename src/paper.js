@@ -233,11 +233,13 @@ export class Sheet {
 }
 
 // Draw a baked sprite with its anchor at the current origin (context is in design units).
+// Where the light comes from: the stage shifts every shadow away from the strongest light nearby.
+export const SHADOW = { dx: 0 };
 export function put(g, spr, shadowAlpha = 0, sx = 3, sy = 4) {
   if (shadowAlpha > 0) {
     const a = g.globalAlpha;
     g.globalAlpha = a * shadowAlpha;
-    g.drawImage(spr.shadow, spr.x + sx, spr.y + sy, spr.w, spr.h);
+    g.drawImage(spr.shadow, spr.x + sx + SHADOW.dx * (sx + 1) / 3, spr.y + sy, spr.w, spr.h);
     g.globalAlpha = a;
   }
   g.drawImage(spr.img, spr.x, spr.y, spr.w, spr.h);

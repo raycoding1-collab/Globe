@@ -2,7 +2,7 @@
 // that turn at different speeds, with a paper sky behind and a camera that never
 // stops travelling. Everything is a pure function of film time t, so the film
 // can be paused, scrubbed and resized without anything drifting.
-import { Sheet, put, textures, makeCanvas, KRAFT } from './paper.js';
+import { Sheet, put, textures, makeCanvas, KRAFT, SHADOW } from './paper.js';
 import { KINDS } from './cutouts.js';
 import { DEG, clamp, lerp, smooth, sramp, hash, fbm, rgb, mix, spring, rng } from './util.js';
 
@@ -78,6 +78,7 @@ export class Stage {
     for (let i = 0; i < 520; i++) this.stars.push({ a: r() * 360, d: 1.03 + Math.pow(r(), 0.8) * 1.6, s: 0.5 + Math.pow(r(), 3) * 1.7, ph: r() * 100, warm: r() });
     // a river of fainter stars
     for (let i = 0; i < 1100; i++) { const a = r() * 360, w = (r() + r() + r() - 1.5) * 0.16; this.stars.push({ a, d: 1.12 + (a / 360) * 1.3 + w, s: 0.34 + r() * 0.42, ph: r() * 100, warm: r() * 0.7, dust: 1 }); }
+    this.wash = makeWash(rng(77));
     this.motes = [];
     for (let i = 0; i < 70; i++) this.motes.push({ x: r(), y: r(), s: 0.6 + r() * 1.6, sp: 0.3 + r(), ph: r() * 100, d: r() });
     this.flakes = [];
@@ -199,7 +200,9 @@ export class Stage {
     env.sh = L.sh * clamp(p * 1.4);
     env.p = p;
     const K = KINDS[e.kind];
+    SHADOW.dx = this.film.shadowDx ? this.film.shadowDx(e, a, t, env.S) : 0;
     K.draw(g, e.parts, t, e, env);
+    SHADOW.dx = 0;
     if (K.glow && glows) glows.push({ e, m: g.getTransform(), p });
     g.restore();
     if (this.onFlap && this.lastT >= 0 && t - this.lastT < 0.3) {
@@ -222,13 +225,16 @@ export class Stage {
   }
 
   render(t) {
-    const { g, wg, W, H, cx, film } = this;
+    const { g, wg, W, H, film } = this;
+    // the camera breathes: the faintest drift, like a camera on a tripod in a room with people in it
+    const cx = this.cx = W / 2 + fbm(t * 0.11, 41) * W * 0.0035;
+    const breathe = fbm(t * 0.09 + 7, 43) * H * 0.004;
     const cam = film.cam(t), S = film.state(t, this);
     // camera: push in (zoom) and pull right back to see the whole planet (pull)
     const zoom = (S.zoom || 1) * this.zm, pull = S.pull || 0;
     const fit = Math.min(W * 0.36, H * 0.28) / this.R;
     const z = lerp(zoom, fit, smooth(pull));
-    const top = lerp(this.hy, H * 0.52 - this.R * z, smooth(pull));
+    const top = lerp(this.hy + breathe, H * 0.52 - this.R * z, smooth(pull));
     const u = this.u * z, cy = top + this.R * z;
     this.eu = u; this.ecy = cy; this.eR = this.R * z; this.full = pull > 0.02;
     this.visE = this.full ? 180 : Math.asin(Math.min(1, (W / 2) / this.eR)) / DEG;
@@ -266,6 +272,12 @@ export class Stage {
       g2.addColorStop(0, `rgba(255,200,120,${0.5 * S.sun.k})`); g2.addColorStop(0.5, `rgba(255,170,90,${0.3 * S.sun.k})`); g2.addColorStop(1, 'rgba(255,150,80,0)');
       g.fillStyle = g2; g.fillRect(sx - 90 * u, sy - 90 * u, 180 * u, 180 * u); g.globalCompositeOperation = 'source-over';
     }
+    if (this.wash && !this.lite) {
+      g.save(); g.globalCompositeOperation = 'soft-light'; g.globalAlpha = 0.5;
+      const ws = Math.max(W, H) * 0.9, ox = (-cam * 2.2 - t * 1.5) % ws;
+      for (let x = ox - ws; x < W; x += ws) for (let y = -ws * 0.2; y < H; y += ws) g.drawImage(this.wash, x, y, ws, ws);
+      g.restore();
+    }
     g.save(); g.globalCompositeOperation = 'overlay'; g.globalAlpha = 0.3;
     if (!this.skyPat) this.skyPat = g.createPattern(textures().GRAIN, 'repeat');
     g.fillStyle = this.skyPat; g.fillRect(0, 0, W, H); g.restore();
@@ -302,6 +314,9 @@ export class Stage {
       if (name === 'front') for (const e of byLayer[name] || []) this.drawEntity(wg, e, t, cam, env, glows);
     };
     drawLayer('far');
+    wg.setTransform(1, 0, 0, 1, 0, 0); wg.globalCompositeOperation = 'source-atop';
+    wg.fillStyle = rgb(mix(sk[2], sk[3], 0.5), 0.32 * (1 - pull)); wg.fillRect(0, 0, W, H);
+    wg.globalCompositeOperation = 'source-over';
     if (dark) {
       const lum = (amb[0] * 0.3 + amb[1] * 0.5 + amb[2] * 0.2) / 255;
       wg.setTransform(1, 0, 0, 1, 0, 0); wg.globalCompositeOperation = 'source-atop';
@@ -352,9 +367,12 @@ export class Stage {
       KINDS[it.e.kind].glow(g, it.e.parts, t, it.e, env, it.p);
     }
     g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+    if (S.sun && S.sun.k > 0.01 && (S.rays ?? 0) > 0.01) this.rays(g, S, t, cx, hy, u);
     for (const em of S.emitters) this.fire(g, em, t);
     if (film.fx.over) { film.fx.over(g, this, t, S); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; }
 
+    // the grade of each era
+    if (S.grade && S.grade[3] > 0.005) { g.globalCompositeOperation = 'soft-light'; g.fillStyle = rgb(S.grade, S.grade[3]); g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over'; }
     // paper snow
     if (S.snow > 0.01) {
       for (const f of this.flakes) {
@@ -405,6 +423,20 @@ export class Stage {
     const fade = Math.min(1, (S.fade || 0) + flicker);
     if (fade > 0.003) { g.fillStyle = `rgba(6,4,5,${fade})`; g.fillRect(0, 0, W, H); }
     this.lastT = t;
+  }
+
+  // Shafts of light from a low sun, turning very slowly.
+  rays(g, S, t, cx, hy, u) {
+    const sx = cx + S.sun.x * u, sy = hy + S.sun.y * u, L = Math.hypot(this.W, this.H) * 1.2, k = S.sun.k * S.rays;
+    g.save(); g.globalCompositeOperation = 'screen';
+    for (let i = 0; i < 9; i++) {
+      const a = -Math.PI / 2 + (S.sun.x > 0 ? -1 : 1) * (0.25 + i * 0.16) + Math.sin(t * 0.05 + i * 1.7) * 0.05, w = 0.035 + hash(i * 3) * 0.05;
+      const gr = g.createRadialGradient(sx, sy, 0, sx, sy, L);
+      const al = k * (0.05 + hash(i * 7) * 0.06) * (0.7 + 0.3 * Math.sin(t * 0.3 + i));
+      gr.addColorStop(0, `rgba(255,214,150,${al})`); gr.addColorStop(0.5, `rgba(255,200,140,${al * 0.4})`); gr.addColorStop(1, 'rgba(255,190,130,0)');
+      g.fillStyle = gr; g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx + Math.cos(a - w) * L, sy + Math.sin(a - w) * L); g.lineTo(sx + Math.cos(a + w) * L, sy + Math.sin(a + w) * L); g.closePath(); g.fill();
+    }
+    g.restore();
   }
 
   // Cardboard smoke: puffs that swell, drift and thin as they climb.
@@ -484,6 +516,18 @@ export class Stage {
     }
     g.globalCompositeOperation = 'source-over';
   }
+}
+
+// A slow, uneven wash, like gouache laid on a sky card by a wide brush. Seamless.
+function makeWash(r) {
+  const N = 256, c = makeCanvas(N, N), g = c.getContext('2d'), id = g.createImageData(N, N);
+  const waves = []; for (let k = 0; k < 18; k++) waves.push([Math.round((r() - 0.5) * 6), Math.round((r() - 0.5) * 6), r() * 6.28, (0.3 + r() * 0.7) / (1 + k * 0.08)]);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    let v = 0; for (const w of waves) v += Math.cos(((w[0] * x + w[1] * y) / N) * 6.2832 + w[2]) * w[3];
+    const i = (y * N + x) * 4, c0 = 128 + v * 9; id.data[i] = c0 * 1.02; id.data[i + 1] = c0; id.data[i + 2] = c0 * 0.97; id.data[i + 3] = 255;
+  }
+  g.putImageData(id, 0, 0);
+  return c;
 }
 
 // A Sheet that can come out slightly out of focus (distant and very near layers).
