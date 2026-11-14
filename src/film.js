@@ -442,6 +442,17 @@ function sky(g, st, t, S) {
 // Things drawn in the world, in planet units: rails, wires, trade threads.
 function groundFx(g, st, t, S) {
   const c = cam(t), rad = (a, h) => { const rel = (a - c) * DEG, r = 1000 + profile.main(a) + h; return [Math.sin(rel) * r, -Math.cos(rel) * r]; };
+  // the ground carries the marks of the people on it
+  const vis = st.visE + 4, from = c - vis, to = c + vis;
+  const run = (a0, a1, fn) => { const s0 = Math.max(a0, from), s1 = Math.min(a1, to); if (s0 < s1) fn(s0, s1); };
+  const along = (a0, a1, step, fn) => { for (let a = Math.ceil(a0 / step) * step; a < a1; a += step) fn(a); };
+  const arc = (a0, a1, h, w, style, dash) => { g.save(); g.strokeStyle = style; g.lineWidth = w; if (dash) g.setLineDash(dash); g.beginPath(); for (let a = a0; a <= a1; a += 0.3) { const [x, y] = rad(a, h); a === a0 ? g.moveTo(x, y) : g.lineTo(x, y); } g.stroke(); g.restore(); };
+  run(-70, 96, (a0, a1) => arc(a0, a1, -9, 2.2, 'rgba(120,84,46,.35)', [7, 9]));
+  run(212, 300, (a0, a1) => along(a0, a1, 0.55, (a) => { const [x0, y0] = rad(a, -4), [x1, y1] = rad(a + 0.25, -16); g.strokeStyle = 'rgba(70,82,40,.42)'; g.lineWidth = 2.4; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); }));
+  run(303, 371, (a0, a1) => { arc(a0, a1, -10, 6, 'rgba(70,120,150,.75)'); arc(a0, a1, -8, 1.2, 'rgba(220,240,250,.5)', [10, 14]); });
+  run(378, 460, (a0, a1) => arc(a0, a1, -8, 3, 'rgba(150,110,70,.3)', [3, 5]));
+  run(556, 606, (a0, a1) => along(a0, a1, 0.32, (a) => { const [x, y] = rad(a, -6 - (Math.round(a * 3) % 2) * 5); g.fillStyle = 'rgba(80,80,70,.35)'; g.beginPath(); g.ellipse(x, y, 3.2, 2.2, 0, 0, 7); g.fill(); }));
+  run(800, 908, (a0, a1) => { arc(a0, a1, -10, 12, 'rgba(48,46,50,.85)'); arc(a0, a1, -10, 1.4, 'rgba(230,214,160,.65)', [12, 12]); });
   if (near(765, c, 90)) {
     g.strokeStyle = 'rgba(40,34,30,.9)'; g.lineWidth = 2.2; g.beginPath();
     for (let a = 728; a < 802; a += 0.4) { const [x, y] = rad(a, 2); a === 728 ? g.moveTo(x, y) : g.lineTo(x, y); } g.stroke();
