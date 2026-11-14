@@ -709,6 +709,11 @@ function overFx(g, st, t, S) {
     }
     g.restore(); g.globalAlpha = 1;
   }
+  // look carefully, test the idea, trust the evidence: his notes, night after night
+  if (t > 283 && t < 290.5) {
+    const por = st.aspectK > 0.4 ? 0 : 1, k = drop(t, 283.4, 288.6);
+    st.hang(g, st.fx.sidereus, W * (por ? 0.3 : 0.3), H * lerp(-0.3, por ? 0.24 : 0.19, k), por ? 0.85 : 1.2, Math.sin(t * 0.6) * 2 * DEG - 0.03);
+  }
   // Jupiter and its moons hang in front of the clouds
   if (t > EV.jupiter - 1 && t < 292) {
     const k = drop(t, EV.jupiter, 288.5), jx = W * (st.aspectK > 0.4 ? 0.7 : 0.62), jy = H * lerp(-0.2, 0.2, k), s = 1.3;
