@@ -14,6 +14,10 @@ function makeCanvas(w, h) {
   c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h));
   return c;
 }
+// Phones (iPhones above all, and in-app browsers most of all) cap the memory that all canvases
+// together may hold, and only count a dropped canvas as gone once it is garbage-collected.
+// Shrinking a scratch canvas to nothing hands its memory back at once.
+export function release(c) { if (c && c.width) { c.width = 0; c.height = 0; } }
 
 // Fine fibre grain, centred on mid-grey so it can be laid on with 'overlay'.
 function buildGrain() {
@@ -72,13 +76,16 @@ export function blurred(src, radius, keepSmall = false) {
     const t = makeCanvas(cw / 2, ch / 2), tg = t.getContext('2d');
     tg.imageSmoothingQuality = 'high';
     tg.drawImage(cur, 0, 0, t.width, t.height);
+    if (cur !== src) release(cur);
     cur = t; cw = t.width; ch = t.height;
   }
   ag.drawImage(cur, 0, 0, w, h);
+  if (cur !== src) release(cur);
   if (keepSmall) return a;
   const out = makeCanvas(src.width, src.height), og = out.getContext('2d');
   og.imageSmoothingQuality = 'high';
   og.drawImage(a, 0, 0, out.width, out.height);
+  release(a);
   return out;
 }
 
@@ -227,8 +234,10 @@ export class Sheet {
     sg.drawImage(img, 0, 0);
     sg.globalCompositeOperation = 'source-in'; sg.fillStyle = 'rgb(24,14,10)'; sg.fillRect(0, 0, sil.width, sil.height);
     const shadow = blurred(sil, Math.max(3, (o.shadowBlur ?? 5) * s), true);
-    if (o.blur) img = blurred(img, o.blur * s);
-    return { img, shadow, x: this.x0, y: this.y0, w: this.w, h: this.h, name: this.name };
+    release(sil);
+    if (o.blur) { img = blurred(img, o.blur * s); release(this.c); }
+    this.c = this.g = this.grain = this.blotch = null;
+    return { img, shadow, x: this.x0, y: this.y0, w: this.w, h: this.h, name: this.name, sprite: true };
   }
 }
 

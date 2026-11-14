@@ -2,7 +2,7 @@
 // that turn at different speeds, with a paper sky behind and a camera that never
 // stops travelling. Everything is a pure function of film time t, so the film
 // can be paused, scrubbed and resized without anything drifting.
-import { Sheet, put, textures, makeCanvas, KRAFT, SHADOW } from './paper.js';
+import { Sheet, put, textures, makeCanvas, release, KRAFT, SHADOW } from './paper.js';
 import { KINDS } from './cutouts.js';
 import { DEG, clamp, lerp, smooth, sramp, hash, fbm, rgb, mix, spring, rng } from './util.js';
 
@@ -54,6 +54,8 @@ export class Stage {
 
   // -- bake every sprite at the size it will be shown -----------------------
   bake() {
+    // a rotated phone bakes everything again: give the old cut-outs' memory back first
+    if (this.baked) { for (const spr of this.baked) { release(spr.img); release(spr.shadow); } }
     const u = this.u * 1.6 * this.zm, cache = new Map(); // oversize, so the camera can push in close
     this.partsOf = (e) => {
       const L = LAYERS[e.layer], blur = e.sharp ? 0 : L.blur;
@@ -71,6 +73,10 @@ export class Stage {
     for (const e of this.film.entities) e.parts = this.partsOf(e);
     const mk = (name, box, o = {}) => new BlurSheet(name, box, u, o, 0);
     this.fx = this.film.bake(mk, (name, box, o = {}) => new BlurSheet(name, box, u, o, 0.6), this);
+    // remember every sprite made, so the next bake can free them
+    const list = new Set(), seen = new Set(), walk = (o, d) => { if (!o || typeof o !== 'object' || seen.has(o) || d > 6) return; seen.add(o); if (o.sprite) { list.add(o); return; } if (o instanceof HTMLCanvasElement) return; for (const k in o) walk(o[k], d + 1); };
+    for (const v of cache.values()) walk(v, 0); walk(this.fx, 0);
+    this.baked = list;
     const { GRAIN, BLOTCH } = textures();
     const tile = makeCanvas(256, 256), tg = tile.getContext('2d');
     tg.drawImage(GRAIN, 0, 0); tg.globalCompositeOperation = 'multiply'; tg.globalAlpha = 0.8; tg.drawImage(BLOTCH, 0, 0);
