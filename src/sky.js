@@ -151,6 +151,11 @@ export function bakeFx(mk, mkSoft, mkBig) {
       mk('msg-letter', [-13, -10, 13, 10], { pad: 4 }).piece(rect(-11, -8, 11, 8), '#efe3c8', { round: 0.8, paint: (g) => { g.strokeStyle = 'rgba(120,90,60,.7)'; g.lineWidth = 1.1; g.beginPath(); g.moveTo(-11, -8); g.lineTo(0, 1); g.lineTo(11, -8); g.stroke(); g.fillStyle = '#c8553d'; g.beginPath(); g.arc(0, 1, 2, 0, 7); g.fill(); } }).finish({ shadowBlur: 2 }),
     ];
   }
+  // the radio's music, cut from dark paper
+  S.notes = [
+    mk('note0', [-8, -24, 12, 6], { pad: 4 }).piece(ellipse(-2, 0, 5.5, 4, 12).map(([x, y]) => [x * Math.cos(-0.4) - y * Math.sin(-0.4), x * Math.sin(-0.4) + y * Math.cos(-0.4)]), '#2e2a2a', { round: 1.5 }).piece(rect(2.4, -22, 4.4, -1), '#2e2a2a', { round: 0.4 }).piece([[4.4, -22], [11, -15], [10, -11], [4.4, -16]], '#2e2a2a', { round: 1 }).finish({ shadowBlur: 2 }),
+    mk('note1', [-8, -26, 24, 6], { pad: 4 }).piece(ellipse(-2, 0, 5.5, 4, 12), '#2e2a2a', { round: 1.5 }).piece(ellipse(15, -3, 5.5, 4, 12), '#2e2a2a', { round: 1.5 }).piece(rect(2.4, -22, 4.4, -1), '#2e2a2a', { round: 0.4 }).piece(rect(19.4, -25, 21.4, -4), '#2e2a2a', { round: 0.4 }).piece([[2.4, -22], [21.4, -25], [21.4, -20], [2.4, -17]], '#2e2a2a', { round: 0.8 }).finish({ shadowBlur: 2 }),
+  ];
   S.jet = mk('jet', [-60, -16, 60, 14])
     .piece([[-56, -2], [-40, -6], [44, -6], [58, 0], [44, 5], [-40, 5]], '#eceae4', { round: 4 })
     .piece([[-6, 0], [-22, 14], [-12, 14], [10, 2]], '#d8d6d0', { round: 1, lift: 1 })
