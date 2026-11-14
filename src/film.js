@@ -638,6 +638,19 @@ function groundFx(g, st, t, S) {
     g.strokeStyle = 'rgba(28,24,22,.7)'; g.lineWidth = 1;
     for (let i = 0; i < ROUTE.length - 1; i++) sag(rad(ROUTE[i].a, ROUTE[i].h), rad(ROUTE[i + 1].a, ROUTE[i + 1].h), 22);
   }
+  // maize and potatoes set off from the Americas, back across the ocean, to feed much of the world
+  if (t > 256.6 && t < 263) {
+    const grow = sramp(t, 256.8, 258.2), fade = 1 - sramp(t, 260.6, 262.4), [x0, y0] = rad(706, 150), [x1, y1] = rad(678, 230), [x2, y2] = rad(650, 200);
+    const segs = [[x0, y0, (x0 + x1) / 2, Math.min(y0, y1) - 70, x1, y1], [x1, y1, (x1 + x2) / 2, Math.min(y1, y2) - 70, x2, y2]];
+    const pt = (s2, k) => { const [a0, b0, mx, my, a1, b1] = s2, a = 1 - k; return [a * a * a0 + 2 * a * k * mx + k * k * a1, a * a * b0 + 2 * a * k * my + k * k * b1]; };
+    g.save(); g.globalAlpha = fade; g.strokeStyle = 'rgba(170,40,36,.85)'; g.lineWidth = 1.6;
+    segs.forEach((s2, i) => { const k = clamp(grow * 2 - i); if (k <= 0) return; g.beginPath(); g.moveTo(s2[0], s2[1]); for (let j = 1; j <= 24; j++) { const [x, y] = pt(s2, (j / 24) * k); g.lineTo(x, y); } g.stroke(); });
+    for (const [icon, t0, dur] of [['maize', 257.4, 3.6], ['potato', 258.1, 3.6]]) {
+      if (t < t0) continue; const pos = clamp((t - t0) / dur) * 2, i = Math.min(1, Math.floor(Math.min(pos, 1.999))), [x, y] = pt(segs[i], pos - i), sc = sramp(t, t0, t0 + 0.4);
+      g.save(); g.translate(x, y + 14); g.rotate(Math.sin(t * 3) * 0.08); g.scale(1.4 * sc, 1.4 * sc); put(g, st.fx.icons[icon], 0.3, 2, 3); g.restore();
+    }
+    g.restore();
+  }
   if (near(420, c, 80) && t > EV.threads) {
     const tops = [[pagoda, 296], [stupa, 182], [mosque, 214], [djenne, 196]].map(([e, h]) => rad(e.a, h));
     const grow = sramp(t, EV.threads, EV.threads + 2.5);
