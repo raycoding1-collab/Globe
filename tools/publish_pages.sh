@@ -13,6 +13,7 @@ mkdir -p "$DIR/src" "$DIR/assets/audio"
 cp index.html "$DIR/"
 cp src/*.js src/*.css "$DIR/src/"
 cp assets/audio/film.mp3 "$DIR/assets/audio/"
+cp assets/share.jpg assets/icon.png "$DIR/assets/"
 touch "$DIR/.nojekyll"
 git -C "$DIR" add -A
 if git -C "$DIR" diff --cached --quiet; then echo "GitHub Pages already up to date"; exit 0; fi
