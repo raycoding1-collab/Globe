@@ -363,3 +363,47 @@ KINDS.blower = {
     }
   },
 };
+
+// The savanna's tall neighbours, walking the far horizon at sunset.
+KINDS.giraffe = {
+  bake(mk) {
+    const r = rng(91), col = '#c99a5a', pat = '#7e5230', P = {};
+    const spots = (box) => (g) => { g.fillStyle = pat; for (let i = 0; i < 26; i++) { const x = box[0] + r() * (box[2] - box[0]), y = box[1] + r() * (box[3] - box[1]); g.beginPath(); g.moveTo(x - 4, y - 3); g.lineTo(x + 3, y - 4); g.lineTo(x + 4, y + 2); g.lineTo(x - 3, y + 4); g.closePath(); g.fill(); } };
+    P.leg = mk('gir-leg', [-5, -4, 5, 74], { pad: 4 }).piece([[-4, 0], [4, 0], [3, 66], [4, 72], [-4, 72], [-3, 66]], col, { round: 1.5 }).finish({ shadowBlur: 2 });
+    P.body = mk('gir-body', [-48, -206, 92, -60])
+      .piece([[-44, -76], [-46, -96], [-30, -110], [10, -116], [30, -122], [44, -112], [40, -80], [20, -72], [-20, -70]], col, { round: 8, rough: 1, paint: spots([-44, -120, 42, -72]) })
+      .piece([[24, -112], [40, -120], [64, -184], [72, -196], [60, -200], [50, -186], [30, -128]], col, { round: 5, paint: spots([30, -196, 66, -120]) })
+      .piece([[54, -196], [62, -204], [84, -194], [86, -186], [70, -184], [56, -186]], col, { round: 4, lift: 1, paint: (g) => { g.fillStyle = 'rgba(30,20,12,.9)'; g.beginPath(); g.arc(66, -195, 1.6, 0, 7); g.fill(); } })
+      .piece(strip(60, -200, 58, -210, 1.6, 1.2), pat, { round: 0.5, lift: 1.2 }).piece(strip(64, -200, 64, -211, 1.6, 1.2), pat, { round: 0.5, lift: 1.2 })
+      .piece(strip(-44, -92, -50, -64, 1.6, 1.2), pat, { round: 0.5 })
+      .finish({ shadowBlur: 3 });
+    return P;
+  },
+  draw(g, P, t, e, env) {
+    const ph = t * (e.pace ?? 1.6) + e.a, bob = Math.abs(Math.sin(ph)) * 2;
+    for (const [x, o, back] of [[-34, 0, 1], [28, Math.PI, 1], [-26, Math.PI, 0], [36, 0, 0]]) { g.save(); g.translate(x, -74 - bob); g.rotate(Math.sin(ph + o) * 13 * DEG); if (back) g.globalAlpha = 0.85; put(g, P.leg, env.sh, 1, 2); g.restore(); }
+    g.save(); g.translate(0, -bob); g.rotate(Math.sin(ph * 2) * 0.8 * DEG); put(g, P.body, env.sh, 2, 3); g.restore();
+  },
+};
+KINDS.elephant = {
+  bake(mk) {
+    const col = '#8e8880', dk = '#6e6862', P = {};
+    P.leg = mk('ele-leg', [-10, -4, 10, 46], { pad: 4 }).piece([[-9, 0], [9, 0], [10, 40], [11, 44], [-11, 44], [-10, 40]], col, { round: 3 }).finish({ shadowBlur: 2 });
+    P.body = mk('ele-body', [-70, -110, 60, -30])
+      .piece([[-60, -46], [-66, -70], [-52, -96], [-14, -104], [24, -98], [42, -80], [40, -50], [10, -38], [-40, -38]], col, { round: 12, rough: 1.4, paint: (g) => { g.strokeStyle = 'rgba(60,55,50,.25)'; g.lineWidth = 1; for (let i = 0; i < 9; i++) { g.beginPath(); g.moveTo(-50 + i * 10, -96); g.quadraticCurveTo(-46 + i * 10, -70, -52 + i * 10, -42); g.stroke(); } } })
+      .piece([[30, -96], [52, -96], [62, -80], [60, -60], [46, -54], [30, -62]], col, { round: 8, paint: (g) => { g.fillStyle = 'rgba(30,24,20,.9)'; g.beginPath(); g.arc(52, -80, 1.6, 0, 7); g.fill(); } })
+      .piece([[56, -64], [62, -60], [52, -54]], '#efe6d2', { round: 1, lift: 1 })
+      .finish({ shadowBlur: 3 });
+    P.ear = mk('ele-ear', [-30, -30, 6, 30], { pad: 4 }).piece([[0, -24], [-20, -26], [-28, -6], [-22, 18], [-6, 24], [2, 4]], dk, { round: 6 }).finish({ shadowBlur: 2 });
+    P.trunk = mk('ele-trunk', [-8, -4, 16, 56], { pad: 4 }).piece([[-6, 0], [7, 0], [6, 26], [9, 46], [12, 52], [4, 54], [0, 46], [-4, 24]], col, { round: 3, paint: (g) => { g.strokeStyle = 'rgba(60,55,50,.35)'; g.lineWidth = 0.9; for (let y = 6; y < 50; y += 5) { g.beginPath(); g.moveTo(-4, y); g.lineTo(7, y + 1); g.stroke(); } } }).finish({ shadowBlur: 2 });
+    return P;
+  },
+  draw(g, P, t, e, env) {
+    const ph = t * (e.pace ?? 1.3) + e.a * 2, bob = Math.abs(Math.sin(ph)) * 1.5;
+    for (const [x, o] of [[-46, 0], [22, Math.PI], [-34, Math.PI], [32, 0]]) { g.save(); g.translate(x, -44 - bob); g.rotate(Math.sin(ph + o) * 9 * DEG); put(g, P.leg, env.sh, 1, 2); g.restore(); }
+    g.save(); g.translate(0, -bob); put(g, P.body, env.sh, 2, 3);
+    g.save(); g.translate(58, -66); g.rotate((Math.sin(ph * 0.7) * 8 - 6) * DEG); put(g, P.trunk, env.sh * 0.5, 1, 2); g.restore();
+    g.save(); g.translate(36, -84); g.scale(0.85 + 0.15 * Math.sin(t * 1.3 + e.a), 1); put(g, P.ear, env.sh * 0.5, 1, 2); g.restore();
+    g.restore();
+  },
+};

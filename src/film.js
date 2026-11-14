@@ -100,6 +100,8 @@ for (const [a, v, f] of [[-47, 2, 0], [-17.5, 0, 0], [16.5, 1, 1], [46, 2, 0], [
 for (const [a, v, s, f] of [[-58, 1, 0.6, 0], [-33, 0, 0.5, 1], [-14.5, 2, 0.56, 0], [29, 1, 0.62, 1], [55, 0, 0.5, 0], [78, 2, 0.55, 1], [92, 1, 0.5, 0]]) add('acacia', 'mid', a, { v, scale: s, flip: !!f });
 for (const [a, f] of [[-27, 0], [-21.5, 1], [24, 1], [37, 0]]) add('gazelle', 'mid', a, { scale: 0.8, flip: !!f, alert: (t) => 0.95 - 0.7 * Math.max(0, Math.sin(t * 0.35 + a)) ** 6 });
 for (const [a, v, s] of [[-70, 0, 0.3], [-40, 2, 0.26], [-4, 1, 0.3], [48, 0, 0.28], [88, 2, 0.3], [150, 1, 0.3], [170, 0, 0.28]]) add('acacia', 'far', a, { v, scale: s });
+// giraffes and elephants walking the far horizon into the sunset
+for (const [k, a, s, p] of [['giraffe', -52, 0.62, 1.5], ['giraffe', -46.5, 0.5, 1.6], ['elephant', -30, 0.62, 1.2], ['elephant', -26, 0.4, 1.3], ['giraffe', 2, 0.56, 1.4]]) add(k, 'far', a, { scale: s, pace: p, y: k === 'elephant' ? -8 : -26, move: (t) => -t * 0.22 });
 for (const [a, v] of [[-52, 0], [-28.5, 1], [-10.2, 2], [9.4, 0], [25, 1], [38, 2], [64, 1], [80, 0], [170, 2], [176, 1]]) add('rock', 'main', a, { v, z: 1 });
 const R = rng(5);
 function grassRun(a0, a1, step, layer, o = {}) { for (let a = a0; a < a1; a += step * (0.7 + R() * 0.8)) { if (o.skip && o.skip(a)) continue; add('grass', layer, a, { v: (R() * 6) | 0, z: R() < 0.5 ? 1 : 3, flip: R() < 0.5, scale: (o.s || 1) * (0.8 + R() * 0.5), loud: 0.25 }); } }
