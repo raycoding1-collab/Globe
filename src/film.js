@@ -199,6 +199,8 @@ const djenne = add('djenne', 'main', 452.5, { z: 0, wide: 10 });
 for (const a of [380, 416, 430, 444.5, 459]) add('palm', 'main', a, { v: 0, z: 1, scale: 0.85 });
 add('dhow', 'main', 469.5, { z: 2, ground: false, y: 8, move: (t) => (t - 180) * 0.15 });
 for (let a = 378; a < 460; a += 8) add('palm', 'mid', a, { v: 0, scale: 0.5 });
+// empires rose and fell: monuments in the middle distance stand up and lie down again, one after another
+[[366, 0], [376, 1], [386, 2], [396, 3], [406, 0], [416, 1]].forEach(([a, v], i) => add('monument', 'far', a, { v, scale: 1.25, popAt: 170.8 + i * 0.6, foldAt: 173.0 + i * 0.6, loud: 0.5 }));
 for (let a = 462; a < 551; a += 4.4) add('wave', 'main', a, { v: (R() * 4) | 0, z: 4, loud: 0.25, ground: false, y: -2 });
 for (let a = 460; a < 552; a += 6) add('wave', 'front', a, { v: (R() * 4) | 0, scale: 1.6, ground: false, loud: 0.2 });
 for (const [a, v] of [[489, 0], [521, 1], [541, 0]]) { add('island', 'main', a, { v, z: 1, ground: false, y: 2 }); add('palm', 'main', a - 1.4, { v: 1, z: 1, ground: false, y: 26, scale: 0.75 }); add('palm', 'main', a + 1.6, { v: 1, z: 1, ground: false, y: 28, scale: 0.6, flip: true }); }
