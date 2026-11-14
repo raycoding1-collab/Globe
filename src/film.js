@@ -215,6 +215,11 @@ add('church', 'main', 603, { z: 0, wide: 8 });
 const press = add('press', 'main', 578.2, { z: 1, pulls: EV.press });
 add('person', 'main', 574.6, { v: 'printer', scale: P2, z: 2, act: (t) => { const k = EV.press.reduce((s, p) => s + Math.exp(-(((t - p) / 0.35) ** 2)), 0); return { lean: 6 + k * 14, front: [-110 + k * 60, -20], back: [-100 + k * 60, -30] }; } });
 add('person', 'main', 584.6, { v: 'reader', scale: P2, z: 2, act: (t) => ({ head: 24, front: [-50, -60], back: [-40, -70] }) });
+// ...so did arguments
+[['scholarA', 591.5, false, 0], ['scholarB', 595.3, true, 1.3]].forEach(([v, a, flip, ph], i) => add('person', 'main', a, { v, scale: P2, z: 2, flip, popAt: 222.2 + i * 0.35, loud: 0.8, act: (t) => {
+  const turn = Math.sin((t - 222.6) * 2.4 + ph) > 0, k = sramp(t, 222.6, 223.2);
+  return { lean: 4 + (turn ? 10 : 0) * k, head: (turn ? -6 + Math.sin(t * 9) * 5 : 6) * k, front: turn ? [-120 + Math.sin(t * 8 + ph) * 30, -30] : [-40, -40], back: turn ? [-30 + Math.sin(t * 6) * 20, -40] : [10, -10] };
+} }));
 for (const a of [557, 584, 609]) add('oak', 'main', a, { v: (R() * 3) | 0, z: 0, scale: 0.9 });
 for (let a = 552; a < 610; a += 8) add(R() < 0.6 ? 'oak' : 'timber', 'mid', a, { v: (R() * 3) | 0, scale: 0.55 });
 grassRun(552, 610, 3.2, 'main', { skip: (a) => a > 572 && a < 588 });
