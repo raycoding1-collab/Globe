@@ -537,3 +537,31 @@ KINDS.seat = {
   bake(mk) { return { spr: mk('seat', [-20, -32, 20, 6]).piece(rect(-17, -28, 17, 4), '#b8936a', { round: 2, paint: bricks('#b8936a', 0.25) }).piece(rect(-19, -31, 19, -26), '#c9a676', { round: 1.5, lift: 1 }).finish({ shadowBlur: 3 }) }; },
   draw(g, P, t, e, env) { put(g, P.spr, env.sh); },
 };
+
+// Empires, rising and falling: a temple front, a triumphal arch, a gate, a column with a bull capital.
+KINDS.monument = {
+  bake(mk, v = 0) {
+    const stone = ['#d8cdb4', '#cfc2a6', '#b8463a', '#c9b79a'][v % 4];
+    let sh;
+    if (v % 4 === 0) {
+      sh = mk('mon0', [-80, -150, 80, 6]).piece(rect(-74, -6, 74, 4), shade(stone, -0.1), { round: 1 });
+      for (let i = 0; i < 5; i++) sh.piece(rect(-62 + i * 31 - 6, -104, -62 + i * 31 + 6, -6), stone, { round: 1, lift: 1, paint: lines(stone, 0.25, 3) });
+      sh.piece(rect(-72, -116, 72, -104), shade(stone, -0.05), { round: 1, lift: 1.4 }).piece([[-76, -116], [0, -146], [76, -116]], stone, { round: 2, lift: 1.6 });
+    } else if (v % 4 === 1) {
+      sh = mk('mon1', [-70, -140, 70, 6]).piece([[-64, 4], [-64, -120], [64, -120], [64, 4], [24, 4], [24, -60], [14, -80], [0, -86], [-14, -80], [-24, -60], [-24, 4]], stone, { round: 2, paint: (g) => { g.fillStyle = 'rgba(90,70,50,.25)'; g.fillRect(-60, -112, 120, 6); for (const x of [-46, 40]) g.fillRect(x, -100, 6, 100); } })
+        .piece(rect(-68, -136, 68, -120), shade(stone, -0.06), { round: 1, lift: 1.2 });
+    } else if (v % 4 === 2) {
+      sh = mk('mon2', [-80, -140, 80, 6]);
+      for (const x of [-52, 52]) sh.piece(rect(x - 6, -112, x + 6, 4), stone, { round: 1 });
+      for (const x of [-22, 22]) sh.piece(rect(x - 5, -100, x + 5, 4), stone, { round: 1 });
+      sh.piece(rect(-60, -100, 60, -90), '#3f6a5a', { round: 1, lift: 1 }).piece([[-76, -110], [-60, -126], [60, -126], [76, -110], [60, -116], [-60, -116]], '#2f3a3a', { round: 2, lift: 1.4 })
+        .piece([[-40, -126], [-30, -136], [30, -136], [40, -126]], '#2f3a3a', { round: 1.5, lift: 1.6 });
+    } else {
+      sh = mk('mon3', [-40, -170, 40, 6]).piece(rect(-20, -10, 20, 4), shade(stone, -0.1), { round: 1 }).piece(rect(-8, -130, 8, -10), stone, { round: 1, paint: lines(stone, 0.25, 3) })
+        .piece([[-36, -146], [-22, -138], [-12, -132], [12, -132], [22, -138], [36, -146], [32, -156], [20, -150], [12, -142], [-12, -142], [-20, -150], [-32, -156]], shade(stone, -0.12), { round: 2, lift: 1.4 })
+        .piece(rect(-30, -164, 30, -156), stone, { round: 1, lift: 1.2 });
+    }
+    return { spr: sh.finish({ shadowBlur: 4 }) };
+  },
+  draw(g, P, t, e, env) { put(g, P.spr, env.sh); },
+};
