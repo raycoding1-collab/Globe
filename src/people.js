@@ -37,6 +37,8 @@ export const LOOKS = {
   sumer: { skin: 3, top: 'dress', topCol: '#c9b089', legs: 'robe', legCol: '#c9b089', hair: 'bun', hat: 'band', hatCol: '#6c4b8c', pose: 'stand' },
   sumer2: { skin: 1, top: 'kaunakes', topCol: '#d6c4a0', hair: 'long', beard: 1, pose: 'stand', item: 'basket' },
   wheelwright: { skin: 3, top: 'kaunakes', topCol: '#d8c9a8', hair: 'short', beard: 1, pose: 'stand' },
+  scholarA: { skin: 4, top: 'robe', topCol: '#3a3a5a', legs: 'robe', legCol: '#3a3a5a', hat: 'cap', hatCol: '#1e1e24', beard: 1, pose: 'stand', item: 'book' },
+  scholarB: { skin: 6, top: 'robe', topCol: '#6a3a2a', legs: 'robe', legCol: '#6a3a2a', hair: 'bald', beard: 1, beardCol: '#cfc6b8', pose: 'stand', item: 'book' },
   doctor: { skin: 6, top: 'coat', topCol: '#2c2c34', sleeve: '#2c2c34', legs: 'trousers', legCol: '#26262a', hat: 'top', hatCol: '#202024', beard: 1, beardCol: '#8a6a4a', pose: 'walk', item: 'bag' },
   jarW: { skin: 2, top: 'dress', topCol: '#d8c8a8', legs: 'skirt', legCol: '#d8c8a8', hair: 'long', pose: 'walk', item: 'jar' },
   porter: { skin: 1, top: 'kaunakes', topCol: '#c8b48c', hair: 'short', beard: 1, pose: 'walk', item: 'basket' },
