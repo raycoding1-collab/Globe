@@ -26,29 +26,14 @@ function ending(t) { endEl.classList.toggle('on', t > EV.title && t < DURATION -
 let rz = 0;
 addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { stage.lastT = -1; stage.resize(); if (frozen !== null) stage.render(frozen); }, 150); });
 
-// If a device cannot keep up, trade a little sharpness for smooth motion.
-// A phone in Low Power Mode, or an in-app browser, may hold every page to 30 frames a second:
-// that is not a struggling device, so only frames well below that, or slow to draw, count.
-let lastNow = 0, slow = 0, counted = 0, drawMs = 0;
-function pace(now) {
-  const dt = now - lastNow; lastNow = now;
-  if (!started || sound.paused || dt > 400) return;
-  counted++; if (dt > 46 || drawMs > 26) slow++;
-  if (counted >= 90) {
-    // a slow device gives up the bloom first, then a little sharpness
-    if (slow > 45) { if (!stage.lite) stage.lite = true; else if (stage.q > 0.5) { stage.q *= 0.8; stage.lastT = -1; stage.W = 0; stage.resize(); } }
-    counted = slow = 0;
-  }
-}
 function frame(now) {
-  pace(now);
   // cut the rest of the world in the background: generously behind the title, sparingly once the film runs
   stage.bakeBudget = !started ? 14 : sound.paused ? 16 : 5;
   let t;
   if (frozen !== null) t = frozen;
   else if (!started) t = 30 + Math.sin(now / 1000 * 0.05) * 0.4; // a quiet, living frame behind the title
   else t = sound.time(now);
-  const d0 = performance.now(); stage.render(t); drawMs = performance.now() - d0;
+  stage.render(t);
   if (started || frozen !== null) { captions(t); ending(t); markChapter(t); }
   if (started && sound.ended && !bar.classList.contains('show')) { setIcon(); bar.classList.add('show'); document.body.classList.remove('idle'); }
   if (frozen === null) requestAnimationFrame(frame);
