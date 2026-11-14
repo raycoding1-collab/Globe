@@ -314,8 +314,9 @@ for (let a = 918, i = 0; a < 1000; a += 7 + R() * 5, i++) add('terrace', 'far', 
 // Kitty Hawk: sand, a stiff wind, a short wobbling hop
 const flyer = add('flyer', 'main', 975, { z: 3, scale: 1.25, startAt: EV.flyer - 1.4, fly: (t) => { const d = t - EV.flyer; return d < 0 ? 0 : d < 0.7 ? smooth(d / 0.7) * 0.8 : d < 3.2 ? 0.8 + Math.sin(d * 3.4) * 0.14 : d < 4.2 ? 0.8 * (1 - smooth((d - 3.2) / 1)) : 0; }, move: (t) => clamp((t - EV.flyer) / 4.2, 0, 1) * 6 });
 add('person', 'main', 971.2, { v: 'worker', scale: P2, z: 2, act: (t) => (t > EV.flyer + 0.4 && t < EV.flyer + 5 ? { front: [-160, -20], back: [-150, -30], head: -18 } : {}) });
-add('car', 'main', 978, { z: 4, from: EV.cars - 0.6, to: 392.6, move: (t) => Math.max(0, t - EV.cars) * 3.4, lit: () => 0 });
-add('car', 'main', 970, { z: 4, from: EV.cars + 0.4, to: 392.8, move: (t) => Math.max(0, t - EV.cars - 0.6) * 3.9, lit: () => 0 });
+add('car', 'main', 978, { z: 4, from: EV.cars - 0.6, to: 392.6, move: (t) => Math.max(0, t - EV.cars) * 7, lit: () => 0 });
+add('car', 'main', 972, { z: 4, from: EV.cars - 0.2, to: 392.8, move: (t) => Math.max(0, t - EV.cars) * 8, lit: () => 0 });
+add('mast', 'mid', 984, { scale: 0.8, popAt: EV.radio - 1.2, loud: 0.8 });
 const radioHome = add('cutaway', 'main', 993.6, { v: 'radio', z: 0, wide: 10, scale: 1.05, roomOn: () => 0.5, radioOn: (t) => sramp(t, EV.radio, EV.radio + 0.3) });
 add('person', 'main', 990.0, { inside: radioHome, v: 'radioDad', scale: 0.8, z: 2, y: 9.5, act: (t) => ({ head: t > EV.radio ? 10 : 0, lean: t > EV.radio ? 8 : 2 }) });
 add('person', 'main', 991.4, { inside: radioHome, delay: 0.2, v: 'radioKid', scale: 0.8, z: 2, y: 9.5, act: (t) => ({ front: t > EV.radio + 0.5 && t < EV.radio + 3 ? [-150, -20] : [-20, -20], head: t > EV.radio ? -10 : 0 }) });
@@ -718,6 +719,26 @@ function overFx(g, st, t, S) {
   if (t > 283 && t < 290.5) {
     const por = st.aspectK > 0.4 ? 0 : 1, k = drop(t, 283.4, 288.6);
     st.hang(g, st.fx.sidereus, W * (por ? 0.3 : 0.3), H * lerp(-0.3, por ? 0.24 : 0.19, k), por ? 0.85 : 1.2, Math.sin(t * 0.6) * 2 * DEG - 0.03);
+  }
+  // radio: waves rippling out from the mast, and the music drifting out of the family's front room
+  if (t > EV.radio - 0.2 && t < EV.radio + 8) {
+    const [mx, my] = st.place('mid', 984, 248 * 0.8, t), fade = 1 - sramp(t, EV.radio + 5.5, EV.radio + 7.5);
+    g.save(); g.lineCap = 'round';
+    for (let i = 0; i < 9; i++) {
+      const age = t - EV.radio - i * 0.55; if (age < 0 || age > 3.2) continue;
+      const r = (14 + age * 70) * u, al = (1 - age / 3.2) * 0.5 * fade;
+      g.strokeStyle = `rgba(74,62,56,${al})`; g.lineWidth = Math.max(1, 1.8 * u); g.setLineDash([10 * u, 6 * u]);
+      for (const side of [-1, 1]) { g.beginPath(); g.arc(mx, my, r, side > 0 ? -0.6 : Math.PI - 0.6 + 0.6, side > 0 ? 0.35 : Math.PI + 0.6, false); g.stroke(); }
+    }
+    g.setLineDash([]); g.restore();
+    for (let i = 0; i < 12; i++) {
+      const born = EV.radio + 0.3 + i * 0.45, age = t - born; if (age < 0 || age > 3.4 || born > EV.radio + 5.4) continue;
+      const [hx, hy] = st.place('main', 993.6 + 1.2, 74, t), k = age / 3.4;
+      const x = hx + (age * 26 + Math.sin(age * 2.4 + i) * 10) * u, y = hy - age * 34 * u;
+      g.save(); g.translate(x, y); g.rotate(Math.sin(age * 2 + i) * 0.25); const sc = u * 1.1 * Math.min(1, age * 3); g.scale(sc, sc);
+      g.globalAlpha = Math.min(1, (1 - k) * 1.6); put(g, st.fx.notes[i % 2], 0.25, 1, 2); g.restore();
+    }
+    g.globalAlpha = 1;
   }
   // Jupiter and its moons hang in front of the clouds
   if (t > EV.jupiter - 1 && t < 292) {
