@@ -507,7 +507,7 @@ function state(t, stage) {
   return {
     fire, lights, emitters, smoke,
     sky: skyK(t), ambient: ambK(t), ground: null,
-    stars: nightK * (t > 191 && t < 207 ? 1.6 : 1) + pull,
+    stars: nightK * (t > 191 && t < 207 ? 1.6 : 1) + pull * lerp(1, 0.22, sramp(t, 447, 457)),
     sun, cloud: 1 - nightK * 0.4,
     snow: sramp(t, 61.5, 63.5) * (1 - sramp(t, 68.5, 70)),
     motes: lerp(0.5, 0.3, sramp(t, 4, 14)) + 0.3 * clamp(fire.lit) * (t < 55), moteColor: moteK(t),
@@ -707,7 +707,7 @@ function overFx(g, st, t, S) {
     const por = st.aspectK > 0.4 ? 0 : 1, sc = por ? 0.8 : 1.15;
     [[st.fx.sketchCol, 228.6, por ? 0.26 : 0.58, por ? 0.29 : 0.16], [st.fx.sketchWing, 231.0, por ? 0.76 : 0.84, por ? 0.31 : 0.19], [st.fx.sketchBody, 236.1, por ? 0.5 : 0.3, por ? 0.15 : 0.16]].forEach(([spr, t0, x, y], i) => {
       const k = drop(t, t0, 238.9 + i * 0.25); if (t < t0 - 0.1) return;
-      st.hang(g, spr, W * x, H * lerp(-0.3, y, k), sc, Math.sin(t * 0.6 + i * 2) * 2.4 * DEG + (i - 1) * 0.04);
+      st.hang(g, spr, W * x, H * lerp(-0.3, y * (W / H > 2 ? 0.55 : 1), k), sc * (W / H > 2 ? 0.85 : 1), Math.sin(t * 0.6 + i * 2) * 2.4 * DEG + (i - 1) * 0.04);
     });
   }
   // In 1800, more than four in ten children died before five; today, fewer than one in twenty
@@ -735,7 +735,7 @@ function overFx(g, st, t, S) {
   }
   // radio: waves rippling out from the mast, and the music drifting out of the family's front room
   if (t > EV.radio - 0.2 && t < EV.radio + 8) {
-    const [mx, my] = st.place('mid', 984, 248 * 0.8, t), fade = 1 - sramp(t, EV.radio + 5.5, EV.radio + 7.5);
+    const [mx, my] = st.place('mid', 984, 248 * 0.8, t), fade = 1 - sramp(t, EV.war - 1.4, EV.war - 0.2);
     g.save(); g.lineCap = 'round';
     for (let i = 0; i < 9; i++) {
       const age = t - EV.radio - i * 0.55; if (age < 0 || age > 3.2) continue;
@@ -745,11 +745,11 @@ function overFx(g, st, t, S) {
     }
     g.setLineDash([]); g.restore();
     for (let i = 0; i < 12; i++) {
-      const born = EV.radio + 0.3 + i * 0.45, age = t - born; if (age < 0 || age > 3.4 || born > EV.radio + 5.4) continue;
+      const born = EV.radio + 0.3 + i * 0.45, age = t - born; if (age < 0 || age > 3.4 || born > EV.war - 2.6) continue;
       const [hx, hy] = st.place('main', 993.6 + 1.2, 74, t), k = age / 3.4;
       const x = hx + (age * 26 + Math.sin(age * 2.4 + i) * 10) * u, y = hy - age * 34 * u;
       g.save(); g.translate(x, y); g.rotate(Math.sin(age * 2 + i) * 0.25); const sc = u * 1.1 * Math.min(1, age * 3); g.scale(sc, sc);
-      g.globalAlpha = Math.min(1, (1 - k) * 1.6); put(g, st.fx.notes[i % 2], 0.25, 1, 2); g.restore();
+      g.globalAlpha = Math.min(1, (1 - k) * 1.6) * fade; put(g, st.fx.notes[i % 2], 0.25, 1, 2); g.restore();
     }
     g.globalAlpha = 1;
   }
@@ -856,7 +856,7 @@ function overFx(g, st, t, S) {
       g.fillStyle = `rgba(230,236,255,${0.75 * veil * tw * (0.3 + hash(i * 5) * 0.7)})`; g.fillRect(x, y, rr, rr);
     }
     g.globalCompositeOperation = 'source-over';
-    const por = W < H, base = por ? W * 1.5 / 470 : Math.max(W / 860, H * 0.95 / 470);
+    const por = W < H, base = por ? W * 1.5 / 470 : Math.max(W / 760, H * 0.95 / 470);
     const ek = drop(t, LUNAR0 + 0.6, LUNAR1 - 0.3);
     if (t > LUNAR0 + 0.5) st.hang(g, st.fx.earth, W * (por ? 0.28 : 0.22), H * lerp(-0.25, por ? 0.22 : 0.2, ek), por ? 1.5 : 2.0, Math.sin(t * 0.4) * 1.5 * DEG, 1, t * 0.03);
     const cx = W * 0.5 - (por ? 97 : 50) * base, cy = H * (por ? 0.64 : 0.68) + (1 - Math.min(1, up)) * H * 0.9 + out * H * 0.9;

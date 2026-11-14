@@ -5,7 +5,7 @@ export class Sound {
   constructor(src, duration) {
     this.duration = duration;
     // streamed, so the film can start as soon as the first seconds have arrived
-    this.el = new Audio(); this.el.preload = 'auto'; this.el.src = src;
+    this.src = src; this.el = new Audio(); this.el.preload = 'auto'; this.el.src = src;
     this.el.addEventListener('error', () => { this.broken = true; });
     this.el.addEventListener('ended', () => { this.ended = true; this.paused = true; });
     this.paused = true; this.ended = false; this.vol = 1;
@@ -27,6 +27,7 @@ export class Sound {
       if (!this.paused) this.anchorT = Math.min(this.duration, this.anchorT + (now - this.anchorNow) / 1000);
       this.anchorNow = now; return this.anchorT;
     }
+    if (this.hold !== undefined) { this.anchorT = this.hold; this.anchorNow = now; return this.hold; }
     const a = this.el.currentTime;
     if (this.paused || this.el.paused) { this.anchorT = a; this.anchorNow = now; return a; }
     let t = this.anchorT + (now - this.anchorNow) / 1000;
@@ -37,13 +38,26 @@ export class Sound {
   toggle() {
     this.paused = !this.paused; this.anchorNow = performance.now();
     if (this.broken) return;
-    this.paused ? this.el.pause() : this.el.play().catch(() => {});
+    if (this.hold === undefined) this.paused ? this.el.pause() : this.el.play().catch(() => {});
     if (this.ac) this.paused ? this.ac.suspend() : this.ac.resume();
   }
   seek(t) {
     this.ended = false; this.paused = false; this.anchorT = t; this.anchorNow = performance.now();
-    if (!this.broken) { this.el.currentTime = t; this.el.play().catch(() => {}); }
     if (this.ac) this.ac.resume();
+    if (this.broken) return;
+    const el = this.el, sk = el.seekable;
+    let can = false; for (let i = 0; i < sk.length; i++) if (t >= sk.start(i) - 0.5 && t <= sk.end(i) + 0.5) can = true;
+    if (can) { this.hold = undefined; el.currentTime = t; el.play().catch(() => {}); return; }
+    // Some hosts cannot serve part of a file, so a streamed soundtrack cannot jump ahead.
+    // Fetch it whole, once, and play from memory: the picture waits on the chapter's first frame.
+    this.hold = t; el.pause();
+    this.whole = this.whole || fetch(this.src, { cache: 'no-store' }).then((r) => (r.ok ? r.blob() : Promise.reject())).then((b) => URL.createObjectURL(b));
+    this.whole.then((url) => {
+      if (this.hold !== t) return;
+      const go = () => { if (this.hold !== t) return; el.currentTime = t; this.hold = undefined; this.anchorT = t; this.anchorNow = performance.now(); if (!this.paused) el.play().catch(() => {}); };
+      if (el.src === url) return go();
+      el.addEventListener('loadedmetadata', go, { once: true }); el.src = url; el.load();
+    }).catch(() => { if (this.hold === t) { this.hold = undefined; el.currentTime = t; el.play().catch(() => {}); } });
   }
   volume(v) { this.vol = v; this.el.volume = v; if (this.out) this.out.gain.value = 0.5 * v; }
   flap(pan, layer, loud = 1) {
