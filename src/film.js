@@ -313,8 +313,8 @@ add('person', 'main', 991.4, { inside: radioHome, delay: 0.2, v: 'radioKid', sca
 // two world wars: the town folds flat, and is built again
 const warTown = [[1002.8, 'terrace', 1], [1007.2, 'timber', 2], [1011.4, 'terrace', 2]].map(([a, k, v], i) => add(k, 'main', a, { v, z: 0, scale: 0.95, foldAt: EV.war + 1.6 + i * 0.9, repopAt: EV.warEnd + 0.4 + i * 0.5, loud: 1.6 }));
 const warPeople = [['mother', 1005.0], ['father', 1009.4], ['saved2', 1013.4]].map(([v, a], i) => add('person', 'main', a, { v, scale: P2, z: 2, flip: i === 1, foldAt: EV.war + 2.4 + i * 0.8, repopAt: EV.saved + i * 0.45 }));
-add('lab', 'main', 1018.8, { z: 2, scale: 1.1, found: (t) => sramp(t, EV.dish, EV.dish + 0.5) * (0.85 + 0.15 * Math.sin(t * 3)) });
-add('person', 'main', 1016.4, { v: 'scientist', scale: P2, z: 3, act: (t) => ({ lean: 14, head: 16, front: [-70, -40], back: [-50, -30] }) });
+add('lab', 'main', 1018.8, { z: 2, scale: 1.1, popAt: EV.dish - 0.7, loud: 1.2, found: (t) => sramp(t, EV.dish, EV.dish + 0.5) * (0.85 + 0.15 * Math.sin(t * 3)) });
+add('person', 'main', 1016.4, { v: 'scientist', scale: P2, z: 3, popAt: EV.dish - 0.4, loud: 0.8, act: (t) => ({ lean: 14, head: 16, front: [-70, -40], back: [-50, -30] }) });
 [['saved', 1021.6], ['saved3', 1023.8], ['saved2', 1026]].forEach(([v, a], i) => add('person', 'main', a, { v, scale: P2, z: 2, popAt: EV.saved + 0.6 + i * 0.4, loud: 0.9 }));
 const gantry = add('gantry', 'main', 1030.6, { z: 1, popAt: EV.rocket - 1.6, loud: 1, to: 421 });
 grassRun(970, 985, 3, 'main');
