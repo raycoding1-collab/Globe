@@ -310,6 +310,8 @@ def build_score(EV, dur):
     S.chords(190.5, 4, choir, g=0.13, oct=0, vowel='o')
     for i in range(16): S.add(logdrum(220 if i % 4 else 165, 0.7), 191 + i * 1.0, 0.18 if i % 4 else 0.26, -0.2)
     S.phrase(THEME_A, 196.0, hum, oct=-1, g=0.34, pan=0.1, vowel='o')
+    for i, nm in enumerate(['A4', 'B4', 'D5', 'E5']): S.add(celesta(hz(nm), 2.0, 0.6), 197.85 + i * 0.45, 0.1, 0.5 - i * 0.1)
+    for i, (tf, nm) in enumerate([(199.6, 'D4'), (200.3, 'E4'), (201.0, 'A4'), (201.7, 'B3'), (202.4, 'D4'), (203.2, 'A3'), (203.6, 'E4'), (204.6, 'D4')]): S.add(kalimba(hz(nm), 1.6, 0.6), tf, 0.13, -0.5 + i * 0.13)
     # ---- printing: strings and a busy harpsichord, a lift when the pages fly
     S.arp(206.5, 5, harpsi, sub=4, pattern=(0, 1, 2, 3, 2, 3, 1, 2), g=0.20, oct=1, vel=0.8)
     S.chords(206.5, 5, bowed, g=0.14, bright=2600, attack=0.8)
@@ -342,7 +344,7 @@ def build_score(EV, dur):
         for nm in [['D3', 'A3', 'D4'], ['F3', 'C4', 'F4'], ['A3', 'E4', 'A4']][i]: S.add(bowed(hz(nm), 1.8, 1.0, bright=2400, attack=0.15), tf, 0.16)
     S.phrase(THEME_B, 306.0, bowed, oct=1, g=0.26, pan=-0.1, attack=0.12, voices=3)
     # ---- the 1800s: a machine-like ostinato; the telegraph taps; children burst out of school
-    for i in range(int((346 - 316) / 0.25)):
+    for i in range(int((341.6 - 316) / 0.25)):
         t = 316 + i * 0.25
         S.add(pluck(hz(['D3', 'D3', 'A3', 'D3', 'F3', 'D3', 'A3', 'C4'][i % 8]), 0.5, 0.9, 0.7), t, 0.18, 0.2 * np.sin(i))
         if i % 4 == 0: S.add(timpani(73.4, 0.5), t, 0.22)
@@ -353,6 +355,9 @@ def build_score(EV, dur):
         if on: S.add(pluck(hz('A3'), 0.25, 0.6, 0.6), EV['telegraph'] + j * 0.14, 0.14, 0.3)
     for i, nm in enumerate(['D4', 'F4', 'G4', 'A4', 'C5', 'D5']): S.add(kalimba(hz(nm), 1.2, 0.8), EV['school'] + 0.2 + i * 0.11, 0.24, -0.3 + i * 0.12)
     S.phrase(THEME_B, 337.5, bowed, oct=0, g=0.28, pan=-0.15, attack=0.12, voices=3)
+    for i, nm in enumerate(['D3', 'F3', 'A3']): S.add(bowed(hz(nm), 4.8, 1.0, bright=1400, attack=1.4), 342.4, 0.12, -0.3 + i * 0.3)
+    for i, nm in enumerate(['D4', 'F#4', 'A4', 'D5']): S.add(piano(hz(nm), 3.0, 0.55), 347.3 + i * 0.16, 0.2, -0.3 + i * 0.2)
+    for i, nm in enumerate(['D3', 'A3', 'F#4']): S.add(bowed(hz(nm), 4.0, 1.0, bright=2200, attack=0.7), 347.2, 0.15, -0.3 + i * 0.3)
     # ---- electric light: one note for the first light, then a note at every house the spark reaches
     S.add(piano(hz('A4'), 4.0, 0.7), EV['firstLight'], 0.5, 0)
     for i, nm in enumerate(['D5', 'F5', 'A5', 'G5', 'C6', 'A5', 'D6', 'A5']): S.add(piano(hz(nm), 2.6, 0.5), EV['spark'] + i * 1.25, 0.24, -0.6 + i * 0.17)
@@ -382,9 +387,13 @@ def build_score(EV, dur):
     # the Moon
     S.arp(409.0, 2, celesta, sub=2, pattern=(2, 3, 1, 2, 0, 3, 2, 1), g=0.12, oct=0, vel=0.7)
     S.add(timpani(55.0, 0.8), EV['landing'], 0.3)
+    for i, nm in enumerate(['D3', 'A3', 'E4', 'F#4']):
+        S.add(bowed(hz(nm), 6.5, 1.0, bright=2000, attack=1.8), EV['landing'] + 0.2, 0.13, -0.4 + i * 0.27)
+        S.add(choir(hz(nm), 6.0, 1.0, 'o'), EV['landing'] + 0.5, 0.06, 0.4 - i * 0.27)
+    for i, nm in enumerate(['D5', 'E5', 'F#5', 'A5']): S.add(celesta(hz(nm), 2.0, 0.5), EV['landing'] + 2.3 + (16 + 26 * i) / 92 * 2.2, 0.08, 0.2)
     # ---- today: soft arpeggios, piano, strings
-    S.arp(418.0, 5, tri, sub=4, pattern=(0, 2, 3, 1, 2, 3, 0, 3), g=0.15, oct=1, vel=0.8)
-    S.chords(418.0, 5, bowed, g=0.14, bright=2400, attack=0.8)
+    S.arp(419.4, 5, tri, sub=4, pattern=(0, 2, 3, 1, 2, 3, 0, 3), g=0.15, oct=1, vel=0.8)
+    S.chords(419.4, 5, bowed, g=0.14, bright=2400, attack=0.8)
     S.phrase(THEME_A, 421.0, piano, g=0.30, pan=0.1, vel=0.7)
     S.phrase(THEME_B, 429.0, piano, g=0.30, pan=0.1, vel=0.7)
     # ---- everything so far: the whole arrangement, then back to the beginning
@@ -447,7 +456,7 @@ def ambience(dur, EV):
         swell = 0.35 + 0.65 * (0.5 + 0.5 * np.sin(TAU * t / (6.5 + ch * 1.3) + ch)) ** 2
         out[:, ch] += (lp(rs.randn(n), 500) * 0.06 + bp(rs.randn(n), 800, 4000) * 0.025 * swell) * swell * sea
     # the fire's crackle (and the torch, and the candle)
-    fire = W([(0, 0), (EV['lit'] - 0.2, 0), (EV['lit'] + 3, 1), (50, 1), (56, 0.15), (60, 0), (77.8, 0), (78.6, 0.45), (90, 0.45), (93, 0), (271, 0), (272.5, 0.12), (288, 0.12), (291, 0), (dur, 0)])
+    fire = W([(0, 0), (EV['lit'] - 0.2, 0), (EV['lit'] + 3, 1), (50, 1), (56, 0.15), (60, 0), (77.8, 0), (78.6, 0.45), (90, 0.45), (93, 0), (199.4, 0), (200.6, 0.07), (206.5, 0.07), (209, 0), (271, 0), (272.5, 0.12), (288, 0.12), (291, 0), (dur, 0)])
     m = int(1.4 * SR)
     place(out, lp(rs.randn(m), 900) * np.sin(np.linspace(0, np.pi, m)) ** 2 * 0.16, EV['lit'] - 0.1)
     for ch in range(2):
@@ -510,13 +519,13 @@ def ambience(dur, EV):
         m, tv = tvec(0.45); place(out, np.sin(TAU * 380 * tv * (1 - 0.06 * tv)) * np.sin(np.pi * tv / tv[-1]) ** 2 * 0.03, tb, 1, -0.6)
     # industry: machine hum, clanks, steam; the engine and its whistle
     ind = W([(0, 0), (316, 0), (318, 1), (345, 0.8), (351, 0), (dur, 0)])
-    for ch in range(2): out[:, ch] += (np.sin(TAU * 55 * t + ch) * 0.02 + lp(rs.randn(n), 140) * 0.04) * ind
-    for i in range(30): place(out, bell(500 + rs.rand() * 900, 0.5, 0.4) * 0.035, 317 + i * 0.85 + rs.rand() * 0.4, 1, rs.rand() * 1.6 - 0.8)
+    for ch in range(2): out[:, ch] += (np.sin(TAU * 55 * t + ch) * 0.012 + lp(rs.randn(n), 140) * 0.024) * ind
+    for i in range(30): place(out, lp(bell(500 + rs.rand() * 700, 0.5, 0.4), 1800) * 0.018, 317 + i * 0.85 + rs.rand() * 0.4, 1, rs.rand() * 1.6 - 0.8)
     for i in range(int(18 / 0.3)):
         tt = EV['train'] - 3 + i * 0.32 * (1 - i * 0.004); m, tv = tvec(0.25)
-        place(out, bp(rs.randn(m), 300, 2500) * np.exp(-tv / 0.06) * 0.07 * min(1, i / 6) * max(0, 1 - i / 60), tt, 1, -0.7 + i * 0.03)
-    m, tv = tvec(1.8); wh = sum(np.sin(TAU * f * tv) for f in (587, 740, 880)) * env_ar(m, 0.08, 0.5) * 0.03
-    place(out, lp(wh, 2000), EV['train'] - 1.0, 1, -0.2)
+        place(out, bp(rs.randn(m), 300, 1800) * np.exp(-tv / 0.06) * 0.028 * min(1, i / 6) * max(0, 1 - i / 60), tt, 1, -0.7 + i * 0.03)
+    m, tv = tvec(1.8); wh = sum(np.sin(TAU * f * tv) for f in (587, 740, 880)) * env_ar(m, 0.08, 0.5) * 0.016
+    place(out, lp(wh, 1600), EV['train'] - 1.0, 1, -0.2)
     for tl in EV['lamps']:
         m, tv = tvec(0.6); place(out, lp(rs.randn(m), 800) * np.exp(-tv / 0.15) * np.minimum(1, tv / 0.05) * 0.08, tl, 1, 0.2)
     # electricity: a click, a hum
@@ -525,7 +534,7 @@ def ambience(dur, EV):
     for ch in range(2): out[:, ch] += (np.sin(TAU * 60 * t) * 0.006 + np.sin(TAU * 120 * t) * 0.004 + np.sin(TAU * 180 * t) * 0.002) * elec
     # the rocket, and a small knock as it lands on the moon
     m, tv = tvec(EV['landing'] - EV['rocket'] + 0.6)
-    place(out, lp(rs.randn(m), 160) * env_ar(m, 0.4, 0.5) * 0.35 + bp(rs.randn(m), 400, 2000) * env_ar(m, 0.3, 0.5) * 0.04, EV['rocket'], 1, 0.3)
+    place(out, lp(rs.randn(m), 160) * env_ar(m, 0.4, 0.5) * 0.17 + bp(rs.randn(m), 400, 1600) * env_ar(m, 0.3, 0.5) * 0.025, EV['rocket'], 1, 0.3)
     m, tv = tvec(0.4); place(out, (np.sin(TAU * 160 * tv) * np.exp(-tv / 0.08) + lp(rs.randn(m), 900) * np.exp(-tv / 0.01) * 0.4) * 0.12, EV['landing'], 1, 0.4)
     m, tv = tvec(0.08); place(out, bp(rs.randn(m), 800, 3000) * np.exp(-tv / 0.01) * 0.05, 431.58, 1, -0.1)
     m, tv = tvec(0.25); place(out, (lp(rs.randn(m), 600) * np.exp(-tv / 0.03) * 0.3 + np.sin(TAU * 180 * tv) * np.exp(-tv / 0.06) * 0.2) * 0.12, EV['landing'] + 1.6, 1, 0.45)
@@ -542,20 +551,37 @@ def ambience(dur, EV):
     place(out, lp(bell(hz('A4'), 2.5, 0.6), 2500) * 0.08, EV['school'] - 0.7, 1, 0.4)
     # the Flyer's engine, putt-putt, and the cars
     fly = W([(0, 0), (EV['flyer'] - 1.4, 0), (EV['flyer'] - 1.0, 1), (EV['landed'], 0.8), (EV['landed'] + 0.6, 0), (dur, 0)])
-    for ch in range(2): out[:, ch] += lp(rs.randn(n) * (0.5 + 0.5 * (np.sin(TAU * 11 * t) > 0)), 500) * 0.05 * fly
+    for ch in range(2): out[:, ch] += lp(rs.randn(n) * (0.5 + 0.5 * (np.sin(TAU * 11 * t) > 0)), 420) * 0.028 * fly
     cars = W([(0, 0), (EV['cars'] - 0.5, 0), (EV['cars'] + 0.5, 1), (391, 0.8), (392.8, 0), (dur, 0)])
-    for ch in range(2): out[:, ch] += lp(rs.randn(n) * (0.6 + 0.4 * np.sin(TAU * 23 * t + ch)), 300) * 0.04 * cars
+    for ch in range(2): out[:, ch] += lp(rs.randn(n) * (0.6 + 0.4 * np.sin(TAU * 23 * t + ch)), 260) * 0.022 * cars
     # the wars: a low rumble, distant thuds
     war = W([(0, 0), (EV['war'], 0), (EV['war'] + 1.2, 1), (EV['warEnd'] - 0.5, 1), (EV['warEnd'] + 1.0, 0), (dur, 0)])
-    for ch in range(2): out[:, ch] += lp(rs.randn(n), 120) * 0.12 * war * (0.6 + 0.4 * slow_noise(n, 1.2, 80 + ch))
+    for ch in range(2): out[:, ch] += lp(rs.randn(n), 120) * 0.05 * war * (0.6 + 0.4 * slow_noise(n, 1.2, 80 + ch))
     rr2 = np.random.RandomState(31)
     for k in range(10):
         m, tv = tvec(1.4); tb = EV['war'] + 0.8 + rr2.rand() * (EV['warEnd'] - EV['war'] - 1.6)
-        place(out, (lp(rr2.randn(m), 160) * np.exp(-tv / 0.35) + np.sin(TAU * 42 * tv) * np.exp(-tv / 0.3) * 0.6) * 0.16, tb, 1, rr2.rand() * 1.6 - 0.8)
+        place(out, (lp(rr2.randn(m), 160) * np.exp(-tv / 0.35) + np.sin(TAU * 42 * tv) * np.exp(-tv / 0.3) * 0.6) * 0.08, tb, 1, rr2.rand() * 1.6 - 0.8)
     # the spark: a small electric fizz running along the wire
     for i in range(7):
         m, tv = tvec(1.25); fz = bp(rs.randn(m), 700, 2400) * (0.5 + 0.5 * (rs.rand(m) > 0.7)) * np.sin(np.pi * tv / tv[-1])
         place(out, fz * 0.012, EV['spark'] + i * 1.25, 1, -0.7 + i * 0.22)
+    # paper: prints and notebook pages lowered on threads, the chain of children
+    def flutter(t0, dur=0.9, g=0.035, pan=0.0):
+        m, tv = tvec(dur); y = bp(rs.randn(m), 300, 1800) * np.sin(np.pi * tv / tv[-1]) ** 1.5 * (0.55 + 0.45 * np.sin(TAU * (9 + rs.rand() * 4) * tv) ** 2)
+        place(out, y * g, t0, 1, pan)
+    for tf, pn in [(207.7, -0.3), (209.9, 0.3), (228.5, 0.2), (230.9, 0.5), (236.0, -0.3), (340.5, 0.0)]: flutter(tf, pan=pn)
+    m, tv = tvec(0.3); place(out, lp(rs.randn(m), 700) * np.exp(-tv / 0.03) * 0.06, 210.55, 1, 0.3)
+    for j in range(4):
+        m, tv = tvec(0.25); place(out, lp(rs.randn(m), 1200) * np.exp(-tv / 0.04) * 0.035, 342.9 + j * 0.42 + 0.2, 1, -0.4 + j * 0.25)
+    for j in range(4): flutter(347.0 + j * 0.15, 0.5, 0.025, -0.4 + j * 0.25)
+    # the Moon up close: the card rising, the lander settling, footsteps in the dust, the flag
+    L0 = EV['landing'] + 0.1; land = L0 + 1.3
+    m, tv = tvec(1.4); place(out, lp(rs.randn(m), 500) * np.sin(np.pi * tv / tv[-1]) ** 2 * 0.05, L0, 1, 0)
+    m, tv = tvec(1.6); place(out, lp(rs.randn(m), 260) * env_ar(m, 0.6, 0.6) * 0.08, land - 1.3, 1, 0.1)
+    m, tv = tvec(0.6); place(out, (np.sin(TAU * 70 * tv) * np.exp(-tv / 0.12) + lp(rs.randn(m), 300) * np.exp(-tv / 0.08) * 0.5) * 0.12, land, 1, 0.1)
+    for i in range(7):
+        m, tv = tvec(0.2); place(out, lp(rs.randn(m), 700) * np.exp(-tv / 0.035) * 0.03, land + 0.9 + (16 + 13 * i) / 92 * 2.2, 1, 0.1 + i * 0.05)
+    flutter(land + 3.2, 0.6, 0.02, 0.4)
     # screens waking
     for i in range(6):
         place(out, piano(hz(['A4', 'D5', 'E5', 'A4', 'F#5', 'D5'][i]), 1.6, 0.35) * 0.06, EV['screens'] + i * 0.25, 1, rs.rand() * 1.6 - 0.8)

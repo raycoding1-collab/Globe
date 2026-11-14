@@ -259,7 +259,7 @@ KINDS.flyer = {
   },
   draw(g, P, t, e, env) {
     const f = e.fly ? e.fly(t) : 0, spin = t > e.startAt ? t * 40 : 0;
-    g.translate(0, -f * 60 - 6); g.rotate((Math.sin(t * 5) * 2.5 * f - f * 3) * DEG);
+    g.translate(0, -f * 105 - 6); g.rotate((Math.sin(t * 5) * 2.5 * f - f * 3) * DEG);
     put(g, P.body, env.sh * (1 - f * 0.7), 3, 4 + f * 30);
     g.save(); g.translate(-6, -22); put(g, P.pilot, 0); g.restore();
     for (const x of [-34, 34]) { g.save(); g.translate(-90, -34 + x * 0.3); g.scale(1, Math.cos(spin + x)); put(g, P.prop, 0); g.restore(); }

@@ -154,6 +154,21 @@ export class Stage {
       const gb = g.createRadialGradient(0, 0, inner, 0, 0, R0 - (name === 'main' ? 70 : 40));
       gb.addColorStop(0, rgb(body, 1)); gb.addColorStop(1, rgb(body, 0));
       g.fillStyle = gb; g.fillRect(-1400, -1400, 2800, 2800);
+      if (this.full && name === 'core') {
+        // seen whole, it is a disc of board: lit by the dawn from above, with corrugated card showing at its cut edge
+        const pk = this.pullK;
+        g.save();
+        const lg = g.createLinearGradient(0, -R0, 0, R0); lg.addColorStop(0, `rgba(255,214,160,${0.3 * pk})`); lg.addColorStop(0.5, 'rgba(255,214,160,0)'); lg.addColorStop(1, `rgba(10,6,4,${0.3 * pk})`);
+        g.fillStyle = lg; g.fillRect(-R0, -R0, R0 * 2, R0 * 2);
+        g.restore();
+        const r1 = R0 - 14, r2 = R0 - 50, n = 200;
+        g.globalAlpha = 0.5 * pk; g.strokeStyle = 'rgba(60,38,20,.8)'; g.lineWidth = 2.4;
+        for (const rr of [r1, r2]) { g.beginPath(); g.arc(0, 0, rr, 0, Math.PI * 2); g.stroke(); }
+        g.lineWidth = 2; g.beginPath();
+        for (let i = 0; i <= n * 4; i++) { const a = (i / (n * 4)) * Math.PI * 2, rr = (r1 + r2) / 2 + Math.sin(i * Math.PI / 2) * (r1 - r2) * 0.42; i ? g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : g.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+        g.stroke();
+        g.globalAlpha = 1;
+      }
     }
     const gr = g.createRadialGradient(0, 0, R0 - 150, 0, 0, R0 + 80);
     gr.addColorStop(0, 'rgba(20,10,6,0.20)'); gr.addColorStop(0.75, 'rgba(20,10,6,0)'); gr.addColorStop(1, 'rgba(255,240,210,0.07)');
@@ -249,7 +264,7 @@ export class Stage {
     const z = lerp(zoom, fit, smooth(pull));
     const top = lerp(this.hy + breathe, H * 0.52 - this.R * z, smooth(pull));
     const u = this.u * z, cy = top + this.R * z;
-    this.eu = u; this.ecy = cy; this.eR = this.R * z; this.full = pull > 0.02;
+    this.eu = u; this.ecy = cy; this.eR = this.R * z; this.full = pull > 0.02; this.pullK = smooth(pull);
     this.visE = this.full ? 180 : Math.asin(Math.min(1, (W / 2) / this.eR)) / DEG;
     const hy = top;
     const env = { fire: S.fire || { lit: 0, reach: 0, blow: 0 }, sh: 0.3, S };
