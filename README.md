@@ -4,6 +4,10 @@ A six-minute narrated film about the history of humanity, made of cardboard and 
 A tiny paper planet turns at the bottom of the screen; each stretch of it is an era,
 and the next one is always rising over the horizon.
 
+## Watch it
+
+**https://raycoding1-collab.github.io/Globe/** (published from the `gh-pages` branch; run `tools/publish_pages.sh` to update it).
+
 ## Watch it locally
 
 ```sh
