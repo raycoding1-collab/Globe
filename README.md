@@ -47,3 +47,13 @@ node tools/sheet.mjs NAME "30,86.5,150.8" 1440x810 3   # contact sheet -> shots/
 node tools/crop.mjs out.png 87 1440x810 1 520,250,420,300
 node tools/play.mjs 390x844 8                           # real-time playback test
 ```
+
+## Make another film in this format: the `paperfilm` skill
+
+Everything that went into this film (the creative brief, the engine, the sound pipeline, the
+review and phone checks, and the lessons learned) is packaged as a Claude skill called
+`paperfilm`. Install `skill/paperfilm.skill` once (open it in Claude and press Save skill), then
+in any new project say "paperfilm" with a story, for example: *paperfilm: the history of flight*.
+
+- `skill/paperfilm/`: the skill's guides (`SKILL.md` and `references/`).
+- `sh tools/make_skill.sh`: rebuilds `skill/paperfilm.skill`, bundling this project's code as the template.
