@@ -56,6 +56,31 @@ export const LOOKS = {
   phoneB: { skin: 6, top: 'shirt', topCol: '#e9e4d8', sleeve: '#e9e4d8', legs: 'trousers', legCol: '#3a3a40', hair: 'short', hairCol: '#5a3a22', pose: 'stand', item: 'phone' },
   phoneC: { skin: 4, top: 'dress', topCol: '#2f6f6a', legs: 'skirt', legCol: '#2f6f6a', sleeve: '#2f6f6a', hair: 'long', pose: 'stand', item: 'phone' },
   phoneD: { skin: 3, top: 'coat', topCol: '#8a7a5c', sleeve: '#8a7a5c', legs: 'trousers', legCol: '#2c2c33', hair: 'bald', beard: 1, beardCol: '#cfc6b8', pose: 'stand', item: 'phone' },
+  phoneW1: { skin: 3, top: 'coat', topCol: '#3e5a7a', sleeve: '#3e5a7a', legs: 'trousers', legCol: '#2c2c33', hair: 'short', pose: 'walk', item: 'phone' },
+  phoneW2: { skin: 5, top: 'hoodie', topCol: '#7a8a52', sleeve: '#7a8a52', legs: 'trousers', legCol: '#3a3f4a', hair: 'curly', pose: 'walk', item: 'phone' },
+  sitLap: { skin: 6, top: 'shirt', topCol: '#c45a4a', sleeve: '#c45a4a', legs: 'trousers', legCol: '#2f3b52', hair: 'bun', hairCol: '#6a4a2a', pose: 'sit' },
+  painter: { skin: 6, top: 'tunic', topCol: '#8a3a3a', sleeve: '#8a3a3a', legs: 'trousers', legCol: '#3a3436', hat: 'soft', hatCol: '#2a2a30', beard: 1, hairCol: '#5a3a22', pose: 'stand' },
+  patron: { skin: 6, top: 'robe', topCol: '#3a5a4a', legs: 'robe', legCol: '#3a5a4a', sleeve: '#3a5a4a', hat: 'soft', hatCol: '#8a2a2e', pose: 'stand' },
+  debater1: { skin: 6, top: 'coat', topCol: '#5a3a4a', sleeve: '#5a3a4a', legs: 'trousers', legCol: '#e8e0cc', hair: 'long', hairCol: '#d8d4cc', pose: 'stand' },
+  debater2: { skin: 4, top: 'coat', topCol: '#3a4a6a', sleeve: '#3a4a6a', legs: 'trousers', legCol: '#2a2a30', hair: 'bun', hairCol: '#e8e4dc', pose: 'stand', item: 'book' },
+  reader2: { skin: 6, top: 'dress', topCol: '#7a8a6a', legs: 'robe', legCol: '#7a8a6a', sleeve: '#7a8a6a', hair: 'bun', hairCol: '#4a3020', pose: 'stand', item: 'book' },
+  citizen: { skin: 0, top: 'shirt', topCol: '#e8e0cc', sleeve: '#e8e0cc', legs: 'trousers', legCol: '#3a4a6a', hat: 'wide', hatCol: '#3a3a40', pose: 'stand' },
+  citizen2: { skin: 1, top: 'dress', topCol: '#2c4a8a', legs: 'robe', legCol: '#2c4a8a', sleeve: '#2c4a8a', hat: 'band', hatCol: '#c8282e', pose: 'stand' },
+  mother: { skin: 6, top: 'dress', topCol: '#4a3a3a', legs: 'robe', legCol: '#4a3a3a', sleeve: '#4a3a3a', hair: 'bun', hairCol: '#3a2a20', pose: 'stand' },
+  father: { skin: 6, top: 'coat', topCol: '#2a2a30', sleeve: '#2a2a30', legs: 'trousers', legCol: '#2a2a30', hat: 'top', hatCol: '#1e1c1c', beard: 1, pose: 'stand' },
+  child1800: { skin: 6, top: 'shirt', topCol: '#c8b89a', sleeve: '#c8b89a', legs: 'trousers', legCol: '#4a4038', hat: 'cap', hatCol: '#5a4a3c', pose: 'walk', small: 0.66 },
+  child1800b: { skin: 1, top: 'dress', topCol: '#a85a4a', legs: 'skirt', legCol: '#a85a4a', sleeve: '#a85a4a', hair: 'bun', pose: 'walk', small: 0.66 },
+  photog: { skin: 6, top: 'coat', topCol: '#3a3634', sleeve: '#3a3634', legs: 'trousers', legCol: '#2a2626', hat: 'cap', hatCol: '#2a2626', pose: 'stand' },
+  cordwoman: { skin: 3, top: 'dress', topCol: '#3a6a6a', legs: 'skirt', legCol: '#3a6a6a', sleeve: '#3a6a6a', hair: 'bun', pose: 'stand' },
+  radioDad: { skin: 0, top: 'shirt', topCol: '#d8d0b8', sleeve: '#d8d0b8', legs: 'trousers', legCol: '#4a4a54', hair: 'short', pose: 'stand' },
+  radioKid: { skin: 0, top: 'dress', topCol: '#c45a4a', legs: 'skirt', legCol: '#c45a4a', sleeve: '#c45a4a', hair: 'curly', pose: 'stand', small: 0.66 },
+  scientist: { skin: 6, top: 'coat', topCol: '#efece4', sleeve: '#efece4', legs: 'trousers', legCol: '#3a3a40', hair: 'short', hairCol: '#8c8378', pose: 'stand' },
+  saved: { skin: 4, top: 'shirt', topCol: '#d8b860', sleeve: '#d8b860', legs: 'trousers', legCol: '#3a4a5a', hair: 'curly', pose: 'stand' },
+  saved2: { skin: 0, top: 'dress', topCol: '#5a8a7a', legs: 'skirt', legCol: '#5a8a7a', sleeve: '#5a8a7a', hair: 'long', pose: 'stand' },
+  saved3: { skin: 6, top: 'coat', topCol: '#8a5a3a', sleeve: '#8a5a3a', legs: 'trousers', legCol: '#2c2c33', hair: 'bald', beard: 1, beardCol: '#cfc6b8', pose: 'stand' },
+  fisher: { skin: 3, top: 'shirt', topCol: '#d8a040', sleeve: '#d8a040', legs: 'trousers', legCol: '#3a4a5a', hat: 'cap', hatCol: '#2c4a6a', pose: 'kneel', item: 'phone' },
+  granny: { skin: 2, top: 'dress', topCol: '#7a4a6a', legs: 'skirt', legCol: '#7a4a6a', sleeve: '#7a4a6a', hair: 'bun', hairCol: '#e0dcd4', pose: 'stand', item: 'phone' },
+  herder: { skin: 0, top: 'poncho', topCol: '#b8282e', pattern: 'stripe', legs: 'trousers', legCol: '#3a3436', hair: 'short', pose: 'stand', item: 'phone' },
   kid: { skin: 0, top: 'hoodie', topCol: '#e3b341', sleeve: '#e3b341', legs: 'trousers', legCol: '#34507a', hair: 'curly', pose: 'stand', small: 0.66 },
 };
 
@@ -182,7 +207,7 @@ function idle(t, e, L) {
   if (L.pose === 'walk') { const ph = t * (e.pace ?? 5.2) + s; Object.assign(o, { walk: ph, lean: 4, back: [Math.sin(ph) * 22, -14], front: [-Math.sin(ph) * 22, -18] }); }
   if (L.pose === 'sit') Object.assign(o, { lean: 8, back: [-30, -50], front: [-40, -60] });
   if (L.pose === 'kneel') Object.assign(o, { lean: 18, back: [-30, -40], front: [-46, -40] });
-  if (L.item === 'phone') Object.assign(o, { head: 22 + fbm(t * 0.4 + s, 3) * 3, lean: 5, front: [-38, -88], back: [-24, -96] });
+  if (L.item === 'phone') { Object.assign(o, { head: 22 + fbm(t * 0.4 + s, 3) * 3, lean: 5, front: [-38, -88] }); if (L.pose !== 'walk') o.back = [-24, -96]; }
   if (L.item === 'spear' || L.item === 'staff' || L.item === 'pole') o.front = [-34 + Math.sin(t * 2 + s) * 3, -62];
   if (L.item === 'torch') o.front = [-130, -20];
   return o;
@@ -229,15 +254,41 @@ KINDS.person = {
   },
   glow(g, P, t, e, env, p) {
     if (P.L.item !== 'phone' || p < 0.5) return;
-    const k = env.S.screen ?? 0; if (k < 0.01) return;
+    const k = e.screenAt !== undefined ? sramp(t, e.screenAt, e.screenAt + 0.3) : env.S.screen ?? 0; if (k < 0.01) return;
     // the phone's screen, then its cold light on the face
     const o = idle(t, e, P.L); if (e.act) Object.assign(o, e.act(t, o));
     const sm = P.L.small || 1; g.scale(sm, sm);
-    g.translate(0, -P.hip); g.rotate(o.lean * DEG); g.translate(2, -34.5); g.rotate(o.front[0] * DEG); g.translate(0, 19); g.rotate(o.front[1] * DEG); g.translate(0.5, 21); g.rotate(-60 * DEG); g.translate(1, -2);
+    const bob = o.walk !== undefined ? Math.abs(Math.cos(o.walk)) * 2.2 : 0;
+    g.translate(0, -P.hip + bob); g.rotate(o.lean * DEG); g.translate(2, -34.5); g.rotate(o.front[0] * DEG); g.translate(0, 19); g.rotate(o.front[1] * DEG); g.translate(0.5, 21); g.rotate(-60 * DEG); g.translate(1, -2);
     g.globalCompositeOperation = 'lighter';
     g.fillStyle = `rgba(150,200,255,${0.85 * k})`; g.fillRect(-3.2, -6.6, 6.4, 13.2);
     const gr = g.createRadialGradient(0, 0, 0, 0, 0, 40); gr.addColorStop(0, `rgba(110,170,255,${0.35 * k})`); gr.addColorStop(1, 'rgba(110,170,255,0)');
     g.fillStyle = gr; g.fillRect(-40, -40, 80, 80);
+    if (e.flashAt) { const f = Math.exp(-(((t - e.flashAt) / 0.07) ** 2)); if (f > 0.01) { const fr = g.createRadialGradient(0, 0, 0, 0, 0, 160); fr.addColorStop(0, `rgba(255,255,255,${f})`); fr.addColorStop(0.2, `rgba(240,248,255,${0.5 * f})`); fr.addColorStop(1, 'rgba(240,248,255,0)'); g.fillStyle = fr; g.fillRect(-160, -160, 320, 320); } }
     g.globalCompositeOperation = 'source-over';
+  },
+};
+
+// Someone sitting on the ground, a laptop on their knees, lit by it.
+KINDS.laptopper = {
+  bake(mk) {
+    const P = KINDS.person.bake(mk, 'sitLap');
+    P.base = mk('lap-base', [-18, -6, 18, 4], { pad: 4 }).piece([[-16, -3], [16, -3], [15, 2], [-15, 2]], '#3a3c42', { round: 1, rough: 0.2 }).finish({ shadowBlur: 2 });
+    P.lid = mk('lap-lid', [-4, -26, 4, 2], { pad: 4 }).piece([[-2, 1], [2, 1], [2.4, -24], [-1.6, -24]], '#2a2c32', { round: 1, rough: 0.2 }).finish({ shadowBlur: 2 });
+    return P;
+  },
+  draw(g, P, t, e, env) {
+    const o = { lean: 6 + Math.sin(t * 0.8 + 1) * 0.8, head: 14 + fbm(t * 0.3, 5) * 3, back: [-52, -40 + Math.sin(t * 7) * 6], front: [-62, -36 + Math.sin(t * 8 + 1) * 6] };
+    drawPerson(g, P, t, e, env, o);
+    g.save(); g.translate(26, -36); g.rotate(-8 * DEG); put(g, P.base, env.sh * 0.5); g.translate(14, -2); g.rotate(-12 * DEG); put(g, P.lid, env.sh * 0.5); g.restore();
+  },
+  glow(g, P, t, e, env, p) {
+    const k = e.screenAt !== undefined ? sramp(t, e.screenAt, e.screenAt + 0.3) : 0; if (k < 0.01 || p < 0.5) return;
+    g.save(); g.translate(26, -36); g.rotate(-8 * DEG); g.translate(14, -2); g.rotate(-12 * DEG);
+    g.globalCompositeOperation = 'lighter';
+    g.fillStyle = `rgba(170,210,255,${0.8 * k})`; g.fillRect(-1.6, -23, 3.2, 22);
+    const gr = g.createRadialGradient(-10, -14, 0, -10, -14, 60); gr.addColorStop(0, `rgba(120,175,255,${0.35 * k})`); gr.addColorStop(1, 'rgba(120,175,255,0)');
+    g.fillStyle = gr; g.fillRect(-70, -74, 120, 120);
+    g.restore(); g.globalCompositeOperation = 'source-over';
   },
 };

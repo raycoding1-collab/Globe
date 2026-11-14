@@ -23,6 +23,7 @@ export class Stage {
     this.world = makeCanvas(2, 2); this.wg = this.world.getContext('2d');
     this.mask = makeCanvas(2, 2); this.mg = this.mask.getContext('2d');
     this.lightC = makeCanvas(2, 2); this.lg = this.lightC.getContext('2d');
+    this.emit = makeCanvas(2, 2); this.eg = this.emit.getContext('2d');
     this.onFlap = null; this.lastT = -1; this.q = 1;
     this.resize();
   }
@@ -35,7 +36,7 @@ export class Stage {
     const W = Math.round(cssW * dpr), H = Math.round(cssH * dpr);
     if (W === this.W && H === this.H) return;
     this.W = W; this.H = H; this.dpr = dpr;
-    for (const c of [this.canvas, this.world, this.mask]) { c.width = W; c.height = H; }
+    for (const c of [this.canvas, this.world, this.mask, this.emit]) { c.width = W; c.height = H; }
     this.lightC.width = Math.ceil(W / 3); this.lightC.height = Math.ceil(H / 3);
     const aspect = W / H, k = sramp(aspect, 0.6, 1.7);
     this.aspectK = k;
@@ -100,6 +101,8 @@ export class Stage {
       for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; cam(m) < target ? (lo = m) : (hi = m); }
       e.tPop = hi + (e.delay ?? hash(Math.round(e.a * 131) + 7) * 0.4);
     }
+    // people inside a building spring up with it
+    for (const e of this.film.entities) if (e.inside) e.tPop = e.inside.tPop + 0.3 + (e.delay ?? 0);
   }
 
   buildPost() {
@@ -144,6 +147,7 @@ export class Stage {
     g.save();
     g.globalAlpha = L.alpha;
     g.fillStyle = this.paint(g, name, cam); g.fill(path);
+    if (this.emitOn && name !== 'far') { const eg = this.eg; eg.setTransform(g.getTransform()); eg.globalCompositeOperation = 'destination-out'; eg.globalAlpha = 1; eg.fill(path); eg.globalCompositeOperation = 'source-over'; }
     g.clip(path);
     if (name !== 'far') {
       const body = this.film.body || [88, 64, 44], inner = Math.max(10, R0 - (name === 'main' ? 330 : 200));
@@ -189,6 +193,7 @@ export class Stage {
     let p = spring(tau, 10.5, 0.46), wob = tau > 0 ? Math.exp(-2.1 * tau) * Math.sin(8.2 * tau) * 11 : 0;
     const fold = e.foldAt ?? e.to;
     if (fold !== undefined && t > fold) { const k = clamp((t - fold) / 0.26); p *= 1 - k * k; wob = 0; }
+    if (e.repopAt !== undefined && t > e.repopAt) { const d = t - e.repopAt; p = spring(d, 10.5, 0.46); wob = Math.exp(-2.1 * d) * Math.sin(8.2 * d) * 11; }
     if (p < 0.002 && tau > 0.5) return;
     const sy = 0.045 + 0.955 * p;
     g.save();
@@ -203,12 +208,20 @@ export class Stage {
     SHADOW.dx = this.film.shadowDx ? this.film.shadowDx(e, a, t, env.S) : 0;
     K.draw(g, e.parts, t, e, env);
     SHADOW.dx = 0;
-    if (K.glow && glows) glows.push({ e, m: g.getTransform(), p });
+    if (this.emitOn && glows) {
+      // whatever is drawn now covers the lights already behind it; then it adds its own
+      const eg = this.eg; eg.setTransform(g.getTransform());
+      eg.globalCompositeOperation = 'destination-out'; eg.globalAlpha = 1;
+      const sh = env.sh; env.sh = 0; K.draw(eg, e.parts, t, e, env); env.sh = sh;
+      if (K.glow) { eg.globalCompositeOperation = 'source-over'; K.glow(eg, e.parts, t, e, env, p); }
+      eg.globalCompositeOperation = 'source-over';
+    }
     g.restore();
     if (this.onFlap && this.lastT >= 0 && t - this.lastT < 0.3) {
       const pan = Math.sin(rel * DEG) * this.eR / (this.W / 2);
       if (this.lastT < e.tPop && t >= e.tPop) this.onFlap(pan, e.layer, e.loud ?? 1);
       if (fold !== undefined && this.lastT < fold && t >= fold) this.onFlap(pan, e.layer, (e.loud ?? 1) * 0.8);
+      if (e.repopAt !== undefined && this.lastT < e.repopAt && t >= e.repopAt) this.onFlap(pan, e.layer, e.loud ?? 1);
     }
   }
 
@@ -300,7 +313,9 @@ export class Stage {
       wg.restore();
     }
     wg.setTransform(u, 0, 0, u, cx, cy);
-    const byLayer = film.byLayer, glows = [];
+    const byLayer = film.byLayer, glows = true;
+    this.emitOn = !!S.emit;
+    if (this.emitOn) { this.eg.setTransform(1, 0, 0, 1, 0, 0); this.eg.globalCompositeOperation = 'source-over'; this.eg.clearRect(0, 0, W, H); }
     const amb = S.ambient, dark = amb[0] < 250 || amb[1] < 250 || amb[2] < 250 || S.lights.length;
     const drawLayer = (name) => {
       // things stand behind the rim of their own disc, so draw them first
@@ -362,10 +377,7 @@ export class Stage {
     g.drawImage(this.world, 0, 0);
 
     // ---- things that give light ---------------------------------------------
-    for (const it of glows) {
-      g.setTransform(it.m); g.globalCompositeOperation = 'source-over';
-      KINDS[it.e.kind].glow(g, it.e.parts, t, it.e, env, it.p);
-    }
+    if (this.emitOn) { g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'lighter'; g.drawImage(this.emit, 0, 0); g.globalCompositeOperation = 'source-over'; }
     g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
     if (S.sun && S.sun.k > 0.01 && (S.rays ?? 0) > 0.01) this.rays(g, S, t, cx, hy, u);
     for (const em of S.emitters) this.fire(g, em, t);
