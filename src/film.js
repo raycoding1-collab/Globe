@@ -906,11 +906,12 @@ function overFx(g, st, t, S) {
       const hands = screens.map((p) => st.place('main', p.a + (p.move ? p.move(t) : 0), p.hand ?? 128, t));
       const far = [[-W * 0.08, H * 0.42], [W * 1.08, H * 0.38], [-W * 0.06, H * 0.12], [W * 1.06, H * 0.08], [W * 0.5, -H * 0.1]];
       const links = [];
-      hands.forEach((h, i) => { links.push([h, sats[i % sats.length], i * 0.12]); if (i) links.push([hands[i - 1], h, 0.3 + i * 0.1]); });
+      hands.forEach((h, i) => { links.push([h, sats[i % sats.length], i * 0.12]); if (i) links.push([hands[i - 1], h, 0.3 + i * 0.1, 1]); });
       for (let i = 0; i < sats.length; i++) for (let j = i + 1; j < sats.length; j++) links.push([sats[i], sats[j], 0.6 + i * 0.1]);
       sats.forEach((sp, i) => { links.push([sp, far[i % far.length], 0.9 + i * 0.15]); links.push([sp, far[(i + 2) % far.length], 1.1 + i * 0.15]); });
       g.globalCompositeOperation = 'lighter'; g.lineCap = 'round';
-      links.forEach(([[x0, y0], [x1, y1], d], n) => {
+      const mail = [];
+      links.forEach(([[x0, y0], [x1, y1], d, hh], n) => {
         const kk = clamp(k * 1.8 - d * 0.5); if (kk <= 0) return;
         const mx = (x0 + x1) / 2 + (hash(n) - 0.5) * 60 * u, my = Math.min(y0, y1) - Math.abs(x1 - x0) * 0.18 - 30 * u;
         const grow = clamp(kk * 1.3);
@@ -923,8 +924,16 @@ function overFx(g, st, t, S) {
           const gr = g.createRadialGradient(px, py, 0, px, py, r); gr.addColorStop(0, `rgba(215,240,255,${0.95 * kk})`); gr.addColorStop(1, 'rgba(130,200,255,0)');
           g.fillStyle = gr; g.fillRect(px - r, py - r, r * 2, r * 2);
         }
+        // now and then, a small paper message rides the thread from one hand to the next
+        if (hh && t > EV.threadsNet + 1.2 && kk > 0.9) {
+          const f = ((t - EV.threadsNet) * 0.16 + hash(n * 5)) % 1.6; if (f < 1) mail.push([P(n % 2 ? f : 1 - f), n, Math.sin(f * Math.PI)]);
+        }
       });
       g.globalCompositeOperation = 'source-over';
+      for (const [[px, py], n, vis] of mail) {
+        g.save(); g.translate(px, py - 6 * u); g.rotate(Math.sin(t * 2 + n) * 0.18); const sc = u * 1.15 * clamp(vis * 3); g.scale(sc, sc);
+        put(g, st.fx.msg[n % 4], 0.3, 1, 2); g.restore();
+      }
     }
   }
 }

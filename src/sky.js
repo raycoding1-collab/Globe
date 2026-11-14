@@ -132,6 +132,16 @@ export function bakeFx(mk, mkSoft, mkBig) {
       const sh = g.createLinearGradient(-34, 0, 34, 0); sh.addColorStop(0, 'rgba(10,14,30,0)'); sh.addColorStop(0.55, 'rgba(10,14,30,0)'); sh.addColorStop(0.8, 'rgba(10,14,30,.7)'); g.fillStyle = sh; g.fillRect(-36, -36, 72, 72);
     } }).finish({ shadowBlur: 5 });
   }
+  // small paper messages that ride the threads between people: a heart, a photo, a word, a letter
+  {
+    const hp = []; for (let i = 0; i <= 20; i++) { const a = (i / 20) * Math.PI * 2, x = 16 * Math.sin(a) ** 3, y = -(13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a)); hp.push([x * 0.62, y * 0.62]); }
+    S.msg = [
+      mk('msg-heart', [-12, -12, 12, 12], { pad: 4 }).piece(hp, '#d2463c', { round: 1, rough: 0.3 }).finish({ shadowBlur: 2 }),
+      mk('msg-photo', [-12, -12, 12, 12], { pad: 4 }).piece(rect(-10, -11, 10, 11), '#f2eee4', { round: 0.8, paint: (g) => { g.fillStyle = '#7ab0d8'; g.fillRect(-8, -9, 16, 13); g.fillStyle = '#6a9a4a'; g.beginPath(); g.moveTo(-8, 4); g.quadraticCurveTo(-1, -4, 8, 1); g.lineTo(8, 4); g.closePath(); g.fill(); g.fillStyle = '#f0d060'; g.beginPath(); g.arc(4, -5, 2.2, 0, 7); g.fill(); } }).finish({ shadowBlur: 2 }),
+      mk('msg-bubble', [-13, -11, 13, 13], { pad: 4 }).piece([[-11, -9], [11, -9], [11, 5], [-2, 5], [-7, 11], [-6, 5], [-11, 5]], '#f4f1ea', { round: 2, paint: (g) => { g.fillStyle = '#4a4a52'; for (const x of [-5, 0, 5]) { g.beginPath(); g.arc(x, -2, 1.5, 0, 7); g.fill(); } } }).finish({ shadowBlur: 2 }),
+      mk('msg-letter', [-13, -10, 13, 10], { pad: 4 }).piece(rect(-11, -8, 11, 8), '#efe3c8', { round: 0.8, paint: (g) => { g.strokeStyle = 'rgba(120,90,60,.7)'; g.lineWidth = 1.1; g.beginPath(); g.moveTo(-11, -8); g.lineTo(0, 1); g.lineTo(11, -8); g.stroke(); g.fillStyle = '#c8553d'; g.beginPath(); g.arc(0, 1, 2, 0, 7); g.fill(); } }).finish({ shadowBlur: 2 }),
+    ];
+  }
   S.jet = mk('jet', [-60, -16, 60, 14])
     .piece([[-56, -2], [-40, -6], [44, -6], [58, 0], [44, 5], [-40, 5]], '#eceae4', { round: 4 })
     .piece([[-6, 0], [-22, 14], [-12, 14], [10, 2]], '#d8d6d0', { round: 1, lift: 1 })
