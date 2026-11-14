@@ -196,21 +196,93 @@ export function bakeFx(mk, mkSoft, mkBig) {
 }
 
 // The marks on the tablet, in tablet units: [kind, x, y]
+// The marks on the tablet, in tablet units: [kind, x, y]. Read as an account, one row per item:
+// the number of units on the left, the sign for the thing on the right. Order matters: the first
+// eight are pressed with EV.marks, the three signs with EV.signs, the last three with EV.tally.
 export const TABLET_MARKS = [
-  ['dot', -88, -60], ['dot', -66, -60], ['cup', -44, -58], ['dot', -88, -40], ['dot', -66, -40], ['cup', -44, -40], ['cup', 20, -54], ['dot', 44, -56],
-  ['barley', -70, 6], ['beer', 30, 4], ['sheep', -66, 60], ['dot', 34, 58], ['dot', 56, 58], ['cup', 80, 58],
+  ['cup', -92, -67], ['cup', -66, -67], ['dot', -40, -67], ['dot', -92, -44], ['dot', -66, -44], ['dot', -40, -44], // six of barley
+  ['dot', -78, 2], ['dot', -52, 2],                                                                               // two of beer
+  ['barley', 54, -56], ['beer', 54, 2], ['sheep', 54, 59],                                                        // barley, beer, sheep
+  ['dot', -92, 59], ['dot', -66, 59], ['dot', -40, 59],                                                           // three sheep
 ];
-// Draw one impressed or incised mark into the clay (g in tablet units). k: 0..1 how far pressed.
+
+// Marks pressed into wet clay with a reed, lit from the upper left: grooves with a raised lip of
+// pushed-up clay, a shadowed wall and a lit wall, deeper where the reed went in and lighter where
+// it lifted; round pits where the stylus end was pushed straight in; angled ones that are deep at
+// one end and shallow at the other. A little unevenness in every line: no two are alike.
+function ribbon(P, w, capStart = true) {
+  const L = [], R = [], n = P.length - 1;
+  for (let i = 0; i <= n; i++) {
+    const a = P[Math.max(0, i - 1)], b = P[Math.min(n, i + 1)];
+    let nx = -(b[1] - a[1]), ny = b[0] - a[0]; const l = Math.hypot(nx, ny) || 1; nx /= l; ny /= l;
+    const hw = w(i / n) / 2;
+    L.push([P[i][0] + nx * hw, P[i][1] + ny * hw]); R.push([P[i][0] - nx * hw, P[i][1] - ny * hw]);
+  }
+  const p = new Path2D(); p.moveTo(L[0][0], L[0][1]);
+  for (let i = 1; i <= n; i++) p.lineTo(L[i][0], L[i][1]);
+  for (let i = n; i >= 0; i--) p.lineTo(R[i][0], R[i][1]);
+  p.closePath();
+  if (capStart) { const r = w(0) * 0.42; p.moveTo(P[0][0] + r, P[0][1]); p.arc(P[0][0], P[0][1], r, 0, Math.PI * 2); } // only rounds the blunt start
+  return p;
+}
+function groove(g, pts, w, r, d) {
+  const P = [];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], n = Math.max(2, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 3.5));
+    for (let j = 0; j < n; j++) { const f = j / n; P.push([x0 + (x1 - x0) * f + (r() - 0.5) * 0.6, y0 + (y1 - y0) * f + (r() - 0.5) * 0.6]); }
+  }
+  const e = pts[pts.length - 1]; P.push([e[0] + (r() - 0.5) * 0.4, e[1] + (r() - 0.5) * 0.4]);
+  // blunt and deep where the reed went in, tapering to a point where it lifted
+  const press = 0.88 + r() * 0.24, wob = r() * 6;
+  const prof = (f) => w * press * (f < 0.85 ? 1.05 - 0.25 * f : (0.84 - 0.25 * 0.85) * (1 - (f - 0.85) / 0.15) + 0.25 * w * 0) * (0.94 + 0.06 * Math.sin(f * 8 + wob));
+  const path = ribbon(P, prof), lip = ribbon(P, (f) => prof(f) + 2.4, false);
+  const fill = (dx, dy, col, q = path) => { g.save(); g.translate(dx, dy); g.fillStyle = col; g.fill(q); g.restore(); };
+  // the clay pushed up along the edges: lit on the upper left, casting a little shadow on the lower right
+  fill(-0.8, -0.8, `rgba(246,222,184,${0.32 * d})`, lip);
+  fill(1.0, 1.2, `rgba(72,44,24,${0.2 * d})`, lip);
+  // the groove: its floor, then its two walls, kept inside it
+  fill(0, 0, `rgba(98,62,34,${0.97 * d})`);
+  g.save(); g.clip(path);
+  const k = w * 0.34;
+  fill(-k, -k, `rgba(38,20,8,${0.92 * d})`);            // the wall nearest the light, in shadow
+  fill(k * 1.15, k * 1.15, `rgba(214,170,120,${0.75 * d})`); // the far wall, catching the light
+  fill(0, 0, `rgba(88,54,28,${0.35 * d})`, ribbon(P, (f) => prof(f) * 0.3, false)); // the deepest line of the cut
+  g.restore();
+}
+function pit(g, rx, ry, rot, r, d) {
+  g.save(); g.rotate(rot + (r() - 0.5) * 0.25);
+  const sx = 1 + (r() - 0.5) * 0.12, sy = 1 + (r() - 0.5) * 0.12;
+  const ell = (x, y, a, b) => { g.beginPath(); g.ellipse(x, y, a * sx, b * sy, 0, 0, Math.PI * 2); g.fill(); };
+  g.fillStyle = `rgba(250,228,190,${0.5 * d})`; ell(-1.1, -1.1, rx + 1.6, ry + 1.6);   // raised rim, lit
+  g.fillStyle = `rgba(72,44,24,${0.3 * d})`; ell(1.4, 1.6, rx + 1.3, ry + 1.3);       // its shadow
+  // the hollow: dark at the near (upper left) wall, lit at the far wall; for an angled pit, deepest at the top end
+  const gr = g.createRadialGradient(rx * 0.3, ry * 0.45, 0, 0, 0, Math.max(rx, ry) * 1.05);
+  gr.addColorStop(0, `rgba(178,132,88,${0.96 * d})`); gr.addColorStop(0.5, `rgba(118,76,44,${0.96 * d})`); gr.addColorStop(1, `rgba(50,28,14,${0.96 * d})`);
+  g.fillStyle = gr; ell(0, 0, rx, ry);
+  g.restore();
+}
 export function drawMark(g, kind, x, y, k) {
   if (k <= 0) return;
-  g.save(); g.translate(x, y); g.globalAlpha *= Math.min(1, k * 1.4);
-  const deep = 'rgba(70,42,22,.85)', lit = 'rgba(240,210,170,.55)';
-  const imp = (draw) => { g.save(); g.translate(1.2, 1.4); g.strokeStyle = lit; g.fillStyle = lit; draw(); g.restore(); g.strokeStyle = deep; g.fillStyle = deep; draw(); };
-  g.lineCap = 'round'; g.lineWidth = 3.2;
-  if (kind === 'dot') imp(() => { g.beginPath(); g.arc(0, 0, 7.5, 0, 7); g.fill(); });
-  else if (kind === 'cup') imp(() => { g.beginPath(); g.ellipse(0, 0, 6, 9, 0.3, 0, 7); g.fill(); });
-  else if (kind === 'barley') imp(() => { g.beginPath(); g.moveTo(0, 22); g.lineTo(0, -24); for (let i = 0; i < 4; i++) { const yy = -18 + i * 9; g.moveTo(-9, yy + 5); g.lineTo(0, yy); g.lineTo(9, yy + 5); } g.stroke(); });
-  else if (kind === 'beer') imp(() => { g.beginPath(); g.moveTo(-12, -18); g.lineTo(12, -18); g.lineTo(12, 4); g.lineTo(0, 22); g.lineTo(-12, 4); g.closePath(); g.stroke(); g.beginPath(); for (let i = -8; i <= 8; i += 6) { g.moveTo(i, -14); g.lineTo(i, 2); } g.stroke(); });
-  else if (kind === 'sheep') imp(() => { g.beginPath(); g.arc(0, 0, 15, 0, 7); g.moveTo(-15, 0); g.lineTo(15, 0); g.moveTo(0, -15); g.lineTo(0, 15); g.stroke(); });
+  const d = Math.min(1, k * 1.4), r = rng(1 + Math.round((x + 300) * 37 + (y + 300) * 11));
+  g.save(); g.translate(x, y); g.scale(0.9 + 0.1 * d, 0.9 + 0.1 * d);
+  const W = 4.3;
+  if (kind === 'dot') pit(g, 7.4, 7.4, 0, r, d);
+  else if (kind === 'cup') pit(g, 5.6, 9.4, 0.32, r, d);
+  else if (kind === 'barley') {
+    // ŠE, an ear of barley: a stem, and pairs of short strokes rising from it
+    groove(g, [[0, -25], [0.5, 0], [0, 25]], W, r, d);
+    for (let i = 0; i < 4; i++) { const yy = -17 + i * 9.5; groove(g, [[-0.8, yy + 4], [-10, yy - 3]], W * 0.85, r, d); groove(g, [[0.8, yy + 4], [10, yy - 3]], W * 0.85, r, d); }
+  } else if (kind === 'beer') {
+    // KAŠ, a beer jar: a neck, round shoulders, a pointed base, and slanting strokes inside
+    groove(g, [[-8, -22], [8, -22]], W * 0.9, r, d);
+    groove(g, [[-6, -21], [-7, -15], [-13, -8], [-12, 5], [-1, 24]], W, r, d);
+    groove(g, [[6, -21], [7, -15], [13, -8], [12, 5], [1, 24]], W, r, d);
+    for (const [x0, y0, x1, y1] of [[-8, -11, 9, -3], [-10, -3, 10, 6], [-8, 6, 5, 14]]) groove(g, [[x0, y0], [x1, y1]], W * 0.62, r, d);
+  } else if (kind === 'sheep') {
+    // UDU, a sheep: a circle drawn in two strokes, and a cross
+    const arc = (a0, a1) => { const pts = []; for (let i = 0; i <= 9; i++) { const a = a0 + (a1 - a0) * (i / 9); pts.push([Math.cos(a) * 15.5, Math.sin(a) * 15]); } return pts; };
+    groove(g, arc(-1.75, 1.55), W, r, d); groove(g, arc(1.45, 4.6), W, r, d);
+    groove(g, [[0, -11], [0.4, 11]], W * 0.9, r, d); groove(g, [[-11, 0.3], [11, -0.3]], W * 0.9, r, d);
+  }
   g.restore();
 }
