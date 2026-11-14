@@ -24,13 +24,13 @@ export class Stage {
     this.mask = makeCanvas(2, 2); this.mg = this.mask.getContext('2d');
     this.lightC = makeCanvas(2, 2); this.lg = this.lightC.getContext('2d');
     this.emit = makeCanvas(2, 2); this.eg = this.emit.getContext('2d');
-    this.onFlap = null; this.lastT = -1; this.q = 1;
+    this.onFlap = null; this.lastT = -1;
     this.resize();
   }
 
   resize() {
     const cssW = this.canvas.clientWidth || window.innerWidth, cssH = this.canvas.clientHeight || window.innerHeight;
-    let dpr = Math.min(window.devicePixelRatio || 1, 2) * this.q;
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
     const budget = 2.4e6;
     if (cssW * cssH * dpr * dpr > budget) dpr = Math.sqrt(budget / (cssW * cssH));
     const W = Math.round(cssW * dpr), H = Math.round(cssH * dpr);
@@ -348,7 +348,7 @@ export class Stage {
       g2.addColorStop(0, `rgba(255,200,120,${0.5 * S.sun.k})`); g2.addColorStop(0.5, `rgba(255,170,90,${0.3 * S.sun.k})`); g2.addColorStop(1, 'rgba(255,150,80,0)');
       g.fillStyle = g2; g.fillRect(sx - 90 * u, sy - 90 * u, 180 * u, 180 * u); g.globalCompositeOperation = 'source-over';
     }
-    if (this.wash && !this.lite) {
+    if (this.wash) {
       g.save(); g.globalCompositeOperation = 'soft-light'; g.globalAlpha = 0.5;
       const ws = Math.max(W, H) * 0.9, ox = (-cam * 2.2 - t * 1.5) % ws;
       for (let x = ox - ws; x < W; x += ws) for (let y = -ws * 0.2; y < H; y += ws) g.drawImage(this.wash, x, y, ws, ws);
@@ -473,7 +473,7 @@ export class Stage {
 
     // ---- the camera and the film stock ----------------------------------------
     // bloom: the brightest parts of the frame, blurred and laid back over it
-    const bloom = this.lite ? 0 : S.bloom ?? 0.3;
+    const bloom = S.bloom ?? 0.3;
     if (bloom > 0.01) {
       const bw = Math.ceil(W / 8), bh = Math.ceil(H / 8);
       if (!this.bloomA || this.bloomA.width !== bw) { this.bloomA = makeCanvas(bw, bh); this.bloomB = makeCanvas(Math.ceil(bw / 4), Math.ceil(bh / 4)); }
