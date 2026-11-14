@@ -13,6 +13,71 @@ export function bakeFx(mk, mkSoft, mkBig) {
     const pts = []; for (let i = 0; i < 9; i++) { const a = (i / 9) * Math.PI * 2, rr = 16 + r() * 7; pts.push([Math.cos(a) * rr, Math.sin(a) * rr * 0.8]); }
     return mk('puff' + v, [-26, -24, 26, 24], { pad: 6 }).piece(pts, ['#8e8a86', '#a09a94', '#7a7672'][v], { round: 7, rough: 1.6, seg: 8, rim: 0.3 }).finish({ shadowBlur: 3 });
   });
+  // printing in East Asia: a woodblock-printed scroll sheet, and a tray of cast metal type
+  {
+    const r2 = rng(868);
+    S.sutra = mk('sutra', [-92, -64, 92, 64], { pad: 8 }).piece([[-88, -60], [88, -58], [86, 60], [-86, 58]], '#efe3c4', { round: 2, rough: 0.6, paint: (g) => {
+      g.fillStyle = 'rgba(40,30,26,.85)';
+      // a printed picture panel on the right, then columns of text read right to left
+      g.strokeStyle = 'rgba(40,30,26,.8)'; g.lineWidth = 1.4; g.strokeRect(34, -50, 46, 100);
+      g.beginPath(); g.arc(57, -14, 10, 0, 7); g.stroke(); g.beginPath(); g.moveTo(42, 30); g.quadraticCurveTo(57, -4, 72, 30); g.closePath(); g.stroke();
+      for (let k = 0; k < 9; k++) { g.beginPath(); g.moveTo(57 + Math.cos(k * 0.7) * 16, -14 + Math.sin(k * 0.7) * 16); g.lineTo(57 + Math.cos(k * 0.7) * 22, -14 + Math.sin(k * 0.7) * 22); g.stroke(); }
+      for (let c = 0; c < 9; c++) for (let row = 0; row < 9; row++) {
+        const x = 22 - c * 12, y = -50 + row * 11.5; if (r2() < 0.08) continue;
+        g.lineWidth = 1.5; g.beginPath();
+        for (let st = 0; st < 3 + ((r2() * 3) | 0); st++) { const x0 = x - 4 + r2() * 6, y0 = y + r2() * 7, hz = r2() < 0.5; g.moveTo(x0, y0); g.lineTo(x0 + (hz ? 5 + r2() * 3 : (r2() - 0.5) * 2), y0 + (hz ? (r2() - 0.5) * 1.5 : 4 + r2() * 4)); }
+        g.stroke();
+      }
+      g.fillStyle = 'rgba(178,40,32,.85)'; g.fillRect(-82, 34, 13, 13); g.fillStyle = 'rgba(239,227,196,.9)'; g.fillRect(-79, 37, 3, 7); g.fillRect(-75, 37, 3, 7);
+    } }).piece(ellipse(-89, 0, 5, 63, 12), '#8a5a2a', { round: 2, lift: 1.2 }).finish({ shadowBlur: 5 });
+    const tray = mk('typetray', [-80, -52, 80, 52], { pad: 8 }).piece([[-76, -48], [76, -48], [76, 48], [-76, 48]], '#6e4e30', { round: 3, rough: 0.5 });
+    for (let c = 0; c < 9; c++) for (let row = 0; row < 6; row++) {
+      const x = -64 + c * 16, y = -38 + row * 15, col = r2() < 0.5 ? '#6a6458' : '#7a705e';
+      tray.piece([[x - 6.5, y - 6], [x + 6.5, y - 6], [x + 6.5, y + 6], [x - 6.5, y + 6]], col, { round: 1, lift: 1.2, thick: 0.8, paint: (g) => { g.strokeStyle = 'rgba(220,210,180,.55)'; g.lineWidth = 1.2; g.beginPath(); for (let st = 0; st < 3; st++) { const hz = r2() < 0.5, x0 = x - 4 + r2() * 4, y0 = y - 4 + r2() * 4; g.moveTo(x0, y0); g.lineTo(x0 + (hz ? 6 : 0.5), y0 + (hz ? 0.5 : 6)); } g.stroke(); } });
+    }
+    S.typetray = tray.finish({ shadowBlur: 5 });
+  }
+  // Renaissance notebook pages in sepia: the ancient world, the real one, and the body
+  {
+    const sep = 'rgba(96,58,30,.85)', page = (name, draw) => mk(name, [-62, -80, 62, 80], { pad: 8 }).piece([[-58, -76], [58, -75], [57, 76], [-57, 75]], '#efe2c2', { round: 2, rough: 0.7, paint: (g) => {
+      g.fillStyle = 'rgba(160,120,70,.12)'; g.beginPath(); g.ellipse(30, 50, 26, 18, 0.4, 0, 7); g.fill();
+      g.strokeStyle = sep; g.fillStyle = sep; g.lineWidth = 1.3; g.lineCap = 'round'; draw(g);
+      g.lineWidth = 0.8; g.strokeStyle = 'rgba(96,58,30,.5)'; for (let i = 0; i < 4; i++) { g.beginPath(); g.moveTo(-48, 52 + i * 5); g.lineTo(-48 + 30 + (i % 2) * 18, 52 + i * 5); g.stroke(); }
+    } }).finish({ shadowBlur: 5 });
+    S.sketchCol = page('sk-col', (g) => {
+      g.beginPath(); g.moveTo(-34, -56); g.lineTo(34, -56); g.moveTo(-30, -48); g.lineTo(30, -48); g.stroke();
+      for (const sx of [-1, 1]) { g.beginPath(); g.arc(sx * 22, -40, 8, 0, Math.PI * 2); g.stroke(); g.beginPath(); g.arc(sx * 22, -40, 3.5, 0, Math.PI * 2); g.stroke(); }
+      g.beginPath(); g.moveTo(-14, -32); g.lineTo(-16, 40); g.moveTo(14, -32); g.lineTo(16, 40); g.stroke();
+      for (let x = -10; x <= 10; x += 5) { g.beginPath(); g.moveTo(x, -30); g.lineTo(x * 1.08, 38); g.stroke(); }
+      g.beginPath(); g.moveTo(-24, 40); g.lineTo(24, 40); g.moveTo(-28, 46); g.lineTo(28, 46); g.stroke();
+      g.lineWidth = 0.7; g.beginPath(); g.moveTo(-40, -56); g.lineTo(-40, 46); g.moveTo(-43, -56); g.lineTo(-37, -56); g.moveTo(-43, 46); g.lineTo(-37, 46); g.stroke();
+    });
+    S.sketchWing = page('sk-wing', (g) => {
+      g.beginPath(); g.moveTo(-44, -10); g.quadraticCurveTo(-10, -60, 44, -54); g.stroke();
+      for (let i = 0; i < 9; i++) { const f = i / 8, x = -40 + f * 82, y = -14 - Math.sin(f * 2.6) * 34; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + 6, y + 30, x - 4 + f * 10, y + 44 - f * 14); g.stroke(); }
+      g.beginPath(); g.moveTo(-44, -10); g.lineTo(-30, 30); g.stroke();
+      g.lineWidth = 0.9; g.beginPath(); g.arc(-36, 36, 10, 0, 7); g.moveTo(-26, 36); g.lineTo(10, 36); g.moveTo(-36, 26); g.lineTo(-36, 46); g.stroke();
+    });
+    S.sketchBody = page('sk-body', (g) => {
+      g.beginPath(); g.arc(0, -6, 44, 0, 7); g.stroke(); g.strokeRect(-38, -42, 76, 76);
+      g.beginPath(); g.arc(0, -36, 6, 0, 7); g.stroke();
+      g.beginPath(); g.moveTo(0, -30); g.lineTo(0, 4); g.moveTo(-38, -22); g.lineTo(38, -22); g.moveTo(-36, -38); g.lineTo(0, -24); g.lineTo(36, -38);
+      g.moveTo(0, 4); g.lineTo(-10, 34); g.moveTo(0, 4); g.lineTo(10, 34); g.moveTo(0, 4); g.lineTo(-26, 30); g.moveTo(0, 4); g.lineTo(26, 30); g.stroke();
+    });
+  }
+  // a chain of paper children, cut from one folded strip, holding hands
+  {
+    const pts = [];
+    for (let i = 0; i <= 12; i++) { const a = (115 + (i / 12) * 310) * Math.PI / 180; pts.push([Math.cos(a) * 7.5, -32 + Math.sin(a) * 7.5]); }
+    pts.push([3, -25], [19, -21.5], [20.5, -17], [19, -13], [9, -13], [14, 20], [6, 20], [6, 40], [1.5, 40], [1.5, 23], [-1.5, 23], [-1.5, 40], [-6, 40], [-6, 20], [-14, 20], [-9, -13], [-19, -13], [-20.5, -17], [-19, -21.5], [-3, -25]);
+    const doll = (name, dress, skin) => mk(name, [-22, -42, 22, 42], { pad: 6 }).piece(pts, dress ? '#efe6d0' : '#e9dfc6', { round: 1.2, rough: 0.35, seg: 60, paint: dress ? (g) => {
+      g.fillStyle = skin; g.beginPath(); g.arc(0, -32, 8, 0, 7); g.fill(); g.fillRect(-21, -22, 6, 10); g.fillRect(15, -22, 6, 10); g.fillRect(-7, 20, 14, 21);
+      g.fillStyle = dress; g.beginPath(); g.moveTo(-10, -26); g.lineTo(10, -26); g.lineTo(15, -12); g.lineTo(9, -12); g.lineTo(15, 21); g.lineTo(-15, 21); g.lineTo(-9, -12); g.lineTo(-15, -12); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(40,28,24,.75)'; g.beginPath(); g.arc(0, -34, 8, Math.PI, 0); g.fill(); g.fillRect(-7, 36, 6, 5); g.fillRect(1, 36, 6, 5);
+    } : (g) => { g.strokeStyle = 'rgba(150,130,100,.35)'; g.lineWidth = 0.8; g.beginPath(); g.moveTo(-20, -17); g.lineTo(20, -17); g.stroke(); } }).finish({ shadowBlur: 3 });
+    S.doll = doll('doll-p');
+    S.dollC = [['#c8553d', '#7d5236'], ['#3f6a8a', '#e0b48f'], ['#d8a040', '#5d3a26'], ['#5a8a5a', '#c69a74'], ['#8a4a7a', '#a8774f']].map(([d, sk], i) => doll('doll-c' + i, d, sk));
+  }
   // Jupiter and the four moons Galileo saw
   S.jupiter = mkSoft('jupiter', [-46, -46, 46, 46], { pad: 6 }).piece(ellipse(0, 0, 40, 38, 24), '#d6b48a', { round: 8, rough: 0.6, paint: (g) => { for (const [y, h, c] of [[-26, 6, '#b88a62'], [-12, 8, '#a8704e'], [4, 5, '#c79a72'], [14, 9, '#a8704e'], [28, 5, '#b88a62']]) { g.fillStyle = c; g.fillRect(-44, y, 88, h); } g.fillStyle = '#b4523a'; g.beginPath(); g.ellipse(14, 18, 8, 4, 0, 0, 7); g.fill(); } }).finish({ shadowBlur: 5 });
   S.moonlet = mkSoft('moonlet', [-7, -7, 7, 7], { pad: 4 }).piece(ellipse(0, 0, 5.5, 5.5, 10), '#efe6d2', { round: 2 }).finish({ shadowBlur: 2 });
@@ -38,6 +103,35 @@ export function bakeFx(mk, mkSoft, mkBig) {
     .piece(strip(0, 2, 0, -38, 1.4, 1.2), '#9a9ca2', { round: 0.5 })
     .piece(rect(1, -37, 20, -26), '#f0ece4', { round: 0.6, rough: 0.2, lift: 0.6, paint: (g) => { g.fillStyle = '#b8332e'; for (let y = -37; y < -26; y += 2.2) g.fillRect(1, y, 19, 1.1); g.fillStyle = '#2c3d6e'; g.fillRect(1, -37, 8, 5.5); } })
     .finish({ shadowBlur: 2 });
+  // the Moon up close: a curve of grey card, pocked with craters
+  {
+    const r3 = rng(1969), top = [];
+    for (let i = 0; i <= 64; i++) { const x = -440 + i * 13.75, f = x / 440; top.push([x, -40 + f * f * 70 + (r3() - 0.5) * 3 + (i % 11 === 6 ? -5 : 0)]); }
+    S.lunar = mkBig('lunar', [-446, -60, 446, 250], { pad: 10 }).piece([...top, [440, 246], [-440, 246]], '#b9b5ad', { round: 3, rough: 1.2, paint: (g) => {
+      for (let i = 0; i < 46; i++) { const x = -420 + r3() * 840, y = -12 + r3() * 240, rx = 5 + r3() * r3() * 34, ry = rx * (0.26 + (y + 40) / 700);
+        if (Math.abs(x - 40) < 70 && y < 30) continue;
+        g.fillStyle = 'rgba(90,86,82,.35)'; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, 7); g.fill();
+        g.strokeStyle = 'rgba(235,232,224,.5)'; g.lineWidth = 1.4; g.beginPath(); g.ellipse(x, y + ry * 0.15, rx, ry, 0, 0.1, Math.PI - 0.1); g.stroke(); }
+      g.fillStyle = 'rgba(255,255,255,.08)'; for (let i = 0; i < 600; i++) g.fillRect(-440 + r3() * 880, -40 + r3() * 280, 1.2, 1.2);
+      const sh = g.createLinearGradient(0, -40, 0, 246); sh.addColorStop(0, 'rgba(0,0,0,0)'); sh.addColorStop(1, 'rgba(20,18,16,.35)'); g.fillStyle = sh; g.fillRect(-446, -60, 892, 310);
+    } }).finish({ shadowBlur: 8 });
+    S.lem = mk('lem', [-48, -96, 48, 8], { pad: 6 })
+      .piece(strip(-24, -30, -40, 2, 2.6, 2.2), '#8c8a86', { round: 0.8 }).piece(strip(24, -30, 40, 2, 2.6, 2.2), '#8c8a86', { round: 0.8 })
+      .piece(ellipse(-41, 3, 6, 2.2, 10), '#a8a49c', { round: 1, lift: 0.8 }).piece(ellipse(41, 3, 6, 2.2, 10), '#a8a49c', { round: 1, lift: 0.8 })
+      .piece([[-26, -10], [-30, -36], [30, -36], [26, -10]], '#c9a24a', { round: 2, rough: 0.8, paint: (g) => { g.strokeStyle = 'rgba(120,80,20,.5)'; g.lineWidth = 0.9; for (let i = 0; i < 14; i++) { const x = -28 + i * 4.2; g.beginPath(); g.moveTo(x, -36); g.lineTo(x + 2 - (i % 3), -10); g.stroke(); } g.fillStyle = 'rgba(255,240,190,.35)'; g.fillRect(-24, -33, 10, 20); } })
+      .piece(rect(4, -10, 12, 2), '#7a7874', { round: 0.6, lift: 0.6, paint: (g) => { g.fillStyle = 'rgba(40,40,40,.5)'; for (let y = -8; y < 2; y += 3) g.fillRect(4, y, 8, 0.8); } })
+      .piece([[-20, -36], [-24, -60], [-12, -74], [14, -74], [24, -58], [20, -36]], '#d8d6d0', { round: 2.5, paint: (g) => { g.fillStyle = '#2a2a30'; g.beginPath(); g.moveTo(-4, -62); g.lineTo(6, -62); g.lineTo(8, -54); g.lineTo(-6, -54); g.closePath(); g.fill(); g.fillStyle = 'rgba(80,80,90,.4)'; g.fillRect(-20, -44, 40, 3); } })
+      .piece(strip(10, -74, 14, -92, 1.2, 1), '#8c8a86', { round: 0.4, lift: 0.6 })
+      .piece(ellipse(15, -92, 6, 2.4, 10), '#e8e6e0', { round: 0.8, lift: 0.8 })
+      .finish({ shadowBlur: 4 });
+    // the Earth from out there: our own little cardboard planet
+    S.earth = mk('earth', [-40, -40, 40, 40], { pad: 8 }).piece(ellipse(0, 0, 34, 34, 28), '#3d6aa0', { round: 3, paint: (g) => {
+      g.fillStyle = '#8a7a4a'; for (const [x, y, rx, ry, a] of [[-12, -8, 12, 16, 0.4], [14, 10, 10, 8, -0.3], [8, -20, 7, 5, 0.2], [-6, 20, 6, 4, 0]]) { g.beginPath(); g.ellipse(x, y, rx, ry, a, 0, 7); g.fill(); }
+      g.fillStyle = 'rgba(110,140,70,.8)'; g.beginPath(); g.ellipse(-12, -4, 7, 9, 0.4, 0, 7); g.fill();
+      g.strokeStyle = 'rgba(245,245,240,.85)'; g.lineWidth = 2.6; g.lineCap = 'round'; for (const [x, y, w] of [[-20, -24, 18], [4, -2, 24], [-26, 12, 14], [6, 24, 16]]) { g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + w / 2, y - 4, x + w, y); g.stroke(); }
+      const sh = g.createLinearGradient(-34, 0, 34, 0); sh.addColorStop(0, 'rgba(10,14,30,0)'); sh.addColorStop(0.55, 'rgba(10,14,30,0)'); sh.addColorStop(0.8, 'rgba(10,14,30,.7)'); g.fillStyle = sh; g.fillRect(-36, -36, 72, 72);
+    } }).finish({ shadowBlur: 5 });
+  }
   S.jet = mk('jet', [-60, -16, 60, 14])
     .piece([[-56, -2], [-40, -6], [44, -6], [58, 0], [44, 5], [-40, 5]], '#eceae4', { round: 4 })
     .piece([[-6, 0], [-22, 14], [-12, 14], [10, 2]], '#d8d6d0', { round: 1, lift: 1 })

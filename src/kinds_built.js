@@ -504,3 +504,36 @@ KINDS.car = {
     g.globalCompositeOperation = 'source-over';
   },
 };
+
+// Uruk's street life: a market awning, a clay bread oven, a mud-brick seat.
+const potPts = (x, y, s) => [[x - s * 0.5, y], [x - s, y - s * 0.6], [x - s * 0.75, y - s * 1.3], [x - s * 0.35, y - s * 1.45], [x - s * 0.42, y - s * 1.75], [x + s * 0.42, y - s * 1.75], [x + s * 0.35, y - s * 1.45], [x + s * 0.75, y - s * 1.3], [x + s, y - s * 0.6], [x + s * 0.5, y]];
+KINDS.stall = {
+  bake(mk, v = 0) {
+    const r = rng(700 + v), cloth = ['#b5523a', '#3f6a7a', '#c8a14a'][v % 3];
+    const sh = mk('stall' + v, [-50, -98, 50, 6]);
+    sh.piece(strip(-36, 4, -38, -82, 3.4, 2.6), '#5b4331', { round: 1, thick: 0.8, rough: 0.6 });
+    sh.piece(strip(36, 4, 38, -76, 3.4, 2.6), '#5b4331', { round: 1, thick: 0.8, rough: 0.6 });
+    sh.piece(rect(-34, -24, 34, 4), '#b8936a', { round: 2, paint: bricks('#b8936a', 0.22) });
+    for (const [x, c, s] of [[-24, '#a0603a', 8], [-9, '#8a5a3a', 6.5], [6, '#b07a4a', 9], [23, '#7a4a30', 6.5]]) sh.piece(potPts(x + (r() - 0.5) * 2, -24, s), c, { round: 2, lift: 1, paint: (g) => { g.fillStyle = 'rgba(240,220,180,.35)'; g.fillRect(x - s * 0.7, -24 - s * 1.05, s * 1.4, 1.2); } });
+    sh.piece(ellipse(-16, -27, 7, 3, 10), '#6a4022', { round: 1.5, lift: 1.4, paint: (g) => { g.fillStyle = '#4a2a18'; for (let i = 0; i < 9; i++) { g.beginPath(); g.ellipse(-21 + (i % 5) * 2.6, -29 + ((i / 5) | 0) * 2, 1.5, 1, 0, 0, 7); g.fill(); } } });
+    const can = [[-48, -84], [48, -76]];
+    for (let i = 0; i <= 8; i++) { const x = 48 - i * 12, y = -64 - (i / 8) * 8; can.push([x, y + (i % 2 ? 5 : 0)]); }
+    sh.piece(can, cloth, { round: 3, lift: 2, rough: 0.8, paint: (g) => { g.fillStyle = rgb(shade(cloth, 0.28), 0.6); for (let x = -44; x < 48; x += 16) g.fillRect(x, -90, 7, 34); } });
+    return { spr: sh.finish() };
+  },
+  draw(g, P, t, e, env) { g.rotate(fbm(t * 0.4 + e.a, 5) * 0.6 * DEG); put(g, P.spr, env.sh); },
+};
+KINDS.oven = {
+  bake(mk) {
+    const pts = []; for (let i = 0; i <= 14; i++) { const a = Math.PI + (i / 14) * Math.PI; pts.push([Math.cos(a) * 20 * (1 - 0.15 * Math.sin(i / 14 * Math.PI)), Math.sin(a) * 34]); }
+    pts.push([21, 4], [-21, 4]);
+    const sh = mk('oven', [-26, -42, 26, 6]).piece(pts, '#a8774c', { round: 4, rough: 1.2, paint: (g) => { g.fillStyle = '#2b1a12'; g.beginPath(); g.ellipse(2, -12, 8, 9, 0, 0, 7); g.fill(); const gr = g.createRadialGradient(2, -9, 0, 2, -10, 8); gr.addColorStop(0, 'rgba(255,170,70,.95)'); gr.addColorStop(1, 'rgba(160,50,20,0)'); g.fillStyle = gr; g.beginPath(); g.ellipse(2, -10, 7, 7, 0, 0, 7); g.fill(); } });
+    sh.piece(ellipse(0, -33, 9, 3, 10), '#7a5034', { round: 1.5, lift: 1 });
+    return { spr: sh.finish() };
+  },
+  draw(g, P, t, e, env) { put(g, P.spr, env.sh); },
+};
+KINDS.seat = {
+  bake(mk) { return { spr: mk('seat', [-20, -32, 20, 6]).piece(rect(-17, -28, 17, 4), '#b8936a', { round: 2, paint: bricks('#b8936a', 0.25) }).piece(rect(-19, -31, 19, -26), '#c9a676', { round: 1.5, lift: 1 }).finish({ shadowBlur: 3 }) }; },
+  draw(g, P, t, e, env) { put(g, P.spr, env.sh); },
+};

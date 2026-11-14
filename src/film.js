@@ -110,7 +110,7 @@ grassRun(-60, 96, 6, 'front', { s: 2.0 });
 // 2. Walking out of Africa -------------------------------------------------
 ['walkA', 'walkB', 'walkC', 'walkD'].forEach((v, i) => add('person', 'main', 0, { v, scale: P2, z: 3, from: EV.walk + i * 0.2, to: EV.raft - 0.45 + i * 0.08, pace: 7.2, move: (t) => cam(t) + [-6.5, -2.8, 0.4, 3.6][i] }));
 add('fossil', 'main', 66, { over: true, y: -3, popAt: EV.walk - 1.2, loud: 0.8 });
-add('raft', 'main', 0, { z: 3, from: EV.raft, to: EV.land, move: (t) => cam(t) - 0.6, y: 2 });
+add('raft', 'main', 0, { z: 3, from: EV.raft, to: EV.land, move: (t) => cam(t) - 0.6, y: 19 });
 for (let a = 103; a < 132; a += 5 + R() * 3) add('conifer', 'main', a, { v: (R() * 3) | 0, z: 0, scale: 0.8 + R() * 0.3 });
 for (let a = 98; a < 136; a += 6) add('conifer', 'mid', a, { v: (R() * 3) | 0, scale: 0.55 });
 add('mammoth', 'main', 116.5, { z: 2, scale: 0.95, flip: true });
@@ -165,7 +165,18 @@ add('ziggurat', 'main', 341, { z: 0, popAt: EV.city, loud: 2.2, wide: 14, scale:
 for (const a of [312, 331, 365.5]) add('palm', 'main', a, { v: 0, z: 1, scale: 0.9 });
 add('person', 'main', 333.8, { v: 'sumer', scale: P2, z: 2 });
 add('person', 'main', 336.4, { v: 'sumer2', scale: P2, z: 2, flip: true });
+add('seat', 'main', 347.0, { z: 1.5, scale: P2 });
 add('person', 'main', 347.2, { v: 'scribe', scale: P2, z: 2 });
+// the street: bread ovens smoking on the roofs' edge, a market awning, people carrying the day's water and grain
+for (const a of [317.2, 354.6]) add('oven', 'main', a, { z: 1, scale: 0.9 });
+add('stall', 'main', 329.2, { v: 0, z: 1, scale: 1.55, popAt: EV.city + 0.5, loud: 0.8 });
+add('person', 'main', 327.9, { v: 'seller', scale: P2, z: 0.8, popAt: EV.city + 0.8, act: (t) => ({ front: [-60 + Math.sin(t * 1.7) * 12, -50], head: Math.sin(t * 0.6) * 6 }) });
+add('stall', 'main', 306.4, { v: 2, z: 1, scale: 1.45 });
+add('person', 'main', 304.6, { v: 'jarW', scale: P2, z: 3, pace: 3.6, move: (t) => clamp((t - 116) * 0.26, 0, 30) });
+add('person', 'main', 352.4, { v: 'porter', scale: P2, z: 3, pace: 3.9, flip: true, move: (t) => -clamp((t - 120) * 0.2, 0, 30) });
+add('person', 'main', 310.2, { v: 'urukKid', scale: P2, z: 3, pace: 6.4, move: (t) => clamp((t - 117) * 0.3, 0, 30) });
+for (const [a, v] of [[371.2, 3], [373.4, 4]]) add('sheep', 'main', a, { v, z: 2, scale: 0.85 });
+for (let a = 302; a < 376; a += 2.9) add('mudhouse', 'far', a, { v: (R() * 4) | 0, scale: 0.5 });
 // the first wheel gets away, rolling on ahead down the curve of the world
 add('person', 'main', 358.4, { v: 'wheelwright', scale: P2, z: 4, popAt: EV.wheel - 0.3,
   move: (t) => clamp((t - EV.roll - 0.4) * 1.5, 0, 1.4),
@@ -186,12 +197,15 @@ const mosque = add('mosque', 'main', 437, { z: 0, wide: 8 });
 add('person', 'main', 446, { v: 'maliM', scale: P2, z: 2, flip: true });
 const djenne = add('djenne', 'main', 452.5, { z: 0, wide: 10 });
 for (const a of [380, 416, 430, 444.5, 459]) add('palm', 'main', a, { v: 0, z: 1, scale: 0.85 });
-add('dhow', 'main', 469.5, { z: 2, ground: false, y: -6, move: (t) => (t - 180) * 0.15 });
+add('dhow', 'main', 469.5, { z: 2, ground: false, y: 8, move: (t) => (t - 180) * 0.15 });
 for (let a = 378; a < 460; a += 8) add('palm', 'mid', a, { v: 0, scale: 0.5 });
 for (let a = 462; a < 551; a += 4.4) add('wave', 'main', a, { v: (R() * 4) | 0, z: 4, loud: 0.25, ground: false, y: -2 });
 for (let a = 460; a < 552; a += 6) add('wave', 'front', a, { v: (R() * 4) | 0, scale: 1.6, ground: false, loud: 0.2 });
 for (const [a, v] of [[489, 0], [521, 1], [541, 0]]) { add('island', 'main', a, { v, z: 1, ground: false, y: 2 }); add('palm', 'main', a - 1.4, { v: 1, z: 1, ground: false, y: 26, scale: 0.75 }); add('palm', 'main', a + 1.6, { v: 1, z: 1, ground: false, y: 28, scale: 0.6, flip: true }); }
 add('canoe', 'main', 505, { z: 5, ground: false, y: 5, move: (t) => (t - 192) * 0.35 });
+// far islands that will light up, one by one, and the rest of the fleet
+for (const [a, v] of [[495, 0], [503, 1], [512, 0], [522, 1], [532, 0]]) { add('island', 'far', a, { v, scale: 0.5, ground: false, y: 0 }); add('palm', 'far', a - 0.8, { v: 1, ground: false, y: 12, scale: 0.34 }); }
+for (const [a, s] of [[493, 0.5], [517, 0.42]]) add('canoe', 'mid', a, { scale: s, ground: false, y: 2, move: (t) => (t - 192) * 0.3 });
 
 // 7. Printing ---------------------------------------------------------------------
 for (const [a, v] of [[562, 0], [568, 1], [589.5, 2], [596, 0]]) add('timber', 'main', a, { v, z: 0 });
@@ -264,6 +278,8 @@ const holdStill = (t) => t > EV.telegraph + 1.6 && t < EV.flash + 0.15;
 [['father', 885.8, 2], ['child1800', 886.9, 4], ['mother', 888.0, 2]].forEach(([v, a, z]) => add('person', 'main', a, { v, scale: P2, z, flip: true, act: (t) => (holdStill(t) ? { lean: 0, head: 0, front: [-4, -4], back: [4, -4], walk: undefined } : { walk: undefined, head: t > EV.flash && t < EV.flash + 2 ? -10 : 0 }) }));
 add('photo', 'main', 893.2, { z: 2, popAt: EV.photo, loud: 1.4, scale: 1.15 });
 add('school', 'main', 902.4, { z: 0, wide: 10 });
+// with medicine: the doctor comes calling
+add('person', 'main', 897.2, { v: 'doctor', scale: P2, z: 3, flip: true, popAt: 336.6, loud: 0.6, pace: 6, move: (t) => -clamp((t - 337.0) * 2.4, 0, 6.6), act: (t) => (t > 339.8 ? { walk: undefined, lean: 6, head: 8 + Math.sin(t * 0.8) * 3, front: [-30, -30], back: [6, -6] } : {}) });
 [['child1800', 900.6], ['child1800b', 902.4], ['child1800', 904.2]].forEach(([v, a], i) => add('person', 'main', a, { v, scale: P2, z: 3, popAt: EV.school + i * 0.35, to: 351 + i * 0.3, pace: 9, move: (t) => Math.min(9, Math.max(0, t - EV.school - 0.5 - i * 0.3) * (1.1 + i * 0.25)) }));
 add('hoop', 'main', 905.6, { z: 3, popAt: EV.school + 0.7, scale: 1.15, move: (t) => { const d = t - EV.school - 0.9; return d <= 0 ? 0 : 0.8 * d * d + 0.6 * d; } });
 const gasLamps = [856, 870.6, 895.2].map((a, i) => add('lamp', 'main', a, { v: 0, z: 2, lit: (t) => sramp(t, EV.lamps[i], EV.lamps[i] + 0.4) }));
@@ -300,7 +316,7 @@ const warPeople = [['mother', 1005.0], ['father', 1009.4], ['saved2', 1013.4]].m
 add('lab', 'main', 1018.8, { z: 2, scale: 1.1, found: (t) => sramp(t, EV.dish, EV.dish + 0.5) * (0.85 + 0.15 * Math.sin(t * 3)) });
 add('person', 'main', 1016.4, { v: 'scientist', scale: P2, z: 3, act: (t) => ({ lean: 14, head: 16, front: [-70, -40], back: [-50, -30] }) });
 [['saved', 1021.6], ['saved3', 1023.8], ['saved2', 1026]].forEach(([v, a], i) => add('person', 'main', a, { v, scale: P2, z: 2, popAt: EV.saved + 0.6 + i * 0.4, loud: 0.9 }));
-const gantry = add('gantry', 'main', 1030.6, { z: 1 });
+const gantry = add('gantry', 'main', 1030.6, { z: 1, popAt: EV.rocket - 1.6, loud: 1, to: 421 });
 grassRun(970, 985, 3, 'main');
 for (let a = 986; a < 1034; a += 8) add('oak', 'mid', a, { v: (R() * 3) | 0, scale: 0.5 });
 
@@ -308,7 +324,7 @@ for (let a = 986; a < 1034; a += 8) add('oak', 'mid', a, { v: (R() * 3) | 0, sca
 const screens = [];
 for (let a = 1039.5; a < 1050; a += 4.2) add('wave', 'main', a, { v: (R() * 4) | 0, z: 4, loud: 0.2, ground: false, y: -2 });
 for (let a = 1038; a < 1051; a += 6) add('wave', 'front', a, { v: (R() * 4) | 0, scale: 1.6, ground: false, loud: 0.2 });
-screens.push(add('boat', 'main', 1044.4, { z: 3, ground: false, y: -2, scale: 1.1, screenAt: EV.screens, hand: 96 }));
+screens.push(add('boat', 'main', 1044.4, { z: 3, ground: false, y: 15, scale: 1.1, screenAt: EV.screens, hand: 96 }));
 const roofHome = add('home', 'main', 1053.6, { v: 0, z: 0, winOn: () => 0.9 });
 const kid = add('person', 'main', 1053.2, { inside: roofHome, v: 'kid', scale: 1.0, z: 2, y: 118, act: (t) => ({ head: -36 + Math.sin(t * 0.7) * 3, lean: -6, front: [-150, -12], back: [10, -10] }) });
 screens.push(add('person', 'main', 1057.4, { v: 'granny', scale: P2, z: 2, screenAt: EV.screens + 0.7, act: (t) => ({ back: [-155 + Math.sin(t * 7) * 22, -15] }) }));
@@ -374,6 +390,11 @@ const gradeK = track([
 ]);
 // the sun only shows itself at the edges of the day
 const SUNS = [[-1, 13, -430, -78, 170], [50, 58, 430, 170, -60], [74, 80, -430, -40, 170], [90.5, 97, 430, 170, -60], [186, 193, -430, -40, 170], [205, 211, 430, 170, -60], [289.5, 297, 430, 170, -60], [343, 350, -430, -40, 170], [376.5, 382, 430, 170, -60], [406, 411, -430, -40, 170]];
+const DOLL_FOLD = [1, 4, 6, 8];
+const LUNAR0 = EV.landing + 0.1, LUNAR1 = 419.6;
+const lunarVeil = (t) => (t < LUNAR0 ? 0 : clamp(spring(t - LUNAR0, 5.0, 0.6)) * (1 - sramp(t, LUNAR1, LUNAR1 + 1.3)));
+const ISLE_MAIN = [[489.6, 199.6, 11], [521.4, 203.2, 12], [541.4, 204.6, 13]];
+const ISLE_FAR = [[503, 200.3], [512, 201.0], [495, 201.7], [522, 202.4], [532, 203.6]];
 const NIGHTS = [[9, 52], [79, 93], [191, 207], [272, 291], [349, 378], [409, 446]];
 
 function fireState(t) {
@@ -441,6 +462,14 @@ function state(t, stage) {
     for (const a of [1075.4, 1086, 1077.6]) lights.push({ a, h: 120, r: 280, k: 0.75, color: [235, 240, 255] });
     const fl = Math.exp(-(((t - 431.6) / 0.08) ** 2)); if (fl > 0.01) lights.push({ a: 1082.6, h: 150, r: 700, k: 1.6 * fl, color: [235, 245, 255] });
   }
+  // the settled islands light their fires, one after another
+  if (t > 198 && t < 210) for (const [a, t0, n] of ISLE_MAIN) {
+    const k = sramp(t, t0, t0 + 1.4) * (1 - sramp(t, 207, 209.5)); if (k <= 0) continue;
+    lights.push({ a, h: 40, r: 340, k: 1.0 * k * flick(n), color: [255, 150, 74] });
+    emitters.push({ a, h: 28, scale: 0.3, small: 1, lit: k, litAt: t0, seed: n });
+  }
+  // bread ovens in Uruk
+  if (t > 110 && t < 172) for (const a of [317.2, 354.6]) smoke.push({ a: a + 0.2, h: 34, t0: 100, size: 0.55, life: 6, every: 0.8, rise: 170, drift: 3, alpha: 0.4 });
   // smoke from mills and the engine; smoke over the burning town
   if (t > 314 && t < 356) {
     for (const a of [851.5, 867.5]) smoke.push({ a: a + 0.6, h: 272, t0: 310, size: 1.4, life: 7, every: 0.55, rise: 260, drift: 5 });
@@ -461,10 +490,11 @@ function state(t, stage) {
   zoom *= 1 + 0.22 * sramp(t, 272.5, 276) * (1 - sramp(t, 284, 288.5));
   zoom *= 1 + 0.22 * sramp(t, 328, 331) * (1 - sramp(t, 334, 337.5));
   zoom *= 1 + 0.4 * sramp(t, 353, 358) - 0.4 * sramp(t, 360.5, 370);
+  zoom *= 1 + 0.38 * sramp(t, 378.6, 381) * (1 - sramp(t, 384.2, 387));
   return {
     fire, lights, emitters, smoke,
     sky: skyK(t), ambient: ambK(t), ground: null,
-    stars: nightK * (t > 191 && t < 207 ? 1.25 : 1) + pull,
+    stars: nightK * (t > 191 && t < 207 ? 1.6 : 1) + pull,
     sun, cloud: 1 - nightK * 0.4,
     snow: sramp(t, 61.5, 63.5) * (1 - sramp(t, 68.5, 70)),
     motes: lerp(0.5, 0.3, sramp(t, 4, 14)) + 0.3 * clamp(fire.lit) * (t < 55), moteColor: moteK(t),
@@ -488,6 +518,9 @@ const drop = (t, t0, t1 = 1e9) => clamp(spring(t - t0, 5.5, 0.42), 0, 1.4) - (t 
 function sky(g, st, t, S) {
   const { W, H } = st, u = st.eu;
   g.setTransform(1, 0, 0, 1, 0, 0);
+  // the Milky Way, over the first fire and over the open Pacific
+  const mw = Math.max(0.65 * sramp(t, 13, 18) * (1 - sramp(t, 22.5, 27)) + 0.3 * sramp(t, 27, 30) * (1 - sramp(t, 48, 53)), sramp(t, 192.5, 196) * (1 - sramp(t, 205.5, 208.5)));
+  if (mw > 0.01) milkyWay(g, st, t, mw * (1 - S.pull), t < 100 ? 0 : 1);
   guideStar(g, st, t);
   birds(g, st, t);
   // the moon over the first fire
@@ -508,15 +541,6 @@ function sky(g, st, t, S) {
     st.hang(g, st.fx.sun, sx, sy, 0.75, Math.sin(t * 0.4) * 1.2 * DEG, 1, t * 0.03);
   }
   // Jupiter, and four moons in a line, as Galileo drew them
-  if (t > EV.jupiter - 1 && t < 292) {
-    const k = drop(t, EV.jupiter, 288.5), jx = W * (st.aspectK > 0.4 ? 0.7 : 0.62), jy = H * lerp(-0.2, 0.2, k), s = 1.3;
-    const ml = sramp(t, EV.moons, EV.moons + 1.2), sw = Math.sin(t * 0.6) * 1.2 * DEG;
-    const moons = [[0.9, 1.7, 0], [1.4, 1.1, 2], [2.1, 0.7, 4.1], [3.0, 0.45, 1.3]].map(([d, sp, ph]) => { const a = t * sp * 0.6 + ph; return { x: Math.cos(a) * d * 50 * s * u, front: Math.sin(a) > 0 }; });
-    const drawMoons = (front) => { for (const m of moons) if (m.front === front && ml > 0) { g.save(); g.translate(jx, jy); g.rotate(sw); g.translate(m.x, 0); g.scale(u * 1.2, u * 1.2); g.globalAlpha = ml; put(g, st.fx.moonlet, 0); g.restore(); } };
-    drawMoons(false);
-    st.hang(g, st.fx.jupiter, jx, jy, s, sw);
-    drawMoons(true);
-  }
   // aircraft over the wars, dark against the smoke
   if (t > EV.war && t < EV.warEnd) {
     for (const [d, y, sp, s] of [[0.3, 0.2, 0.15, 1.35], [1.4, 0.3, 0.12, 1.05], [2.8, 0.14, 0.17, 1.5], [4.2, 0.34, 0.13, 1.1]]) {
@@ -528,12 +552,14 @@ function sky(g, st, t, S) {
   if (t > 408 && t < 440) {
     const mx = W * (st.aspectK > 0.4 ? 0.74 : 0.7), my = H * lerp(-0.2, 0.16, drop(t, 408.6, 437));
     const hit = t > EV.landing ? Math.exp(-(t - EV.landing) * 0.9) * Math.sin((t - EV.landing) * 5) * 7 : 0;
-    st.hang(g, st.fx.moon, mx, my, 1.25, (Math.sin(t * 0.5) * 1.4 + hit) * DEG, 1, -0.35);
+    const mv = 1 - 0.85 * lunarVeil(t);
+    g.globalAlpha = mv;
+    st.hang(g, st.fx.moon, mx, my, 1.25, (Math.sin(t * 0.5) * 1.4 + hit) * DEG, mv, -0.35);
     if (t > EV.rocket - 0.5 && t < 437) {
       const [gx, gy] = st.place('main', gantry.a + 0.9, 0, t), k = smooth(clamp((t - EV.rocket) / (EV.landing - EV.rocket)));
       const rx = lerp(gx, mx - 18 * u, k), ry = lerp(gy - 20 * u, my - 14 * u, k ** 1.4);
       if (t < EV.landing + 0.2 && t > EV.rocket) { g.globalCompositeOperation = 'screen'; const gr = g.createRadialGradient(rx, ry + 12 * u, 0, rx, ry + 12 * u, 50 * u); gr.addColorStop(0, 'rgba(255,200,120,.9)'); gr.addColorStop(1, 'rgba(255,140,60,0)'); g.fillStyle = gr; g.fillRect(rx - 50 * u, ry - 38 * u, 100 * u, 100 * u); g.globalCompositeOperation = 'source-over'; }
-      st.hang(g, st.fx.rocket, rx, ry, 0.8, (hit * 0.6 + (t < EV.landing ? Math.sin(t * 14) * 1.2 : 0)) * DEG, 1, t > EV.landing ? -0.5 * smooth(clamp((t - EV.landing) * 2)) : 0);
+      st.hang(g, st.fx.rocket, rx, ry, 0.8, (hit * 0.6 + (t < EV.landing ? Math.sin(t * 14) * 1.2 : 0)) * DEG, mv, t > EV.landing ? -0.5 * smooth(clamp((t - EV.landing) * 2)) : 0);
       if (t > EV.landing + 0.6) {
         const sw = (Math.sin(t * 0.5) * 1.4 + hit) * DEG, len = my + 20, mxx = mx - Math.sin(sw) * len, myy = -20 + Math.cos(sw) * len;
         g.save(); g.translate(mxx, myy); g.rotate(sw - 0.35); g.scale(u * 1.25, u * 1.25);
@@ -543,6 +569,7 @@ function sky(g, st, t, S) {
         g.restore();
       }
     }
+    g.globalAlpha = 1;
     for (const [x, y, t0] of SATS) if (t > t0) st.hang(g, st.fx.sat, W * x, H * lerp(-0.15, y, drop(t, t0, 437)), 0.8, Math.sin(t * 0.4 + x * 9) * 2 * DEG, 1, Math.sin(t * 0.3 + x) * 0.3);
     if (t > 425 && t < 434) {
       const k = (t - 425) / 9, jx = W * lerp(1.12, -0.12, k), jy = H * (0.11 + Math.sin(t * 0.8) * 0.005);
@@ -565,6 +592,14 @@ function groundFx(g, st, t, S) {
   run(212, 300, (a0, a1) => along(a0, a1, 0.55, (a) => { const [x0, y0] = rad(a, -4), [x1, y1] = rad(a + 0.25, -16); g.strokeStyle = 'rgba(70,82,40,.42)'; g.lineWidth = 2.4; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); }));
   run(303, 371, (a0, a1) => { arc(a0, a1, -10, 6, 'rgba(70,120,150,.75)'); arc(a0, a1, -8, 1.2, 'rgba(220,240,250,.5)', [10, 14]); });
   run(378, 460, (a0, a1) => arc(a0, a1, -8, 3, 'rgba(150,110,70,.3)', [3, 5]));
+  // the long swell of the open ocean, the navigators' other compass
+  run(463, 551, (a0, a1) => {
+    const nk = S.stars > 0.3 ? 1 : 0.5, rd = sramp(t, 197.8, 199.4) * (1 - sramp(t, 206, 209));
+    [[-16, 0.22, 46, 0], [-34, 0.17, 64, 1], [-58, 0.12, 90, 2]].forEach(([h, al, d, i]) => {
+      g.save(); g.strokeStyle = `rgba(200,225,255,${(al + rd * 0.2) * nk})`; g.lineWidth = 2.2 - i * 0.4; g.setLineDash([d, d * 0.8]); g.lineDashOffset = -t * (16 - i * 4) - i * 30;
+      g.beginPath(); for (let a = a0; a <= a1; a += 0.3) { const [x, y] = rad(a, h + Math.sin(a * 0.9 + t * 0.8 + i) * 3); a === a0 ? g.moveTo(x, y) : g.lineTo(x, y); } g.stroke(); g.restore();
+    });
+  });
   run(556, 606, (a0, a1) => cobbles(a0, a1, 'rgba(80,80,70,.35)'));
   run(611, 660, (a0, a1) => arc(a0, a1, -9, 2.6, 'rgba(150,90,60,.4)', [6, 8]));
   run(784, 838, (a0, a1) => cobbles(a0, a1, 'rgba(80,80,70,.35)'));
@@ -634,6 +669,73 @@ function overFx(g, st, t, S) {
     g.globalCompositeOperation = 'source-over';
   }
 
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  // printing began in China; movable type in China and Korea
+  if (t > 207.4 && t < 215.5) {
+    const k1 = drop(t, 207.8, 212.8), k2 = drop(t, 210.0, 213.2), por = st.aspectK > 0.4 ? 0 : 1;
+    if (k1 > -1.3) st.hang(g, st.fx.sutra, W * (por ? 0.5 : 0.33), H * lerp(-0.25, por ? 0.23 : 0.21, k1), por ? 1.0 : 1.55, Math.sin(t * 0.7) * 2.2 * DEG + (1 - Math.min(1, k1)) * 0.05);
+    if (k2 > -1.3) st.hang(g, st.fx.typetray, W * (por ? 0.5 : 0.66), H * lerp(-0.25, por ? 0.39 : 0.26, k2), por ? 0.85 : 1.3, Math.sin(t * 0.8 + 1) * 2 * DEG);
+  }
+  // notebook pages: the ancient world, the real one, the body drawn from life
+  if (t > 228 && t < 241.5) {
+    const por = st.aspectK > 0.4 ? 0 : 1, sc = por ? 0.8 : 1.15;
+    [[st.fx.sketchCol, 228.6, por ? 0.26 : 0.58, por ? 0.29 : 0.16], [st.fx.sketchWing, 231.0, por ? 0.76 : 0.84, por ? 0.31 : 0.19], [st.fx.sketchBody, 236.1, por ? 0.5 : 0.3, por ? 0.15 : 0.16]].forEach(([spr, t0, x, y], i) => {
+      const k = drop(t, t0, 238.9 + i * 0.25); if (t < t0 - 0.1) return;
+      st.hang(g, spr, W * x, H * lerp(-0.3, y, k), sc, Math.sin(t * 0.6 + i * 2) * 2.4 * DEG + (i - 1) * 0.04);
+    });
+  }
+  // In 1800, more than four in ten children died before five; today, fewer than one in twenty
+  if (t > 340.2 && t < 352.2) {
+    const por = st.aspectK > 0.4 ? 0 : 1, n = 10, s = por ? 1.05 : 1.3, sp = 40 * s * u;
+    const k = drop(t, 340.6, 350.3), y = H * lerp(-0.32, por ? 0.25 : 0.19, k), x0 = W / 2 - ((n - 1) / 2) * sp, sw = Math.sin(t * 0.7) * 0.012;
+    g.save(); g.translate(W / 2, y); g.rotate(sw); g.translate(-W / 2, -y);
+    g.strokeStyle = 'rgba(200,190,175,0.32)'; g.lineWidth = Math.max(1, 0.6 * u);
+    for (const xx of [x0 - sp * 0.5, x0 + (n - 0.5) * sp]) { g.beginPath(); g.moveTo(xx, -20); g.lineTo(xx, y - 17 * s * u); g.stroke(); }
+    const col = sramp(t, 347.3, 348.8);
+    for (let i = 0; i < n; i++) {
+      const j = DOLL_FOLD.indexOf(i), f = j < 0 ? 0 : sramp(t, 342.9 + j * 0.42, 343.6 + j * 0.42) * (1 - sramp(t, 347.0 + j * 0.15, 347.8 + j * 0.15));
+      const bob = Math.sin(t * 1.1 + i * 0.7) * 1.2 * u;
+      g.save(); g.translate(x0 + i * sp, y + bob - 17 * s * u); g.scale(s * u, s * u * (1 - 0.9 * f)); g.translate(0, 17);
+      g.globalAlpha = 1 - 0.45 * f; put(g, st.fx.doll, 0.25, 2, 3);
+      if (col > 0) { g.globalAlpha = col; put(g, st.fx.dollC[(i * 3) % 5], 0, 2, 3); }
+      g.restore();
+    }
+    g.restore(); g.globalAlpha = 1;
+  }
+  // Jupiter and its moons hang in front of the clouds
+  if (t > EV.jupiter - 1 && t < 292) {
+    const k = drop(t, EV.jupiter, 288.5), jx = W * (st.aspectK > 0.4 ? 0.7 : 0.62), jy = H * lerp(-0.2, 0.2, k), s = 1.3;
+    const ml = sramp(t, EV.moons, EV.moons + 1.2), sw = Math.sin(t * 0.6) * 1.2 * DEG;
+    const moons = [[0.9, 1.7, 0], [1.4, 1.1, 2], [2.1, 0.7, 4.1], [3.0, 0.45, 1.3]].map(([d, sp, ph]) => { const a = t * sp * 0.6 + ph; return { x: Math.cos(a) * d * 50 * s * u, front: Math.sin(a) > 0 }; });
+    const drawMoons = (front) => { for (const m of moons) if (m.front === front && ml > 0) { g.save(); g.translate(jx, jy); g.rotate(sw); g.translate(m.x, 0); g.scale(u * 1.2, u * 1.2); g.globalAlpha = ml; put(g, st.fx.moonlet, 0); g.restore(); } };
+    // a soft halo: it is the brightest thing in the night
+    g.globalCompositeOperation = 'screen'; const hr = 120 * s * u, hg = g.createRadialGradient(jx, jy, 0, jx, jy, hr); hg.addColorStop(0, `rgba(255,236,200,${0.22 * clamp(k, 0, 1)})`); hg.addColorStop(1, 'rgba(255,236,200,0)'); g.fillStyle = hg; g.fillRect(jx - hr, jy - hr, hr * 2, hr * 2); g.globalCompositeOperation = 'source-over';
+    drawMoons(false);
+    st.hang(g, st.fx.jupiter, jx, jy, s, sw);
+    drawMoons(true);
+  }
+  // the Pacific: a glowing wake behind the canoe, and fires on far islands, one by one
+  if (t > 192 && t < 210) {
+    const nk = sramp(t, 193, 195) * (1 - sramp(t, 206, 209)), ca = 505 + (t - 192) * 0.35;
+    g.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 46; i++) {
+      const a = ca - 6.6 - i * 0.3 - hash(i * 5) * 0.2, h = -2 - hash(i * 3) * 9, tw = 0.5 + 0.5 * Math.sin(t * (2 + hash(i) * 3) + i * 1.7);
+      const al = nk * (1 - i / 46) ** 1.4 * tw * 0.8; if (al < 0.03) continue;
+      const [x, y] = st.place('main', a, h, t), r = (3 + hash(i * 9) * 3) * u;
+      const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(170,255,230,${al})`); gr.addColorStop(1, 'rgba(90,220,200,0)');
+      g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+    ISLE_FAR.forEach(([a, t0], n) => {
+      const k = sramp(t, t0, t0 + 1.2) * (1 - sramp(t, 207, 209.5)); if (k <= 0) return;
+      const [x, y] = st.place('far', a + 0.3, 14, t), fl = 0.8 + 0.2 * fbm(t * 6 + n * 9, 40), r = 16 * u;
+      let gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(255,214,140,${0.95 * k * fl})`); gr.addColorStop(0.2, `rgba(255,150,70,${0.45 * k})`); gr.addColorStop(1, 'rgba(255,120,50,0)');
+      g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+      gr = g.createLinearGradient(x, y + 3 * u, x, y + 30 * u); gr.addColorStop(0, `rgba(255,170,90,${0.35 * k * fl})`); gr.addColorStop(1, 'rgba(255,150,80,0)');
+      g.fillStyle = gr; for (let j = 0; j < 4; j++) { const w = (3.5 - j * 0.7) * u, yy = y + (5 + j * 6) * u; g.fillRect(x - w + Math.sin(t * 2 + j + n) * u, yy, w * 2, 2.2 * u); }
+    });
+    g.globalCompositeOperation = 'source-over';
+  }
+
   // fireflies in Galileo's garden
   if (t > 271 && t < 293) {
     const k = sramp(t, 272, 274) * (1 - sramp(t, 288, 292));
@@ -691,6 +793,53 @@ function overFx(g, st, t, S) {
     const rise2 = clamp(spring(t - EV.three[1], 5.5, 0.55), 0, 1.3), rise3 = clamp(spring(t - EV.three[2], 5.5, 0.55), 0, 1.3), s2 = base * (W > H ? 0.62 : 0.46);
     card(st.fx.oracle, W * 0.5, H * 0.38, s2, rise2, 0.04, null);
     card(st.fx.maya, W * (W > H ? 0.8 : 0.78), H * 0.38, s2, rise3, -0.05, null);
+  }
+
+  // the Moon, up close: the lander settles, a person steps down, bootprints, a flag, and the Earth in the black
+  if (t > LUNAR0 - 0.2 && t < LUNAR1 + 1.6) {
+    const up = clamp(spring(t - LUNAR0, 5.0, 0.6), 0, 1.25), out = sramp(t, LUNAR1, LUNAR1 + 1.3), veil = clamp(up) * (1 - out);
+    g.fillStyle = `rgba(4,5,10,${0.74 * veil})`; g.fillRect(0, 0, W, H);
+    g.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 110; i++) {
+      const x = hash(i * 17 + 3) * W, y = hash(i * 29 + 7) * H * 0.62, tw = 0.6 + 0.4 * Math.sin(t * (1 + hash(i)) + i), rr = (0.8 + hash(i * 3) * 1.3) * st.dpr * 0.6;
+      g.fillStyle = `rgba(230,236,255,${0.75 * veil * tw * (0.3 + hash(i * 5) * 0.7)})`; g.fillRect(x, y, rr, rr);
+    }
+    g.globalCompositeOperation = 'source-over';
+    const por = W < H, base = por ? W * 1.5 / 470 : Math.max(W / 860, H * 0.95 / 470);
+    const ek = drop(t, LUNAR0 + 0.6, LUNAR1 - 0.3);
+    if (t > LUNAR0 + 0.5) st.hang(g, st.fx.earth, W * (por ? 0.28 : 0.22), H * lerp(-0.25, por ? 0.22 : 0.2, ek), por ? 1.5 : 2.0, Math.sin(t * 0.4) * 1.5 * DEG, 1, t * 0.03);
+    const cx = W * 0.5 - (por ? 97 : 50) * base, cy = H * (por ? 0.64 : 0.68) + (1 - Math.min(1, up)) * H * 0.9 + out * H * 0.9;
+    g.save(); g.translate(cx, cy); g.rotate((1 - Math.min(1, up)) * 0.2); g.scale(base, base);
+    put(g, st.fx.lunar, 0.6, 8, 12);
+    const ys = (x) => -40 + (x / 440) ** 2 * 70, land = LUNAR0 + 1.3, lk = smooth(clamp((t - (land - 1.4)) / 1.4));
+    // bootprints, pressed in as the walker passes
+    const ax = 52 + clamp((t - (land + 0.9)) / 2.2) * 92;
+    for (let i = 0; i < 7; i++) {
+      const px = 64 + i * 13, pk = clamp((ax - px - 4) / 5); if (pk <= 0) continue;
+      const py = ys(px) + 7 + (i % 2) * 5;
+      g.save(); g.translate(px, py); g.globalAlpha = pk;
+      g.fillStyle = 'rgba(64,60,58,.7)'; g.beginPath(); g.ellipse(0, 0, 6.5, 2.4, 0, 0, 7); g.fill();
+      g.strokeStyle = 'rgba(210,206,198,.55)'; g.lineWidth = 0.8; for (let x = -4.5; x <= 4.5; x += 1.8) { g.beginPath(); g.moveTo(x, -1.7); g.lineTo(x, 1.7); g.stroke(); }
+      g.restore();
+    }
+    // the lander comes down on its thread
+    const lx = 36, ly = ys(36) + 2 - (1 - lk) * 760;
+    g.strokeStyle = `rgba(210,205,195,${0.35 * (1 - out)})`; g.lineWidth = 0.8; g.beginPath(); g.moveTo(lx + 20, ly - 125); g.lineTo(lx + 20, -900); g.stroke();
+    if (t < land + 0.2) { const fl = 0.8 + 0.2 * Math.sin(t * 40), gr = g.createRadialGradient(lx, ly + 4, 0, lx, ly + 4, 40); gr.addColorStop(0, `rgba(255,220,170,${0.6 * fl * clamp((land + 0.2 - t) * 3)})`); gr.addColorStop(1, 'rgba(255,180,120,0)'); g.globalCompositeOperation = 'screen'; g.fillStyle = gr; g.fillRect(lx - 40, ly - 36, 80, 80); g.globalCompositeOperation = 'source-over'; }
+    g.save(); g.translate(lx, ly); g.scale(1.35, 1.35); put(g, st.fx.lem, 0.5, 4, 6); g.restore();
+    // dust, thrown out sideways where it touched
+    if (t > land && t < land + 2.2) for (let i = 0; i < 8; i++) {
+      const k = (t - land) / 2.2, dir = i % 2 ? 1 : -1, x = lx + dir * (20 + k * (40 + i * 9)), y = ys(x) + 2 - k * (6 + i);
+      g.save(); g.translate(x, y); g.scale(0.5 + k * 0.6, 0.35 + k * 0.4); g.globalAlpha = (1 - k) * 0.55; put(g, st.fx.puffs[i % 3], 0); g.restore();
+    }
+    // a person, stepping down and walking out, light on their feet
+    if (t > land + 0.5) {
+      const pa = clamp(spring(t - land - 0.5, 9, 0.45), 0, 1.3), walking = t > land + 0.9 && t < land + 3.1, hop = walking ? Math.abs(Math.sin((t - land - 0.9) * Math.PI * 1.6)) * 7 : 0;
+      g.save(); g.translate(ax, ys(ax) + 6 - hop); g.rotate(walking ? 0.08 : 0); g.scale(1.9, 1.9 * pa); put(g, st.fx.astro, 0.4, 2, 3); g.restore();
+    }
+    const pf = clamp(spring(t - (land + 3.2), 9, 0.45), 0, 1.3);
+    if (pf > 0) { g.save(); g.translate(158, ys(158) + 5); g.scale(2.1, 2.1 * pf); put(g, st.fx.flag, 0.4, 2, 3); g.restore(); }
+    g.restore();
   }
 
   // printed pages and pamphlets, leaving like a flock
@@ -810,11 +959,65 @@ function birds(g, st, t) {
   }
 }
 
+// a river of light across the sky: a soft band, a darker dust lane, and thousands of faint stars
+let MW = null;
+function milkyWay(g, st, t, k, v) {
+  const { W, H } = st, u = st.eu, D = Math.hypot(W, H);
+  if (!MW) { const r = rng(777); MW = []; for (let i = 0; i < 1400; i++) { const s = r(), w = (r() + r() + r() + r() - 2) * 0.5; MW.push([s, w, 0.3 + r() * r() * 1.4, r() * 50, r()]); } }
+  const ang = (v ? -0.42 : -0.3) + Math.sin(t * 0.01) * 0.02, cx = W * (v ? 0.46 : 0.58), cy = st.hy - H * (v ? 0.36 : 0.42), wid = H * (v ? 0.11 : 0.09);
+  g.save(); g.translate(cx, cy); g.rotate(ang);
+  g.globalCompositeOperation = 'screen';
+  for (const [sc, al, col] of [[1, 0.13, '170,180,235'], [0.45, 0.12, '215,205,235'], [0.18, 0.1, '240,230,240']]) {
+    g.save(); g.scale(1, (wid / (D * 0.5)) * sc * 2.4);
+    const gr = g.createRadialGradient(0, 0, 0, 0, 0, D * 0.5); gr.addColorStop(0, `rgba(${col},${al * k})`); gr.addColorStop(0.55, `rgba(${col},${al * k * 0.5})`); gr.addColorStop(1, `rgba(${col},0)`);
+    g.fillStyle = gr; g.fillRect(-D * 0.5, -D * 0.5, D, D); g.restore();
+  }
+  // brighter star clouds along it
+  for (let i = 0; i < 7; i++) {
+    const x = (hash(i * 13 + 5) - 0.5) * D * 0.9, y = (hash(i * 7 + 1) - 0.5) * wid * 0.8, rx = D * (0.04 + hash(i * 3) * 0.05);
+    g.save(); g.translate(x, y); g.scale(1, 0.45);
+    const cg = g.createRadialGradient(0, 0, 0, 0, 0, rx); cg.addColorStop(0, `rgba(225,225,245,${0.09 * k})`); cg.addColorStop(1, 'rgba(225,225,245,0)');
+    g.fillStyle = cg; g.fillRect(-rx, -rx, rx * 2, rx * 2); g.restore();
+  }
+  // the dark lane of dust along its middle
+  g.globalCompositeOperation = 'multiply';
+  g.save(); g.translate(D * 0.05, wid * 0.12); g.scale(1, (wid / (D * 0.5)) * 0.35);
+  const dg = g.createRadialGradient(0, 0, 0, 0, 0, D * 0.4); dg.addColorStop(0, `rgba(120,120,150,${0.5 * k})`); dg.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = dg; g.fillRect(-D * 0.4, -D * 0.4, D * 0.8, D * 0.8); g.restore();
+  g.globalCompositeOperation = 'lighter';
+  for (const [s, w, sz, ph, c] of MW) {
+    const x = (s - 0.5) * D * 1.1, y = w * wid * 1.2 * (1 + Math.abs(s - 0.5)), tw = 0.6 + 0.4 * Math.sin(t * (0.6 + c) + ph);
+    const al = k * tw * (0.25 + 0.5 * (1 - Math.abs(w))) * (sz > 1 ? 1 : 0.6); if (al < 0.03) continue;
+    g.fillStyle = c > 0.85 ? `rgba(255,228,200,${al})` : `rgba(220,230,255,${al})`;
+    const rr = Math.max(0.7, sz * 0.85 * st.dpr); g.fillRect(x - rr / 2, y - rr / 2, rr, rr);
+  }
+  g.restore(); g.globalCompositeOperation = 'source-over';
+}
+
 // a guide star over the Pacific
 function guideStar(g, st, t) {
   if (t < 191 || t > 208) return;
   const k = sramp(t, 193, 196) * (1 - sramp(t, 205, 208)), x = st.W * 0.78, y = st.hy - st.H * 0.3, u = st.eu, tw = 0.8 + 0.2 * Math.sin(t * 2.3);
   g.globalCompositeOperation = 'lighter';
+  // a star path: the stars that rise, one after another, over the island ahead
+  const [ix, iy] = st.place('far', 522.3, 26, t), pk = sramp(t, 197.0, 199.4) * (1 - sramp(t, 205, 208));
+  if (pk > 0) {
+    const mx = (x + ix) / 2 + st.W * 0.04, my = (y + iy) / 2, P = (f) => [(1 - f) * (1 - f) * x + 2 * (1 - f) * f * mx + f * f * ix, (1 - f) * (1 - f) * y + 2 * (1 - f) * f * my + f * f * iy];
+    g.strokeStyle = `rgba(225,236,255,${0.5 * pk})`; g.lineWidth = Math.max(1.2, 1.3 * u); g.setLineDash([2.5 * u, 6 * u]);
+    g.beginPath(); for (let f = 0; f <= pk + 0.001; f += 0.02) { const [px, py] = P(Math.min(f, pk)); f === 0 ? g.moveTo(px, py) : g.lineTo(px, py); } g.stroke(); g.setLineDash([]);
+    for (let i = 1; i <= 4; i++) {
+      const f = i / 5, sk = sramp(t, 197.4 + i * 0.45, 197.8 + i * 0.45) * (1 - sramp(t, 205, 208)); if (sk <= 0) continue;
+      const [px, py] = P(f), r = (11 + (i % 2) * 4) * u, tt = 0.75 + 0.25 * Math.sin(t * 3 + i * 2);
+      const gr = g.createRadialGradient(px, py, 0, px, py, r); gr.addColorStop(0, `rgba(235,242,255,${0.9 * sk * tt})`); gr.addColorStop(0.3, `rgba(200,220,255,${0.3 * sk})`); gr.addColorStop(1, 'rgba(180,200,255,0)');
+      g.fillStyle = gr; g.fillRect(px - r, py - r, r * 2, r * 2);
+    }
+  }
+  // one falling star
+  if (t > 195.9 && t < 197.1) {
+    const f = (t - 195.9) / 1.2, sx = st.W * lerp(0.2, 0.42, f), sy = st.H * lerp(0.08, 0.2, f), al = Math.sin(f * Math.PI);
+    const gr = g.createLinearGradient(sx, sy, sx - st.W * 0.07, sy - st.H * 0.035); gr.addColorStop(0, `rgba(240,246,255,${0.9 * al})`); gr.addColorStop(1, 'rgba(200,220,255,0)');
+    g.strokeStyle = gr; g.lineWidth = 1.6 * u; g.lineCap = 'round'; g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx - st.W * 0.07, sy - st.H * 0.035); g.stroke();
+  }
   const gr = g.createRadialGradient(x, y, 0, x, y, 60 * u); gr.addColorStop(0, `rgba(230,240,255,${0.9 * k * tw})`); gr.addColorStop(0.08, `rgba(200,220,255,${0.4 * k})`); gr.addColorStop(1, 'rgba(160,190,255,0)');
   g.fillStyle = gr; g.fillRect(x - 60 * u, y - 60 * u, 120 * u, 120 * u);
   g.fillStyle = `rgba(230,240,255,${0.5 * k * tw})`; g.fillRect(x - 26 * u, y - 0.6 * u, 52 * u, 1.2 * u); g.fillRect(x - 0.6 * u, y - 26 * u, 1.2 * u, 52 * u);
@@ -835,4 +1038,4 @@ function bake(mk, mkSoft, stage) {
   return bakeFx(mk, mkSoft, mkBig);
 }
 
-export const film = { duration: DURATION, cam, state, entities: E, byLayer, profile, ground, clouds, bake, shadowDx, body: [84, 62, 44], fx: { sky, ground: groundFx, over: overFx } };
+export const film = { duration: DURATION, cam, state, entities: E, byLayer, profile, ground, clouds, bake, shadowDx, body: [110, 80, 52], fx: { sky, ground: groundFx, over: overFx } };
