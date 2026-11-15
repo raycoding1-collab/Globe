@@ -30,9 +30,10 @@ web server; run the audio tools with the venv's Python.
 - Each sentence is cached in `.cache/voice/`, so only changed lines are re-synthesized.
 - The script reports sentence start times and overlaps: fix overlaps by moving line times in
   `film.json`, not by speeding the voice.
-- Respellings: add the story's numbers and hard names to the `spoken = text.replace(...)` line
-  ("1492" -> "fourteen ninety-two", "Uruk" -> "Oorook"). Listen-free check: Kokoro's tokenizer
-  shows the phonemes it will say.
+- Respellings: add the story's numbers and hard names to the `SAY` list of regex pairs
+  ("1492" -> "fourteen ninety-two", "Uruk" -> "Oorook", "Zheng He" -> "Jerng Huh", "Qin" ->
+  "Chin", "Hefei" -> "Huh-fay"). For a non-English culture, respell every name close to its
+  native pronunciation. Listen-free check: Kokoro's tokenizer shows the phonemes it will say.
 - It writes `src/timeline.js` (events, chapters and caption cues). Run it after every script
   change, then rebuild the audio.
 
@@ -55,8 +56,26 @@ instruments (`flute`, `hum`, `choir`, `drum`, `timpani`, `pluck`, `harpsi`, `oud
   first electric light, a note for each house the spark reaches). Hard moments get no melody,
   only weight (timpani, low strings). Hush the rhythm under sad lines and bring a warm chord back
   for hope.
-- `ambience(dur, EV)`: curves over time for wind, night insects, sea, fire crackle, crowd murmur,
+- `ambience(dur, EV)`: curves over time for wind, sea, water, fire crackle, crowd murmur,
   machines, plus one-off effects (paper flutters for props, a soft thud when something lands).
+  Every set piece needs its own sound: drone swarms rising, lamps clicking off one by one, a map
+  card dropping, confetti, a loudspeaker's muffled broadcast, a launch cloud rolling out.
+- **Normalize every effect generator** (`nm(x) = x / max|x|`) and then scale it: summed partials
+  and noise can peak at 2–3x, and a few loud clanks or booms make the limiter squash the whole
+  mix. After the build, the limiter's maximum reduction should be well under 1 dB.
+
+### The story's own instruments
+
+For a story from a particular culture, build its instruments and let them carry the theme; it
+changes the whole feeling. The Long Thread's `build_audio.py` has, besides the first film's set:
+`gz` (guzheng: a bright pluck, pressed bends and vibrato), `pipa` and `pipa_trem`, `qin` (guqin:
+low, woody, finger slides), `gong` (blooming tam-tam), `bz` (bianzhong bronze bells, two tones a
+minor third apart), `tanggu`, `paigu`, `muyu` (drums and woodblock), `sheng` (mouth organ chords),
+`pad` and `pulse` (for the modern era), and `line(notes, beat, oct, kind)`: a legato line on one
+bow or breath where each note glides into the next, with vibrato that grows on held notes, for
+`erhu`, `dizi`, `xiao` and an ancient `bone` flute. Use the pentatonic scale of the culture
+(there, D gong mode: D E F# A B). `phrase()` lets plucked notes ring past their written length
+(`RING`). Let the first instrument heard return at the end.
 
 ## 4. Mix targets
 
@@ -64,7 +83,9 @@ The build prints levels per 12-second window and overall. Aim for:
 - voice about −21 dB RMS while speaking; music about −27; ambience about −33 overall;
 - no ambience window louder than about 4 dB under the voice in that window (war rumble, trains
   and rockets went over this in the first film and had to come down);
-- final loudness about −19 dBFS RMS, peaks below −1 dB, 128 kbps MP3.
+- final loudness about −19 dBFS RMS, peaks below −1 dB, 128 kbps MP3;
+- the stems are written as 32-bit float (`subtype='FLOAT'`), so peaks above 1.0 are visible when
+  measuring them.
 
 Measure the separate stems in `.cache/_voice.wav`, `.cache/_music.wav` and `.cache/_amb.wav`
 when something sounds too loud on paper.

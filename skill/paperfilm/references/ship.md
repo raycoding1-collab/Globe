@@ -14,7 +14,8 @@ engine on iPhone, a Chrome WebView on Android, both with stricter rules than a n
 - **Captions sit above the controls** even in the app's short window; titles stay on one line on
   narrow phones; the volume slider is hidden where phones ignore page volume (iPhones).
 - **Seeking works on any host**: if a host cannot serve part of the audio file, the whole file is
-  fetched once and played from memory.
+  fetched once and played from memory; and if it will not stream the file at all, Begin fetches
+  it whole and plays from memory (asking for one more tap if the first was used up).
 - **Memory and start-up**: lazy sprite building and freeing scratch canvases (see `engine.md`).
 - **Never lower quality** on slow devices (the user's rule).
 - `viewport-fit=cover`, no text inflation on rotation, no double-tap zoom.
@@ -27,7 +28,12 @@ Run `node tools/inapp.mjs 8766` and `node tools/memory.mjs 8766` before every pu
   by `tools/publish_pages.sh` (a worktree in `.cache/site`). Update the URL in the script's
   comment and the list of files it copies if the new film adds assets.
 - GitHub usually turns Pages on by itself for a `gh-pages` branch; if it does not, the user
-  turns it on in the repository's Settings, Pages.
+  turns it on in the repository's Settings, Pages. On a new repository the script creates the
+  `gh-pages` branch itself (an orphan branch with only the site files). Publishing pushes to
+  `gh-pages`, so it needs the user's go-ahead the first time; "the same method as before" means
+  GitHub Pages plus a TinyURL short link.
+- The session's network may refuse `*.github.io`, so you may not be able to open the live page:
+  check the "pages build and deployment" run instead, and say you could not load the page.
 - After publishing, confirm the "pages build and deployment" workflow run for the new commit
   finished with success, and that the published branch matches:
   `git fetch -q origin gh-pages && git diff --quiet HEAD origin/gh-pages -- index.html src && echo same`.
@@ -56,7 +62,8 @@ curl -sI https://tinyurl.com/<film-name> | grep -i location   # check it points 
 ```
 
 It answers `Error` when the alias is taken; try a hyphenated variant. The environment's network
-rules must allow `tinyurl.com` (propose adding it if refused).
+rules must allow `tinyurl.com`. If it is refused, propose a personal environment for the film's
+repository that allows `tinyurl.com` (the user approves it on a card), then retry.
 
 ## 5. Finishing
 

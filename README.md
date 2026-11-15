@@ -56,4 +56,6 @@ review and phone checks, and the lessons learned) is packaged as a Claude skill 
 in any new project say "paperfilm" with a story, for example: *paperfilm: the history of flight*.
 
 - `skill/paperfilm/`: the skill's guides (`SKILL.md` and `references/`).
-- `sh tools/make_skill.sh`: rebuilds `skill/paperfilm.skill`, bundling this project's code as the template.
+- `TEMPLATE=/path/to/film sh tools/make_skill.sh`: rebuilds `skill/paperfilm.skill`, bundling a film's code as the
+  template. The current skill bundles the second film, "The Long Thread" (repo `raycoding1-collab/China-`,
+  https://tinyurl.com/the-long-thread), whose engine and libraries extend this one; its lessons are in the guides.

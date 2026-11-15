@@ -17,11 +17,44 @@ After every chapter, and again for the whole film:
 3. **Write down every flaw** you see, fix them, re-render, and check the fix at all three sizes.
 4. When a fix is good, run the automated checks (section 3), commit, publish.
 
-Captions in contact sheets can lag (they come from the page, not the frame). Trust
-`tools/playtest.mjs` for captions.
+Captions and the end title in contact sheets can lag (they fade in the page, not the frame).
+Trust `tools/playtest.mjs` and `tools/endtest.mjs` for those.
+
+## 1b. The full sweep (before calling anything finished)
+
+Chapter reviews look at chosen beats; the clumsy moments live between them. The second film's
+sweep found about fifteen flaws its chapter reviews had missed (a train floating over a city, a
+figure standing on a tank, a rider galloping through a later chapter, a monk walking into a
+cliff, a cloud showing through a close-up card).
+
+1. **Every 3 seconds of the whole film**, 16 frames per sheet at 1440x810, 4 columns:
+   ```sh
+   # t from 1.5 to the end in steps of 3; 16 per sheet
+   node tools/sheet.mjs sw_0 "1.5,4.5,7.5,...,46.5" 1440x810 4
+   ```
+   Look at every frame for the checklist in section 2, not only for beauty.
+2. **Close-ups** of anything suspicious before deciding (many suspects are fine: a camel walking
+   in front of a pagoda is layering, not a flaw).
+3. **Motion strips**: for everything that moves (trains, walkers, riders, robots, rockets,
+   things leaving), render 8 frames 0.1 s apart and check for jumps, pops and things vanishing.
+4. **Code checks**: grep for unbounded movers (`move: (t) => (t -`, `Math.max(0, t`) and give each
+   a limit and an exit; list entities without `foldAt`/`to` that are still on screen in the next
+   chapter.
+5. Fix everything, re-render the fixed moments at desktop and phone size, then run the
+   automated checks again.
+
+## 1c. The light script check
+
+Render one frame per era in a single sheet. If two different eras share the same sky, light
+and air, give one of them its own look (`ERAS`) and weather (`WX`). Then render the crossfade
+moments between eras and check nothing flashes or turns muddy.
 
 ## 2. What to look for
 
+- **Movement that never ends**: anything still moving or still standing in the next chapter.
+- **Long things**: trains, convoys, walls: do they enter, leave and stay on their supports?
+- **Staging of people**: walkers stop short of objects; groups are spaced; nobody stands on or in
+  a vehicle, furnace, cliff or wall by accident; famous images are staged as they happened.
 - **Contact with the ground**: anything floating (ends of long rigid shapes on the curve), hulls
   hidden in waves, feet under the ground, things standing on air (give a sitting figure a seat).
 - **Layering**: people or lights showing through objects; props hidden behind clouds, spires or
@@ -35,6 +68,9 @@ Captions in contact sheets can lag (they come from the page, not the frame). Tru
 - **Craft**: hand-cut edges, shadows, softness of distant layers; no hard seams or wedges in the
   ground paint; stars fading as day comes.
 - **The ending**: the last image is beautiful at every size.
+- **The first screen**: the title card over the opening scene is the first thing a friend sees
+  from a DM link; screenshot it on a phone and on desktop.
+- **Cards**: hanging infographic cards readable in portrait; their numbers right.
 
 ## 3. Automated checks
 
@@ -47,7 +83,7 @@ Start both servers first (`python3 -m http.server 8765 &` and
 | `node tools/playtest.mjs 8766` | Begin starts sound; chapter jumps land at the right time with the right caption; pause holds and play resumes. |
 | `node tools/endtest.mjs 8766` | Plays the last chapter to the end: end title, controls return, Play replays. |
 | `node tools/inapp.mjs 8766` | Instagram's in-app browser on iPhone, Android, sideways and small iPhone: sound on the first tap, controls, captions clear of the controls, pause when leaving, Play on return. |
-| `node tools/memory.mjs 8766` | Canvas memory at start, when everything is built, and at its peak, counted the way iPhones count it. |
+| `node tools/memory.mjs 8766` | Canvas memory counted the way iPhones count it: at start, at the peak while the whole film plays through (cut ahead, freed behind), and after a rotation rebuild. |
 | `node tools/starttrace.mjs 8766 4` | Start-up on a 4x slower phone over slow 4G: when the code is ready and when the first frame draws. |
 
 This machine has no graphics chip, so frame times here are much slower than on a real device
